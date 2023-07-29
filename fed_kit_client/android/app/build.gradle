@@ -70,5 +70,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Local dependencies.
-    implementation project(':fedcampus')
+    implementation project(':fed_kit')
 }
