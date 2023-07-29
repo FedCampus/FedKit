@@ -1,6 +1,6 @@
-package org.eu.fedcampus.train.helpers
+package org.eu.fedcampus.fed_kit.helpers
 
-import org.eu.fedcampus.train.Sample
+import org.eu.fedcampus.fed_kit.Sample
 import kotlin.math.ln
 
 fun <X> negativeLogLikelihoodLoss(

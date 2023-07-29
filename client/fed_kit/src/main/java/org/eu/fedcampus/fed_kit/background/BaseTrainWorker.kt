@@ -1,4 +1,4 @@
-package org.eu.fedcampus.train.background
+package org.eu.fedcampus.fed_kit.background
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -16,10 +16,10 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.eu.fedcampus.train.FlowerClient
-import org.eu.fedcampus.train.SampleSpec
-import org.eu.fedcampus.train.Train
-import org.eu.fedcampus.train.helpers.loadMappedFile
+import org.eu.fedcampus.fed_kit.FlowerClient
+import org.eu.fedcampus.fed_kit.SampleSpec
+import org.eu.fedcampus.fed_kit.Train
+import org.eu.fedcampus.fed_kit.helpers.loadMappedFile
 import java.util.concurrent.TimeUnit
 
 /**

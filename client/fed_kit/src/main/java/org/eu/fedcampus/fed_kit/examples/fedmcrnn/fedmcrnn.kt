@@ -1,8 +1,8 @@
-package org.eu.fedcampus.train.examples.fedmcrnn
+package org.eu.fedcampus.fed_kit.examples.fedmcrnn
 
-import org.eu.fedcampus.train.SampleSpec
-import org.eu.fedcampus.train.helpers.maxSquaredErrorLoss
-import org.eu.fedcampus.train.helpers.placeholderAccuracy
+import org.eu.fedcampus.fed_kit.SampleSpec
+import org.eu.fedcampus.fed_kit.helpers.maxSquaredErrorLoss
+import org.eu.fedcampus.fed_kit.helpers.placeholderAccuracy
 
 fun sampleSpec() = SampleSpec<Float2DArray, FloatArray>(
     { it.toTypedArray() },

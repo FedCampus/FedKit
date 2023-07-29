@@ -1,4 +1,4 @@
-package org.eu.fedcampus.train
+package org.eu.fedcampus.fed_kit
 
 import android.util.Log
 import com.google.protobuf.ByteString
@@ -17,8 +17,8 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.eu.fedcampus.train.db.TFLiteModel
-import org.eu.fedcampus.train.helpers.assertIntsEqual
+import org.eu.fedcampus.fed_kit.db.TFLiteModel
+import org.eu.fedcampus.fed_kit.helpers.assertIntsEqual
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 

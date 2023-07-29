@@ -12,11 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.WorkManager
 import org.eu.fedcampus.benchmark.databinding.ActivityBenchmarkBinding
-import org.eu.fedcampus.train.background.BaseTrainWorker
-import org.eu.fedcampus.train.background.fastTrainWorkRequest
-import org.eu.fedcampus.train.background.trainWorkerData
-import org.eu.fedcampus.train.examples.cifar10.Float3DArray
-import org.eu.fedcampus.train.helpers.deviceId
+import org.eu.fedcampus.fed_kit.background.BaseTrainWorker
+import org.eu.fedcampus.fed_kit.background.fastTrainWorkRequest
+import org.eu.fedcampus.fed_kit.background.trainWorkerData
+import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
+import org.eu.fedcampus.fed_kit.helpers.deviceId
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

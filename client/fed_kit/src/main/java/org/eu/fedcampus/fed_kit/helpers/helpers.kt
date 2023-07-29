@@ -1,4 +1,4 @@
-package org.eu.fedcampus.train.helpers
+package org.eu.fedcampus.fed_kit.helpers
 
 import android.annotation.SuppressLint
 import android.content.Context

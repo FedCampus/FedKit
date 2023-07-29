@@ -52,9 +52,9 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation project(path: ':fed_kit')
 
     // Local dependencies.
-    implementation project(path: ':FedCampus')
 
     implementation 'com.google.android.material:material:1.9.0'
 }

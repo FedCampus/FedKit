@@ -1,10 +1,10 @@
-package org.eu.fedcampus.train
+package org.eu.fedcampus.fed_kit
 
 import android.content.Context
 import android.util.Log
 import io.grpc.ManagedChannel
 import kotlinx.coroutines.*
-import org.eu.fedcampus.train.db.TFLiteModel
+import org.eu.fedcampus.fed_kit.db.TFLiteModel
 import retrofit2.http.*
 import java.io.File
 import java.nio.MappedByteBuffer
