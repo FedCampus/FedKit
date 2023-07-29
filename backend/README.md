@@ -70,7 +70,7 @@ This project can be deployed using Docker, which ensures that it will run the sa
 The Docker image for this project is hosted and actively updated on Docker Hub via the CI/CD pipeline. To pull the image to your local machine, run the following command:
 
 ```sh
-docker pull fedcampus/dyn_flower_android_drf:latest
+docker pull fedcampus/fedkit-backend:latest
 ```
 
 ### Prepare the model
@@ -88,7 +88,7 @@ docker run --name name-of-your-choice \
 -p 8000:8000 \
 -p 8080:8080 \
 -v /path/to/static:/app/static \
-fedcampus/dyn_flower_android_drf:latest
+fedcampus/fedkit-backend:latest
 ```
 
 This command maps port 8000 (the value on the right) inside the Docker container to port 8000 (the value on the left) on your host machine, and does the same for port 8080.
