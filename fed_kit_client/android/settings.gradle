@@ -10,5 +10,5 @@ def flutterSdkPath = properties.getProperty("flutter.sdk")
 assert flutterSdkPath != null, "flutter.sdk not set in local.properties"
 apply from: "$flutterSdkPath/packages/flutter_tools/gradle/app_plugin_loader.gradle"
 
-include ':fedcampus'
-project(':fedcampus').projectDir = new File('../../client/fedcampus/')
+include ':fed_kit'
+project(':fed_kit').projectDir = new File('../../android/fed_kit/')
