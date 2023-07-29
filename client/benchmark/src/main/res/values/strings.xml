@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">FedKit Benchmark</string>
+    <string name="tv_hello_txt">Logs will be shown below.\n</string>
+</resources>

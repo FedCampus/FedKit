@@ -1,0 +1,16 @@
+**__pycache__/
+**.DS_Store
+**.csv
+**.ico
+**.jar
+**.jpg
+**.lock
+**.png
+**.sqlite3*
+**.settings/
+**.tflite
+**.webp
+**build/
+**gradlew
+**gradlew.bat
+saved_model/

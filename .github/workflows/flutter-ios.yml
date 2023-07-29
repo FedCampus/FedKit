@@ -1,0 +1,32 @@
+on:
+  push:
+    paths:
+      - '.github/workflows/flutter-ios.yml'
+      - '**.dart'
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+      - name: Cache Flutter iOS
+        id: cache-flutter-ios
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache/
+            fed_kit_client/build/
+            fed_kit_client/.dart_tool/
+          key: ${{ runner.os }}-flutter-ios
+      - name: Install dependencies
+        run: |
+          cd fed_kit_client/
+          flutter pub get
+      - name: Test
+        run: |
+          cd fed_kit_client/
+          flutter test
+      - name: Build
+        run: |
+          cd fed_kit_client/
+          flutter build ios --no-codesign

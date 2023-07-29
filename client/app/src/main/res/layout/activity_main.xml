@@ -1,0 +1,74 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:ignore="Autofill,ButtonStyle"
+        tools:context="org.eu.fedcampus.android_client.MainActivity">
+
+    <EditText
+            android:id="@+id/clientPartitionIdEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Client Partition ID (1-10)"
+            android:inputType="number" />
+
+    <EditText
+            android:id="@+id/flServerIpEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Backend Server Host"
+            android:inputType="text" />
+
+    <EditText
+            android:id="@+id/flServerPortEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Backend Server Port"
+            android:inputType="number" />
+
+    <CheckBox
+            android:id="@+id/startFreshCheckBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Fresh" />
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+        <Button
+                android:id="@+id/connectButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="true"
+                android:text="Connect" />
+
+        <Button
+                android:id="@+id/trainButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="Train" />
+
+    </LinearLayout>
+
+
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="12dp">
+
+        <TextView
+                android:id="@+id/logsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logs will be shown here." />
+    </ScrollView>
+
+</LinearLayout>
