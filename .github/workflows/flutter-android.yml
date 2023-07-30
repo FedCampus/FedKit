@@ -11,7 +11,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-          cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:${{ github.run_id }}
+          cache-key: flutter-:os:-:channel:-:version:-:arch:-:hash:-${{ github.run_id }}
       - name: Install dependencies
         run: |
           cd fed_kit_client/
