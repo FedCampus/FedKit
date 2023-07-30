@@ -1,0 +1,11 @@
+name: 'Clone FedKit'
+inputs:
+  clone-destination:
+    description: 'Where to clone FedKit to'
+    required: true
+    default: '../FedKit/'
+outputs:
+runs:
+  using: "composite"
+  steps:
+    - run: git clone https://github.com/FedCampus/FedKit.git ${{ inputs.clone-destination }}
