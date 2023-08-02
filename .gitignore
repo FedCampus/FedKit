@@ -1,18 +1,69 @@
-**__pycache__/
-**.DS_Store
+# Specific
 **.csv
-**.ico
 **.idea/
 **.jar
-**.jpg
 **.lock
-**.png
 **.settings/
-**.sqlite3*
 **.tflite
-**.webp
-**build/
-**desktop.ini
 **gradlew
 **gradlew.bat
 saved_model/
+
+# Artifacts
+**__pycache__/
+**.ipynb_checkpoints/
+**build/
+
+# Auxiliary files
+**.bak
+**.tmp
+
+# Databases
+**.db*
+**.sqlite*
+
+# Documents
+**.doc*
+**.ppt*
+**.vsd*
+**.xls*
+
+# File managers
+**.DS_Store
+**.Trash*
+**.directory
+**esktop.ini
+
+# Images
+**.3dm
+**.apng
+**.bmp
+**.dib
+**.gif
+**.hdp
+**.ico
+**.j2k
+**.jfi
+**.jfif
+**.jif
+**.jp2
+**.jpe
+**.jpeg
+**.jpf
+**.jpg
+**.jpm
+**.jpx
+**.jxr
+**.max
+**.mj2
+**.mng
+**.pdf
+**.png
+**.raw
+**.svg
+**.svgz
+**.tif
+**.tiff
+**.wdp
+**.webp
+**.xbm
