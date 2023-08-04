@@ -37,6 +37,12 @@ We support TensorFlow (Keras) models.
 
 The ML model generation script for Android is located at `gen_tflite/`. Please see `gen_tflite/README.md` for information on how to create models and convert them to `.tflite` files.
 
+## Training procedure
+
+1. Client asks backend what which model to use based on its `data_type`.
+1. Client downloads that model if it does not have it.
+1. Client asks backend for a Flower server to train with that model.
+
 ## Development
 
 ### Development on Python code
