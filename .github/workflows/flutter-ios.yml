@@ -2,7 +2,9 @@ on:
   push:
     paths:
       - '.github/workflows/flutter-ios.yml'
-      - '**.dart'
+      - '**.plist'
+      - '**.swift'
+      - '**.xcconfig'
 jobs:
   build:
     runs-on: macos-latest
@@ -15,10 +17,6 @@ jobs:
         run: |
           cd fed_kit_client/
           flutter pub get
-      - name: Test
-        run: |
-          cd fed_kit_client/
-          flutter test
       - name: Build
         run: |
           cd fed_kit_client/
