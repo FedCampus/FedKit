@@ -6,14 +6,14 @@ part 'backend_client.g.dart';
 
 final dio = Dio();
 
+/// All methods could fail.
 class BackendClient {
   final String url;
   BackendClient(this.url);
 
-  Future<TFLiteModel> advertisedModel(PostAdvertisedData body) async {
-    Response res = await dio.post('$url/advertised_model', data: body.toJson());
-    return TFLiteModel.fromJson(res.data);
-  }
+  Future<TFLiteModel> advertisedModel(PostAdvertisedData body) async => dio
+      .post('$url/advertised_model', data: body.toJson())
+      .then((res) => TFLiteModel.fromJson(res.data));
 }
 
 @JsonSerializable()

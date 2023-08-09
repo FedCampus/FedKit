@@ -2,6 +2,7 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'tflite_model.g.dart';
 
+// Always change together with Python `train.models.TFLiteModel`.
 @JsonSerializable()
 class TFLiteModel {
   final int id;
