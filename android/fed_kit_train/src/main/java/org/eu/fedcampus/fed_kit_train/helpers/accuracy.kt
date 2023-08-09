@@ -1,6 +1,6 @@
-package org.eu.fedcampus.fed_kit.helpers
+package org.eu.fedcampus.fed_kit_train.helpers
 
-import org.eu.fedcampus.fed_kit.Sample
+import org.eu.fedcampus.fed_kit_train.Sample
 
 /** Zero-one accuracy for one-hot classifier. */
 fun <X> classifierAccuracy(

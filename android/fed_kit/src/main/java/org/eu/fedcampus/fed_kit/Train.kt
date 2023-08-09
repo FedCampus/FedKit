@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.Log
 import io.grpc.ManagedChannel
 import kotlinx.coroutines.*
-import org.eu.fedcampus.fed_kit.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.FlowerClient
+import org.eu.fedcampus.fed_kit_train.SampleSpec
 import retrofit2.http.*
 import java.io.File
 import java.nio.MappedByteBuffer

@@ -1,7 +1,8 @@
 package org.eu.fedcampus.fed_kit
 
 import io.grpc.ManagedChannel
-import org.eu.fedcampus.fed_kit.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.FlowerClient
 
 sealed class TrainState<X : Any, Y : Any> {
     class Initialized<X : Any, Y : Any> : TrainState<X, Y>()

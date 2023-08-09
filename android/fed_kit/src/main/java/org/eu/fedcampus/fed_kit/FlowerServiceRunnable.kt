@@ -17,8 +17,9 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.eu.fedcampus.fed_kit.db.TFLiteModel
-import org.eu.fedcampus.fed_kit.helpers.assertIntsEqual
+import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.helpers.assertIntsEqual
+import org.eu.fedcampus.fed_kit_train.FlowerClient
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 

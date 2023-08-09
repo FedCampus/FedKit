@@ -1,7 +1,7 @@
 package org.eu.fedcampus.fed_kit
 
 import okhttp3.ResponseBody
-import org.eu.fedcampus.fed_kit.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
