@@ -16,13 +16,19 @@ jobs:
         run: |
           cd fed_kit_client/
           flutter pub get
+          cd ../flutter
+          flutter pub get
       - name: Test
         run: |
           cd fed_kit_client/
           flutter test
+          cd ../flutter
+          flutter test
       - name: Analysis
         run: |
           cd fed_kit_client/
+          flutter analyze
+          cd ../flutter
           flutter analyze
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .

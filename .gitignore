@@ -12,6 +12,7 @@ saved_model/
 # Artifacts
 **__pycache__/
 **.dart_tool/
+**.flutter*
 **.ipynb_checkpoints/
 **build/
 

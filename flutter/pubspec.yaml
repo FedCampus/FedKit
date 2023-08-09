@@ -8,8 +8,13 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
+  dio: ^5.3.2
   flutter:
     sdk: flutter
+  grpc: ^3.2.3
+  logging: ^1.2.0
+  path_provider: ^2.1.0
+  protobuf: ^3.0.0
 
 dev_dependencies:
   flutter_test:
