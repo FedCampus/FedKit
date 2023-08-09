@@ -1,8 +1,8 @@
-package org.eu.fedcampus.fed_kit
+package org.eu.fedcampus.fed_kit_train
 
 import android.util.Log
-import org.eu.fedcampus.fed_kit.db.TFLiteModel
-import org.eu.fedcampus.fed_kit.helpers.assertIntsEqual
+import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
+import org.eu.fedcampus.fed_kit_train.helpers.assertIntsEqual
 import org.tensorflow.lite.Interpreter
 import java.lang.Integer.min
 import java.nio.ByteBuffer

@@ -27,7 +27,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     namespace "org.eu.fedcampus.fed_kit_client"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -71,4 +71,5 @@ dependencies {
 
     // Local dependencies.
     implementation project(':fed_kit')
+    implementation project(':fed_kit_train')
 }

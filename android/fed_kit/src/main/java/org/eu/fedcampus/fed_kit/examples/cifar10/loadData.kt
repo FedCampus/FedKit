@@ -7,7 +7,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.eu.fedcampus.fed_kit.FlowerClient
+import org.eu.fedcampus.fed_kit_train.FlowerClient
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.concurrent.ExecutionException

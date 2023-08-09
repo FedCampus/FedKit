@@ -1,4 +1,4 @@
-package org.eu.fedcampus.fed_kit.db
+package org.eu.fedcampus.fed_kit_train.db
 
 import android.content.Context
 import java.io.File

@@ -16,10 +16,10 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.eu.fedcampus.fed_kit.FlowerClient
-import org.eu.fedcampus.fed_kit.SampleSpec
+import org.eu.fedcampus.fed_kit_train.FlowerClient
+import org.eu.fedcampus.fed_kit_train.SampleSpec
 import org.eu.fedcampus.fed_kit.Train
-import org.eu.fedcampus.fed_kit.helpers.loadMappedFile
+import org.eu.fedcampus.fed_kit_train.helpers.loadMappedFile
 import java.util.concurrent.TimeUnit
 
 /**

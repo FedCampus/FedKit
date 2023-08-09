@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 33
+    compileSdk 33
 
     defaultConfig {
         applicationId "org.eu.fedcampus.android_client"
@@ -21,16 +21,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-
-    viewBinding {
-        enabled = true
-    }
-
     dataBinding {
+        //noinspection DataBindingWithoutKapt
         enabled = true
     }
 
@@ -45,6 +44,7 @@ android {
 
 dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.core:core-ktx:1.10.1'
@@ -52,9 +52,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.5.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-    implementation project(path: ':fed_kit')
 
     // Local dependencies.
-
-    implementation 'com.google.android.material:material:1.9.0'
+    implementation project(path: ':fed_kit')
+    implementation project(path: ':fed_kit_train')
 }

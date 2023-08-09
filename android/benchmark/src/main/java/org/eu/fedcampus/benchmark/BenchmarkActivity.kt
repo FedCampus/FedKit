@@ -16,7 +16,7 @@ import org.eu.fedcampus.fed_kit.background.BaseTrainWorker
 import org.eu.fedcampus.fed_kit.background.fastTrainWorkRequest
 import org.eu.fedcampus.fed_kit.background.trainWorkerData
 import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
-import org.eu.fedcampus.fed_kit.helpers.deviceId
+import org.eu.fedcampus.fed_kit_train.helpers.deviceId
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -50,9 +50,7 @@ class BenchmarkActivity : AppCompatActivity() {
         val trainWork =
             fastTrainWorkRequest<BenchmarkCifar10Worker, Float3DArray, FloatArray>(inputData)
         workManager.enqueueUniquePeriodicWork(
-            BaseTrainWorker.TAG,
-            ExistingPeriodicWorkPolicy.REPLACE,
-            trainWork
+            BaseTrainWorker.TAG, ExistingPeriodicWorkPolicy.UPDATE, trainWork
         )
         appendLog("Submit training work request for $uri")
     }

@@ -1,8 +1,8 @@
 package org.eu.fedcampus.fed_kit.examples.cifar10
 
-import org.eu.fedcampus.fed_kit.SampleSpec
-import org.eu.fedcampus.fed_kit.helpers.classifierAccuracy
-import org.eu.fedcampus.fed_kit.helpers.negativeLogLikelihoodLoss
+import org.eu.fedcampus.fed_kit_train.SampleSpec
+import org.eu.fedcampus.fed_kit_train.helpers.classifierAccuracy
+import org.eu.fedcampus.fed_kit_train.helpers.negativeLogLikelihoodLoss
 
 fun sampleSpec() = SampleSpec<Float3DArray, FloatArray>(
     { it.toTypedArray() },
