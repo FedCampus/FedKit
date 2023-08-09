@@ -1,3 +1,4 @@
 include ':app'
 include ':fed_kit'
 include ':benchmark'
+include ':fed_kit_train'
