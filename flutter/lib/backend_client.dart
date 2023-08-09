@@ -17,13 +17,13 @@ class BackendClient {
     return TFLiteModel.fromJson(response.data);
   }
 
-  // FIXME: Lacking args. Use Dio.download.
-  Future<ResponseBody> downloadFile(String url) async {
-    Response<ResponseBody> response = await dio.get<ResponseBody>(
-      url,
-      options: Options(responseType: ResponseType.stream),
-    );
-    return response.data!;
+  Future<void> downloadFile(String urlPath, String destination) async {
+    Response response = await dio.download('$url/urlPath', destination);
+    int statusCode = response.statusCode!;
+    if (statusCode < 200 || statusCode >= 300) {
+      throw Exception(
+          'downloadFile $urlPath -> $destination failed: $response.');
+    }
   }
 
   Future<ServerData> postServer(TFLiteModel model, bool startFresh) async {
@@ -45,6 +45,7 @@ class BackendClient {
 @JsonSerializable()
 class PostAdvertisedData {
   final String data_type;
+
   PostAdvertisedData(this.data_type);
 
   factory PostAdvertisedData.fromJson(Map<String, dynamic> json) =>
@@ -73,6 +74,8 @@ class PostServerData {
 
   PostServerData(this.id, this.start_fresh);
 
+  factory PostServerData.fromJson(Map<String, dynamic> json) =>
+      _$PostServerDataFromJson(json);
   Map<String, dynamic> toJson() => _$PostServerDataToJson(this);
 }
 
