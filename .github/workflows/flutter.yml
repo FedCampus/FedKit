@@ -18,6 +18,7 @@ jobs:
           flutter pub get
           cd ../flutter
           flutter pub get
+          dart run build_runner build
       - name: Test
         run: |
           cd fed_kit_client/
