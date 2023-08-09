@@ -14,6 +14,7 @@ import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
 import org.eu.fedcampus.fed_kit.examples.cifar10.loadData
 import org.eu.fedcampus.fed_kit.examples.cifar10.sampleSpec
 import org.eu.fedcampus.fed_kit_train.FlowerClient
+import org.eu.fedcampus.fed_kit_train.helpers.deviceId
 import org.eu.fedcampus.fed_kit_train.helpers.loadMappedFile
 import java.util.Date
 import java.util.Locale
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity() {
     suspend fun connectInBackground(participationId: Int, backendUrl: Uri, host: Uri) {
         Log.i(TAG, "Backend URL: $backendUrl")
         train = Train(this, backendUrl.toString(), sampleSpec())
-        train.enableTelemetry(org.eu.fedcampus.fed_kit_train.helpers.deviceId(this))
+        train.enableTelemetry(deviceId(this))
         val modelFile = train.prepareModel(DATA_TYPE)
         val serverData = train.getServerInfo(binding.startFreshCheckBox.isChecked)
         if (serverData.port == null) {
