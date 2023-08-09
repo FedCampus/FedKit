@@ -71,4 +71,5 @@ dependencies {
 
     // Local dependencies.
     implementation project(':fed_kit')
+    implementation project(':fed_kit_train')
 }

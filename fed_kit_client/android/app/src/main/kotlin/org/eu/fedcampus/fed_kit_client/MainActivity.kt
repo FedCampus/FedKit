@@ -10,14 +10,14 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import org.eu.fedcampus.fed_kit.FlowerClient
 import org.eu.fedcampus.fed_kit.Train
 import org.eu.fedcampus.fed_kit.examples.cifar10.DATA_TYPE
 import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
 import org.eu.fedcampus.fed_kit.examples.cifar10.loadData
 import org.eu.fedcampus.fed_kit.examples.cifar10.sampleSpec
-import org.eu.fedcampus.fed_kit.helpers.deviceId
-import org.eu.fedcampus.fed_kit.helpers.loadMappedFile
+import org.eu.fedcampus.fed_kit_train.FlowerClient
+import org.eu.fedcampus.fed_kit_train.helpers.deviceId
+import org.eu.fedcampus.fed_kit_train.helpers.loadMappedFile
 
 class MainActivity : FlutterActivity() {
     val scope = MainScope()
