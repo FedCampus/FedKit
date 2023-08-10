@@ -1,7 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 import 'package:dio/dio.dart';
 import 'package:fed_kit/tflite_model.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+part 'backend_client.freezed.dart';
 part 'backend_client.g.dart';
 
 final dio = Dio();
@@ -9,7 +10,7 @@ final dio = Dio();
 /// All methods could fail.
 class BackendClient {
   final String url;
-  BackendClient(this.url);
+  const BackendClient(this.url);
 
   Future<TFLiteModel> advertisedModel(PostAdvertisedData body) async {
     Response response =
@@ -27,7 +28,7 @@ class BackendClient {
   }
 
   Future<ServerData> postServer(TFLiteModel model, bool startFresh) async {
-    PostServerData body = PostServerData(model.id, startFresh);
+    PostServerData body = PostServerData(id: model.id, start_fresh: startFresh);
     Response response =
         await dio.post('$url/train/server', data: body.toJson());
     return ServerData.fromJson(response.data);
@@ -42,73 +43,66 @@ class BackendClient {
   }
 }
 
-@JsonSerializable()
-class PostAdvertisedData {
-  final String data_type;
+// Add other imports if needed
 
-  PostAdvertisedData(this.data_type);
+@freezed
+class PostAdvertisedData with _$PostAdvertisedData {
+  const factory PostAdvertisedData({
+    required String data_type,
+  }) = _PostAdvertisedData;
 
   factory PostAdvertisedData.fromJson(Map<String, dynamic> json) =>
       _$PostAdvertisedDataFromJson(json);
-  Map<String, dynamic> toJson() => _$PostAdvertisedDataToJson(this);
 }
 
-// Always change together with Python `train.data.ServerData`.
-@JsonSerializable()
-class ServerData {
-  final String status;
-  final int? session_id;
-  final int? port;
-
-  ServerData(this.status, this.session_id, this.port);
+@freezed
+class ServerData with _$ServerData {
+  const factory ServerData({
+    required String status,
+    int? session_id,
+    int? port,
+  }) = _ServerData;
 
   factory ServerData.fromJson(Map<String, dynamic> json) =>
       _$ServerDataFromJson(json);
-  Map<String, dynamic> toJson() => _$ServerDataToJson(this);
 }
 
-@JsonSerializable()
-class PostServerData {
-  final int id;
-  final bool start_fresh;
-
-  PostServerData(this.id, this.start_fresh);
+@freezed
+class PostServerData with _$PostServerData {
+  const factory PostServerData({
+    required int id,
+    required bool start_fresh,
+  }) = _PostServerData;
 
   factory PostServerData.fromJson(Map<String, dynamic> json) =>
       _$PostServerDataFromJson(json);
-  Map<String, dynamic> toJson() => _$PostServerDataToJson(this);
 }
 
-// Always change together with Python `telemetry.models.FitInsTelemetryData`.
-@JsonSerializable()
-class FitInsTelemetryData {
-  final int device_id;
-  final int session_id;
-  final int start;
-  final int end;
-
-  FitInsTelemetryData(this.device_id, this.session_id, this.start, this.end);
+@freezed
+class FitInsTelemetryData with _$FitInsTelemetryData {
+  const factory FitInsTelemetryData({
+    required int device_id,
+    required int session_id,
+    required int start,
+    required int end,
+  }) = _FitInsTelemetryData;
 
   factory FitInsTelemetryData.fromJson(Map<String, dynamic> json) =>
       _$FitInsTelemetryDataFromJson(json);
-  Map<String, dynamic> toJson() => _$FitInsTelemetryDataToJson(this);
 }
 
-// Always change together with Python `telemetry.models.EvaluateInsTelemetryData`.
-@JsonSerializable()
-class EvaluateInsTelemetryData {
-  final int device_id;
-  final int session_id;
-  final int start;
-  final int end;
-  final double loss;
-  final double accuracy;
-  final int test_size;
-
-  EvaluateInsTelemetryData(this.device_id, this.session_id, this.start,
-      this.end, this.loss, this.accuracy, this.test_size);
+@freezed
+class EvaluateInsTelemetryData with _$EvaluateInsTelemetryData {
+  const factory EvaluateInsTelemetryData({
+    required int device_id,
+    required int session_id,
+    required int start,
+    required int end,
+    required double loss,
+    required double accuracy,
+    required int test_size,
+  }) = _EvaluateInsTelemetryData;
 
   factory EvaluateInsTelemetryData.fromJson(Map<String, dynamic> json) =>
       _$EvaluateInsTelemetryDataFromJson(json);
-  Map<String, dynamic> toJson() => _$EvaluateInsTelemetryDataToJson(this);
 }
