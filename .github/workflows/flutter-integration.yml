@@ -16,6 +16,7 @@ jobs:
       - run: |
           cd backend/
           sh integration_test_setup.sh
+      - uses: arduino/setup-protoc@v2
       - uses: subosito/flutter-action@v2
         with:
           cache: true
@@ -23,9 +24,15 @@ jobs:
           cd backend/
           python manage.py runserver &
           cd ../flutter
+          dart pub global activate protoc_plugin
+          export PATH="$PATH":"$HOME/.pub-cache/bin"
           flutter pub get
-          dart run build_runner build
+          sh gen_code.sh
       - name: Test
         run: |
           cd flutter/
           flutter test --run-skipped
+      - name: Analysis
+        run: |
+          cd flutter/
+          flutter analyze
