@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:path_provider/path_provider.dart';
 part 'tflite_model.freezed.dart';
 part 'tflite_model.g.dart';
 
@@ -15,4 +16,9 @@ class TFLiteModel with _$TFLiteModel {
 
   factory TFLiteModel.fromJson(Map<String, dynamic> json) =>
       _$TFLiteModelFromJson(json);
+
+  Future<String> getModelDir() async {
+    final base = await getApplicationDocumentsDirectory();
+    return '${base.path}/models/$name';
+  }
 }
