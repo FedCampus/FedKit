@@ -1,9 +1,19 @@
 import 'dart:typed_data';
 
 import 'package:fed_kit/ml_client.dart';
+import 'package:fed_kit/tflite_model.dart';
 
 class FakeMLClient extends MLClient {
-  List<Uint8List> _parameters = [];
+  List<Uint8List>? _parameters;
+
+  List<Uint8List> get parameters {
+    _parameters ??= model.layers_sizes.map((size) => Uint8List(size)).toList();
+    return _parameters!;
+  }
+
+  final TFLiteModel model;
+
+  FakeMLClient(this.model);
 
   @override
   Future<List<double>> evaluate() async => [0.1, 0.9];
@@ -18,7 +28,7 @@ class FakeMLClient extends MLClient {
       Function(List<double>)? onLoss}) async {}
 
   @override
-  Future<List<Uint8List>> getParameters() async => _parameters;
+  Future<List<Uint8List>> getParameters() async => parameters;
 
   @override
   Future<int> get trainingSize async => 10;

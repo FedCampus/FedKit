@@ -35,8 +35,10 @@ class FlowerService {
   run() {
     _streamSub = FlowerServiceClient(channel)
         .join(streamController.stream)
-        .listen(handleMessage,
-            onError: _logErr, onDone: close, cancelOnError: true);
+        .listen(_handleMessage, onError: (e, s) async {
+      _logErr(e, s);
+      await close();
+    }, onDone: close, cancelOnError: true);
   }
 
   Future<void> wait() async {
@@ -49,14 +51,6 @@ class FlowerService {
       return;
     }
     await completer.future;
-  }
-
-  void handleMessage(ServerMessage message) {
-    try {
-      _handleMessage(message);
-    } catch (err, stackTrace) {
-      _logErr(err, stackTrace);
-    }
   }
 
   Future<void> _handleMessage(ServerMessage message) async {
@@ -154,12 +148,11 @@ class FlowerService {
       return;
     }
     await _streamSub.cancel();
-    await streamController.close();
     await channel.shutdown();
     for (final job in jobs) {
       await job;
     }
-    logger.d('FlowerService: exit.');
+    _logDebug('exit');
     _done = true;
     for (final completer in _listeners) {
       completer.complete();

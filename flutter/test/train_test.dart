@@ -25,7 +25,8 @@ void main() {
   });
 
   test('walk through training', () async {
-    final modelFile = await train.prepareModel(dataType);
+    final (model, modelFile) = await train.prepareModel(dataType);
+    expect(model, expectedModel);
     expect(
         modelFile, '$kApplicationDocumentsPath/models/CIFAR10/cifar10.tflite');
     Directory(kApplicationDocumentsPath).deleteSync(recursive: true);
@@ -33,7 +34,8 @@ void main() {
     final serverInfo = await train.getServerInfo();
     expect(serverInfo.port, expectedPort);
 
-    await train.prepare(FakeMLClient(), exampleFlowerAddress, expectedPort);
+    await train.prepare(
+        FakeMLClient(model), exampleFlowerAddress, expectedPort);
 
     final flowerService = train.start((msg) => logger.d(msg));
     await flowerService.wait();

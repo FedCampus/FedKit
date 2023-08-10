@@ -31,16 +31,16 @@ class Train {
     _telemetry = false;
   }
 
-  Future<String> prepareModel(String dataType) => switch (_state) {
+  Future<(TFLiteModel, String)> prepareModel(String dataType) => switch (_state) {
         Initialized() || WithModel() => _prepareModel(dataType),
         _ => throw Exception('`prepareModel` called with $_state'),
       };
 
-  Future<String> _prepareModel(String dataType) async {
+  Future<(TFLiteModel, String)> _prepareModel(String dataType) async {
     final model = await _advertisedModel(dataType);
     final modelDir = await getModelDir(model);
     await downloadModelFile(modelDir);
-    return modelDir;
+    return (model, modelDir);
   }
 
   Future<TFLiteModel> advertisedModel(String dataType) async =>
