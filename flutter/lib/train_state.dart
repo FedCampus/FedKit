@@ -1,3 +1,4 @@
+import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/tflite_model.dart';
 
 sealed class TrainState {}
@@ -13,8 +14,9 @@ class WithModel extends TrainState {
 /// The platform side has a `FlowerClient` ready.
 class Prepared extends TrainState {
   final TFLiteModel model;
+  final MLClient mlClient;
 
-  Prepared(this.model);
+  Prepared(this.model, this.mlClient);
 }
 
 class Training extends TrainState {

@@ -2,13 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-// https://github.com/flutter/flutter/issues/77245#issuecomment-791149778
+/// Allow HTTP requests in tests.
+/// https://github.com/flutter/flutter/issues/77245#issuecomment-791149778
 class CustomBindings extends AutomatedTestWidgetsFlutterBinding {
   @override
   bool get overrideHttpClient => false;
 }
 
-// https://github.com/flutter/packages/blob/main/packages/path_provider/path_provider/test/path_provider_test.dart
 const String kTemporaryPath = 'temporaryPath';
 const String kApplicationSupportPath = 'applicationSupportPath';
 const String kDownloadsPath = 'downloadsPath';
@@ -17,6 +17,8 @@ const String kApplicationDocumentsPath = 'applicationDocumentsPath';
 const String kExternalCachePath = 'externalCachePath';
 const String kExternalStoragePath = 'externalStoragePath';
 
+/// For `path_provider`.
+/// https://github.com/flutter/packages/blob/main/packages/path_provider/path_provider/test/path_provider_test.dart
 class FakePathProviderPlatform extends Fake
     with MockPlatformInterfaceMixin
     implements PathProviderPlatform {

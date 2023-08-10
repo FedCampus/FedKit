@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:fed_kit/backend_client.dart';
 import 'package:fed_kit/log.dart';
+import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/tflite_model.dart';
 import 'package:fed_kit/train_state.dart';
 
@@ -12,6 +13,7 @@ class Train {
   int get deviceId => _deviceId;
   late BackendClient _client;
   TrainState _state = Initialized();
+  int? _sessionId;
 
   Train(String backendUrl) {
     _client = BackendClient(backendUrl);
@@ -67,4 +69,22 @@ class Train {
     await _client.downloadFile(fileUrl, modelDir);
     logger.d('Downloaded ${model.name}: $fileUrl -> $modelDir.');
   }
+
+  Future<ServerData> getServerInfo({bool startFresh = false}) =>
+      switch (_state) {
+        WithModel state => _getServerInfo(state.model, startFresh),
+        _ => throw Exception('`getServerInfo` called with $_state'),
+      };
+
+  Future<ServerData> _getServerInfo(TFLiteModel model, bool startFresh) async {
+    final serverData = await _client.postServer(model, startFresh);
+    _sessionId = serverData.session_id;
+    logger.d('Server info: $serverData.');
+    return serverData;
+  }
+
+  void mlClientReady(MLClient mlClient) => switch (_state) {
+        WithModel state => _state = Prepared(state.model, mlClient),
+        _ => throw Exception('`mlClientReady` called with $_state'),
+      };
 }
