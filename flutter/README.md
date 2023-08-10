@@ -4,8 +4,19 @@ WIP
 
 ## Development
 
-Generate JSON parsing code:
+### Set up for ProtoBuf
+
+[Install `protoc`](https://grpc.io/docs/protoc-installation/).
+
+Install `protoc` Dart plugin:
 
 ```sh
-dart run build_runner build
+dart pub global activate protoc_plugin
+export PATH="$PATH":"$HOME/.pub-cache/bin"
+```
+
+### Generate JSON parsing code and ProtoBuf code
+
+```sh
+sh gen_code.sh
 ```

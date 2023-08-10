@@ -5,6 +5,7 @@ import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/tflite_model.dart';
 import 'package:fed_kit/train_state.dart';
+import 'package:grpc/grpc.dart';
 
 class Train {
   bool _telemetry = false;
@@ -83,8 +84,70 @@ class Train {
     return serverData;
   }
 
-  void mlClientReady(MLClient mlClient) => switch (_state) {
-        WithModel state => _state = Prepared(state.model, mlClient),
+  /// After ML client is ready.
+  Future<void> prepare(MLClient mlClient, String address, int port,
+          {ChannelOptions channelOptions = defaultChannelOptions}) =>
+      switch (_state) {
+        WithModel state =>
+          _prepare(mlClient, state, address, port, channelOptions),
         _ => throw Exception('`mlClientReady` called with $_state'),
       };
+
+  Future<void> _prepare(MLClient mlClient, WithModel state, String address,
+      int port, ChannelOptions options) async {
+    if (!await mlClient.ready()) {
+      throw Exception('`mlClient` not ready');
+    }
+    final channel = ClientChannel(
+      address,
+      port: port,
+      options: options,
+    );
+
+    _state = Prepared(state.model, mlClient, channel);
+  }
+
+  start(Function(String) onInfo) => switch (_state) {
+        Prepared state => _start(onInfo, state.model, state.mlClient),
+        _ => throw Exception('`start` called with $_state'),
+      };
+
+  _start(Function(String) onInfo, TFLiteModel model, MLClient mlClient) async {
+    // TODO: implement.
+  }
+
+  Future<void> fitInsTelemetry(DateTime start, DateTime end) async {
+    checkTelemetryEnabled();
+    final body = FitInsTelemetryData(
+        device_id: deviceId,
+        session_id: _sessionId!,
+        start: start.millisecond,
+        end: end.microsecond);
+    await _client.fitInsTelemetry(body);
+    logger.d('Train telemetry: sent FitIns.');
+  }
+
+  Future<void> evaluateInsTelemetry(DateTime start, DateTime end, double loss,
+      double accuracy, int testSize) async {
+    checkTelemetryEnabled();
+    final body = EvaluateInsTelemetryData(
+        device_id: deviceId,
+        session_id: _sessionId!,
+        start: start.millisecond,
+        end: end.microsecond,
+        loss: loss,
+        accuracy: accuracy,
+        test_size: testSize);
+    await _client.evaluateInsTelemetry(body);
+    logger.d('Train telemetry: sent EvaluateIns.');
+  }
+
+  void checkTelemetryEnabled() {
+    if (!telemetry || _sessionId == null) {
+      throw Exception('Telemetry disabled');
+    }
+  }
 }
+
+const defaultChannelOptions =
+    ChannelOptions(credentials: ChannelCredentials.insecure());

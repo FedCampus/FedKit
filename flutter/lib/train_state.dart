@@ -1,5 +1,6 @@
 import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/tflite_model.dart';
+import 'package:grpc/grpc.dart';
 
 sealed class TrainState {}
 
@@ -15,8 +16,9 @@ class WithModel extends TrainState {
 class Prepared extends TrainState {
   final TFLiteModel model;
   final MLClient mlClient;
+  final ClientChannel channel;
 
-  Prepared(this.model, this.mlClient);
+  Prepared(this.model, this.mlClient, this.channel);
 }
 
 class Training extends TrainState {

@@ -9,6 +9,7 @@
 **.tflite
 **gradlew
 **gradlew.bat
+flutter/lib/transport.*.dart
 saved_model/
 
 # Artifacts

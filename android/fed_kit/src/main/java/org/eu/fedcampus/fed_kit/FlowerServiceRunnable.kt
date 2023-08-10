@@ -17,9 +17,9 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import org.eu.fedcampus.fed_kit_train.FlowerClient
 import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
 import org.eu.fedcampus.fed_kit_train.helpers.assertIntsEqual
-import org.eu.fedcampus.fed_kit_train.FlowerClient
 import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 
@@ -37,8 +37,6 @@ class FlowerServiceRunnable<X : Any, Y : Any> @Throws constructor(
     val callback: (String) -> Unit
 ) : AutoCloseable {
     private val scope = MainScope()
-    private val sampleSize: Int
-        get() = flowerClient.trainingSamples.size
     val finishLatch = CountDownLatch(1)
     val jobs = mutableListOf<Job>()
 
@@ -104,7 +102,7 @@ class FlowerServiceRunnable<X : Any, Y : Any> @Throws constructor(
             cleanUpJobs()
             jobs.add(job)
         }
-        return fitResAsProto(weightsByteBuffers(), sampleSize)
+        return fitResAsProto(weightsByteBuffers(), flowerClient.trainingSamples.size)
     }
 
     @Throws
@@ -118,14 +116,14 @@ class FlowerServiceRunnable<X : Any, Y : Any> @Throws constructor(
         flowerClient.updateParameters(newWeights.toTypedArray())
         val (loss, accuracy) = flowerClient.evaluate()
         callback("Test Accuracy after this round = $accuracy")
+        val testSize = flowerClient.testSamples.size
         if (start != null) {
             val end = System.currentTimeMillis()
-            val job =
-                launchJob { train.evaluateInsTelemetry(start, end, loss, accuracy, sampleSize) }
+            val job = launchJob { train.evaluateInsTelemetry(start, end, loss, accuracy, testSize) }
             cleanUpJobs()
             jobs.add(job)
         }
-        return evaluateResAsProto(loss, sampleSize)
+        return evaluateResAsProto(loss, testSize)
     }
 
     private fun weightsByteBuffers() = flowerClient.getParameters()
