@@ -21,24 +21,34 @@ class FlowerService {
   final streamController = StreamController<ClientMessage>();
   bool _done = false;
   final jobs = <Future<void>>[];
+  final _listeners = <Completer<void>>[];
   final ClientChannel channel;
   final Train train;
   final MLClient mlClient;
   final TFLiteModel model;
   final Function(String) onInfo;
-  late FlowerServiceClient flowerServiceClient;
-  late StreamSubscription<ServerMessage> streamSub;
+  late StreamSubscription<ServerMessage> _streamSub;
 
   FlowerService(
       this.channel, this.train, this.mlClient, this.model, this.onInfo);
 
   run() {
-    flowerServiceClient = FlowerServiceClient(channel);
-    streamSub = flowerServiceClient.join(streamController.stream).listen(
-        handleMessage,
-        onError: _logErr,
-        onDone: close,
-        cancelOnError: true);
+    _streamSub = FlowerServiceClient(channel)
+        .join(streamController.stream)
+        .listen(handleMessage,
+            onError: _logErr, onDone: close, cancelOnError: true);
+  }
+
+  Future<void> wait() async {
+    if (done) {
+      return;
+    }
+    final completer = Completer();
+    _listeners.add(completer);
+    if (done) {
+      return;
+    }
+    await completer.future;
   }
 
   void handleMessage(ServerMessage message) {
@@ -58,6 +68,7 @@ class FlowerService {
     } else if (message.hasEvaluateIns()) {
       response = await _handleEvaluateIns(message);
     } else if (message.hasReconnectIns()) {
+      _logDebug('Handling reconnectIns');
       await close();
     } else {
       throw Exception('Unknown message type: $message');
@@ -138,18 +149,24 @@ class FlowerService {
   }
 
   Future<void> close() async {
-    if (_done) {
+    if (done) {
       logger.w('FlowerService: second exit.');
       return;
     }
-    await streamSub.cancel();
+    await _streamSub.cancel();
+    await streamController.close();
     await channel.shutdown();
     for (final job in jobs) {
       await job;
     }
     logger.d('FlowerService: exit.');
     _done = true;
+    for (final completer in _listeners) {
+      completer.complete();
+    }
   }
+
+  bool get done => _done;
 }
 
 ClientMessage weightsAsProto(List<Uint8List> weights) {

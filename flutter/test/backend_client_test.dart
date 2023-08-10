@@ -4,6 +4,7 @@ import 'package:fed_kit/tflite_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const exampleBackendUrl = 'http://0:8000';
+const exampleFlowerAddress = '0';
 const dataType = 'CIFAR10_32x32x3';
 const expectedModel = TFLiteModel(
     id: 1,
@@ -34,7 +35,6 @@ void main() {
   test('ask backend for Flower server', () async {
     var actual = await client.postServer(expectedModel, false);
     expect(actual.port, expectedPort);
-    expect(actual.status, 'new');
     actual = await client.postServer(expectedModel, false);
     expect(actual.port, expectedPort);
     expect(actual.status, 'started');

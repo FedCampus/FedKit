@@ -108,12 +108,12 @@ class Train {
     _state = Prepared(state.model, mlClient, channel);
   }
 
-  Future<FlowerService> start(Function(String) onInfo) => switch (_state) {
+  FlowerService start(Function(String) onInfo) => switch (_state) {
         Prepared state => _start(onInfo, state),
         _ => throw Exception('`start` called with $_state'),
       };
 
-  Future<FlowerService> _start(Function(String) onInfo, Prepared state) async {
+  FlowerService _start(Function(String) onInfo, Prepared state) {
     final model = state.model;
     final flowerService =
         FlowerService(state.channel, this, state.mlClient, model, onInfo)
