@@ -2,9 +2,9 @@ on:
   push:
     paths:
       - '.github/workflows/flutter-integration.yml'
-      - '**.dart'
       - '**.py'
-      - '**pubspec.yaml'
+      - 'flutter/**.dart'
+      - 'flutter/**pubspec.yaml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,7 +15,7 @@ jobs:
           python-version: '3.10'
       - run: |
           cd backend/
-          sh integration_test_setup.sh
+          sh integration_test_setup.sh &
       - uses: subosito/flutter-action@v2
         with:
           cache: true
