@@ -1,0 +1,29 @@
+on:
+  push:
+    paths:
+      - '.github/workflows/flutter-integration.yml'
+      - '**.dart'
+      - '**.py'
+      - '**pubspec.yaml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: |
+          cd backend/
+          sh integration_test_setup.sh
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - run: |
+          cd flutter/
+          flutter pub get
+          dart run build_runner build
+      - name: Test
+        run: |
+          cd flutter/
+          flutter test --run-skipped
