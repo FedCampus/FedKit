@@ -31,7 +31,8 @@ class Train {
     _telemetry = false;
   }
 
-  Future<(TFLiteModel, String)> prepareModel(String dataType) => switch (_state) {
+  Future<(TFLiteModel, String)> prepareModel(String dataType) =>
+      switch (_state) {
         Initialized() || WithModel() => _prepareModel(dataType),
         _ => throw Exception('`prepareModel` called with $_state'),
       };

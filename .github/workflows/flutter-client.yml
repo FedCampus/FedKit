@@ -2,8 +2,8 @@ on:
   push:
     paths:
       - '.github/workflows/flutter.yml'
-      - '**.dart'
-      - '**pubspec.yaml'
+      - 'fed_kit_client/**.dart'
+      - 'fed_kit_client/**pubspec.yaml'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,4 +21,6 @@ jobs:
           cd fed_kit_client/
           flutter analyze
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
+        run: |
+          cd fed_kit_client/
+          dart format --output=none --set-exit-if-changed .
