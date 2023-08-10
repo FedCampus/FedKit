@@ -34,12 +34,12 @@ class BackendClient {
     return ServerData.fromJson(response.data);
   }
 
-  Future<void> fitInsTelemetry(FitInsTelemetryData body) async {
-    await dio.post('$url/telemetry/fit_ins', data: body.toJson());
+  Future<Response> fitInsTelemetry(FitInsTelemetryData body) async {
+    return await dio.post('$url/telemetry/fit_ins', data: body.toJson());
   }
 
-  Future<void> evaluateInsTelemetry(EvaluateInsTelemetryData body) async {
-    await dio.post('$url/telemetry/evaluate_ins', data: body.toJson());
+  Future<Response> evaluateInsTelemetry(EvaluateInsTelemetryData body) async {
+    return await dio.post('$url/telemetry/evaluate_ins', data: body.toJson());
   }
 }
 

@@ -63,7 +63,7 @@ def server(model: TFLiteModel, start_fresh: bool) -> ServerData:
     if task:
         if task.model == model:
             if start_fresh and not task.start_fresh:
-                return ServerData("started_non_fresh", task.session.id, None)
+                return ServerData("started_non_fresh", None, None)
             return ServerData("started", task.session.id, PORT)
         else:
             return ServerData("occupied", None, None)
