@@ -1,3 +1,4 @@
+@Skip('Launch a backend and test with `--run-skipped` for integration test.')
 import 'dart:io';
 
 import 'package:fed_kit/train.dart';
@@ -12,6 +13,14 @@ void main() {
   PathProviderPlatform.instance = FakePathProviderPlatform();
 
   final train = Train(exampleBackendUrl);
+
+  test('alter telemetry', () async {
+    train.enableTelemetry(1);
+    expect(train.telemetry, true);
+    expect(train.deviceId, 1);
+    train.disableTelemetry();
+    expect(train.telemetry, false);
+  });
 
   test('prepare training', () async {
     final modelFile = await train.prepareModel(dataType);
