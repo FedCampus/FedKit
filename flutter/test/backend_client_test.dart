@@ -3,7 +3,7 @@ import 'package:fed_kit/backend_client.dart';
 import 'package:fed_kit/tflite_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-const url = 'http://0:8000';
+const exampleBackendUrl = 'http://0:8000';
 const dataType = 'CIFAR10_32x32x3';
 const expectedModel = TFLiteModel(
     id: 1,
@@ -23,7 +23,7 @@ const evaluateInsTelemetry = EvaluateInsTelemetryData(
     test_size: 1);
 
 void main() {
-  const client = BackendClient(url);
+  const client = BackendClient(exampleBackendUrl);
 
   test('ask backend for advertised model', () async {
     final actual = await client

@@ -19,11 +19,11 @@ class BackendClient {
   }
 
   Future<void> downloadFile(String urlPath, String destination) async {
-    Response response = await dio.download('$url/urlPath', destination);
+    Response response = await dio.download('$url/$urlPath', destination);
     int statusCode = response.statusCode!;
     if (statusCode < 200 || statusCode >= 300) {
       throw Exception(
-          'downloadFile $urlPath -> $destination failed: $response.');
+          'downloadFile $urlPath -> $destination failed: ${response.statusMessage}.');
     }
   }
 

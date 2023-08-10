@@ -20,5 +20,6 @@ class TFLiteModel with _$TFLiteModel {
 
 Future<String> getModelDir(TFLiteModel model) async {
   final base = await getApplicationDocumentsDirectory();
-  return '${base.path}/models/${model.name}';
+  final fileName = model.file_path.split('/').last;
+  return '${base.path}/models/${model.name}/$fileName';
 }
