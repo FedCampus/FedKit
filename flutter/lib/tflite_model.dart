@@ -16,9 +16,9 @@ class TFLiteModel with _$TFLiteModel {
 
   factory TFLiteModel.fromJson(Map<String, dynamic> json) =>
       _$TFLiteModelFromJson(json);
+}
 
-  Future<String> getModelDir() async {
-    final base = await getApplicationDocumentsDirectory();
-    return '${base.path}/models/$name';
-  }
+Future<String> getModelDir(TFLiteModel model) async {
+  final base = await getApplicationDocumentsDirectory();
+  return '${base.path}/models/${model.name}';
 }
