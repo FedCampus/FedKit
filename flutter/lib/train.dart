@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:fed_kit/backend_client.dart';
+import 'package:fed_kit/flower_service.dart';
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/tflite_model.dart';
@@ -107,13 +108,19 @@ class Train {
     _state = Prepared(state.model, mlClient, channel);
   }
 
-  start(Function(String) onInfo) => switch (_state) {
-        Prepared state => _start(onInfo, state.model, state.mlClient),
+  Future<FlowerService> start(Function(String) onInfo) => switch (_state) {
+        Prepared state => _start(onInfo, state),
         _ => throw Exception('`start` called with $_state'),
       };
 
-  _start(Function(String) onInfo, TFLiteModel model, MLClient mlClient) async {
-    // TODO: implement.
+  Future<FlowerService> _start(Function(String) onInfo, Prepared state) async {
+    final model = state.model;
+    final flowerService =
+        FlowerService(state.channel, this, state.mlClient, model, onInfo)
+          ..run();
+    logger.d('Training for ${model.name} started.');
+    _state = Training(model, flowerService);
+    return flowerService;
   }
 
   Future<void> fitInsTelemetry(DateTime start, DateTime end) async {

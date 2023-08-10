@@ -1,3 +1,4 @@
+import 'package:fed_kit/flower_service.dart';
 import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/tflite_model.dart';
 import 'package:grpc/grpc.dart';
@@ -23,7 +24,7 @@ class Prepared extends TrainState {
 
 class Training extends TrainState {
   final TFLiteModel model;
-  // TODO: flower service object.
+  final FlowerService flowerService;
 
-  Training(this.model);
+  Training(this.model, this.flowerService);
 }
