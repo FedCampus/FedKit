@@ -23,7 +23,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   final _mlClient = Cifar10MLClient();
-  var canConnect = true;
+  var canPrepare = true;
   var canTrain = false;
   var startFresh = false;
   late Train train;
@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  connect() async {
+  prepare() async {
     int partitionId;
     try {
       partitionId = int.parse(clientPartitionIdController.text);
@@ -92,23 +92,21 @@ class _MyAppState extends State<MyApp> {
       return appendLog('Invalid backend server port!');
     }
 
-    canConnect = false;
+    canPrepare = false;
     appendLog(
         'Connecting with Partition ID: $partitionId, Server IP: $host, Port: $backendPort');
 
     try {
-      return await _prepare(partitionId, host, backendUrl);
+      await _prepare(partitionId, host, backendUrl);
     } on PlatformException catch (error, stacktrace) {
+      canPrepare = true;
       appendLog('Request failed: ${error.message}.');
       logger.e('$error\n$stacktrace.');
     } catch (error, stacktrace) {
+      canPrepare = true;
       appendLog('Request failed: $error.');
       logger.e(stacktrace);
     }
-
-    setState(() {
-      canConnect = true;
-    });
   }
 
   _prepare(int partitionId, Uri host, Uri backendUrl) async {
@@ -133,25 +131,22 @@ class _MyAppState extends State<MyApp> {
   }
 
   startTrain() async {
-    setState(() {
-      canTrain = false;
-    });
     try {
       train.start().listen(appendLog,
           onDone: () => appendLog('Training done.'),
           onError: (e) => appendLog('Training failed: $e.'),
           cancelOnError: true);
-      return appendLog('Started training.');
+      canTrain = false;
+      appendLog('Started training.');
     } on PlatformException catch (error, stacktrace) {
+      canTrain = true;
       appendLog('Training failed: ${error.message}.');
       logger.e('$error\n$stacktrace.');
     } catch (error, stacktrace) {
+      canTrain = true;
       appendLog('Failed to start training: $error.');
       logger.e(stacktrace);
     }
-    setState(() {
-      canTrain = true;
-    });
   }
 
   @override
@@ -193,8 +188,8 @@ class _MyAppState extends State<MyApp> {
       ),
       Row(mainAxisAlignment: MainAxisAlignment.center, children: [
         ElevatedButton(
-          onPressed: canConnect ? connect : null,
-          child: const Text('Connect'),
+          onPressed: canPrepare ? prepare : null,
+          child: const Text('Prepare'),
         ),
         ElevatedButton(
           onPressed: canTrain ? startTrain : null,

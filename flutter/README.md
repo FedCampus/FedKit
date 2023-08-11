@@ -6,6 +6,8 @@ WIP
 
 This is needed if either the ProtoBuf or `@freezed` portion changed.
 
+Please format the generated code before committing them to Git LFS.
+
 ### Set up for ProtoBuf
 
 [Install `protoc`](https://grpc.io/docs/protoc-installation/).

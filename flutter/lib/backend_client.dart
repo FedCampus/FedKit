@@ -43,8 +43,6 @@ class BackendClient {
   }
 }
 
-// Add other imports if needed
-
 @freezed
 class PostAdvertisedData with _$PostAdvertisedData {
   const factory PostAdvertisedData({
