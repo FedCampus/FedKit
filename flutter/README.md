@@ -2,7 +2,9 @@
 
 WIP
 
-## Development
+## Code generation
+
+This is needed if either the ProtoBuf or `@freezed` portion changed.
 
 ### Set up for ProtoBuf
 
