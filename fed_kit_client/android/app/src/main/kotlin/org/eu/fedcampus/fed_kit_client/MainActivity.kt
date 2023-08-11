@@ -8,6 +8,7 @@ import io.flutter.plugin.common.EventChannel.EventSink
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
@@ -45,33 +46,34 @@ class MainActivity : FlutterActivity() {
         })
     }
 
-    fun handle(call: MethodCall, result: Result) = scope.launch {
-        try {
-            when (call.method) {
-                "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
-                "evaluate" -> evaluate(result)
-                "fit" -> fit(call, result)
-                "getParameters" -> getParameters(result)
-                "ready" -> ready(result)
-                "testSize" -> result.success(flowerClient.testSamples.size)
-                "trainingSize" -> result.success(flowerClient.trainingSamples.size)
-                "updateParameters" -> updateParameters(call, result)
-                "initML" -> initML(call, result)
-                else -> result.notImplemented()
-            }
-        } catch (err: Throwable) {
-            result.error(TAG, "$err", err.stackTraceToString())
+    fun handle(call: MethodCall, result: Result) = try {
+        when (call.method) {
+            "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
+            "evaluate" -> evaluate(result)
+            "fit" -> fit(call, result)
+            "getParameters" -> getParameters(result)
+            "ready" -> ready(result)
+            "testSize" -> result.success(flowerClient.testSamples.size)
+            "trainingSize" -> result.success(flowerClient.trainingSamples.size)
+            "updateParameters" -> updateParameters(call, result)
+            "initML" -> initML(call, result)
+            else -> result.notImplemented()
         }
+    } catch (err: Throwable) {
+        result.error(TAG, "$err", err.stackTraceToString())
     }
 
-    fun evaluate(result: Result) =
-        flowerClient.evaluate().let { floatArrayOf(it.first, it.second) }.let { result.success(it) }
+    fun evaluate(result: Result) = scope.launch(Dispatchers.Default) {
+        val (loss, accuracy) = flowerClient.evaluate()
+        val lossAccuracy = floatArrayOf(loss, accuracy)
+        runOnUiThread { result.success(lossAccuracy) }
+    }
 
-    fun fit(call: MethodCall, result: Result) {
+    fun fit(call: MethodCall, result: Result) = scope.launch(Dispatchers.Default) {
         val epochs = call.argument<Int>("epochs")!!
         val batchSize = call.argument<Int>("batchSize")!!
-        flowerClient.fit(epochs, batchSize) { events?.success(it) }
-        result.success(null)
+        flowerClient.fit(epochs, batchSize) { runOnUiThread { events?.success(it) } }
+        runOnUiThread { result.success(null) }
     }
 
     fun getParameters(result: Result) = flowerClient.getParameters().map { it.array() }.let {
@@ -81,21 +83,21 @@ class MainActivity : FlutterActivity() {
     fun ready(result: Result) =
         result.success(flowerClient.trainingSamples.isNotEmpty() && flowerClient.testSamples.isNotEmpty())
 
-    fun updateParameters(call: MethodCall, result: Result) {
+    fun updateParameters(call: MethodCall, result: Result) = scope.launch(Dispatchers.Default) {
         val parameters = call.argument<List<ByteArray>>("parameters")!!.map { ByteBuffer.wrap(it) }
             .toTypedArray()
         flowerClient.updateParameters(parameters)
-        result.success(null)
+        runOnUiThread { result.success(null) }
     }
 
-    suspend fun initML(call: MethodCall, result: Result) {
+    fun initML(call: MethodCall, result: Result) = scope.launch(Dispatchers.Default) {
         val modelDir = call.argument<String>("modelDir")!!
         val layersSizes = call.argument<List<Int>>("layersSizes")!!.toIntArray()
         val partitionId = call.argument<Int>("partitionId")!!
         val buffer = loadMappedFile(File(modelDir))
         flowerClient = FlowerClient(buffer, layersSizes, sampleSpec())
-        loadData(this, flowerClient, partitionId)
-        result.success(null)
+        loadData(this@MainActivity, flowerClient, partitionId)
+        runOnUiThread { result.success(null) }
     }
 
     companion object {
