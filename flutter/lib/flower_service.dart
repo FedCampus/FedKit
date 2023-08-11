@@ -3,7 +3,6 @@
 // and
 // https://github.com/Anthrapper/flutterFlower/blob/main/lib/app/flower/flower_base.dart.
 import 'dart:async';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
@@ -125,13 +124,13 @@ class FlowerService {
     streamController.add(message);
   }
 
-  Future<void> _spawnLogErr(Function() call) => Isolate.run(() {
-        try {
-          call();
-        } catch (err, stackTrace) {
-          _logErr(err, stackTrace);
-        }
-      });
+  Future<void> _spawnLogErr(Future<void> Function() call) async {
+    try {
+      await call();
+    } catch (err, stackTrace) {
+      _logErr(err, stackTrace);
+    }
+  }
 
   void _logErr(Object err, StackTrace stackTrace) {
     logger.e('handleMessage: $err, $stackTrace.');

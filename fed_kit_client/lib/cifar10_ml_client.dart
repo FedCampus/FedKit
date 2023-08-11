@@ -78,6 +78,6 @@ class Cifar10MLClient extends MLClient {
   }
 
   void _callOnLoss(loss) {
-    _onLoss?.call(loss);
+    _onLoss?.call(loss.cast<double>());
   }
 }
