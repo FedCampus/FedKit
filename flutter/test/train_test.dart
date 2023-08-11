@@ -1,4 +1,5 @@
 @Skip('Launch a backend and test with `--run-skipped` for integration test.')
+import 'dart:async';
 import 'dart:io';
 
 import 'package:fed_kit/log.dart';
@@ -38,7 +39,12 @@ void main() {
         FakeMLClient(model), exampleFlowerAddress, expectedPort);
 
     final flowerService = train.start((msg) => logger.d(msg));
-    await flowerService.wait();
+    final completer = Completer();
+    flowerService.waitStream().listen((succeeded) {
+      assert(succeeded);
+      completer.complete();
+    });
+    await completer.future;
     assert(flowerService.done);
   });
 }

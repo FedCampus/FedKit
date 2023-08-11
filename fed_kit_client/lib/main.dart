@@ -1,4 +1,5 @@
 import 'package:app_set_id/app_set_id.dart';
+import 'package:fed_kit/flower_service.dart';
 import 'package:fed_kit_client/cifar10_ml_client.dart';
 import 'package:fed_kit/train.dart';
 import 'package:flutter/material.dart';
@@ -152,10 +153,12 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  Future<void> _watchFlowerServive(flowerService) async {
-    await flowerService.wait();
-    canConnect = true;
-    appendLog('Training done.');
+  Future<void> _watchFlowerServive(FlowerService flowerService) async {
+    flowerService.waitStream().listen((succeeded) {
+      canConnect = true;
+      final status = succeeded ? 'done' : 'failed';
+      appendLog('Training $status.');
+    });
   }
 
   @override

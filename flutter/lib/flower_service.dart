@@ -19,8 +19,9 @@ import 'package:grpc/grpc.dart';
 class FlowerService {
   final streamController = StreamController<ClientMessage>();
   bool _done = false;
+  bool _succeeded = true;
   final jobs = <Future<void>>[];
-  final _listeners = <Completer<void>>[];
+  final _listeners = <StreamController<bool>>[];
   final ClientChannel channel;
   final Train train;
   final MLClient mlClient;
@@ -34,23 +35,19 @@ class FlowerService {
   run() {
     _streamSub = FlowerServiceClient(channel)
         .join(streamController.stream)
-        .listen(_handleMessage, onError: (e, s) async {
+        .listen(_handleMessage, onError: (e, s) {
       _logErr(e, s);
-      await close();
+      _succeeded = false;
+      close();
     }, onDone: close, cancelOnError: true);
   }
 
-  /// Wait until this service is closed.
-  Future<void> wait() async {
-    if (done) {
-      return;
-    }
-    final completer = Completer();
-    _listeners.add(completer);
-    if (done) {
-      return;
-    }
-    await completer.future;
+  /// Stream that, when this service is closed, receives whether succeeded.
+  Stream<bool> waitStream() {
+    if (done) return Stream.value(_succeeded);
+    final controller = StreamController<bool>();
+    _listeners.add(controller);
+    return controller.stream;
   }
 
   Future<void> _handleMessage(ServerMessage message) async {
@@ -152,8 +149,8 @@ class FlowerService {
     }
     _logDebug('exit');
     _done = true;
-    for (final completer in _listeners) {
-      completer.complete();
+    for (final controller in _listeners) {
+      controller.add(_succeeded);
     }
   }
 
