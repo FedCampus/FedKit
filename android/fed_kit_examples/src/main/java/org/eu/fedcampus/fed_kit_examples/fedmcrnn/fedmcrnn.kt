@@ -1,4 +1,6 @@
-package org.eu.fedcampus.fed_kit.examples.fedmcrnn
+@file:Suppress("unused")
+
+package org.eu.fedcampus.fed_kit_examples.fedmcrnn
 
 import org.eu.fedcampus.fed_kit_train.SampleSpec
 import org.eu.fedcampus.fed_kit_train.helpers.maxSquaredErrorLoss
