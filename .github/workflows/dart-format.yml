@@ -10,6 +10,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: subosito/flutter-action@v2
         with:
+          lfs: true
+        with:
           cache: true
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
