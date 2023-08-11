@@ -14,5 +14,5 @@ abstract class MLClient {
 
   Future<int> get testSize;
 
-  Future<List<double>> evaluate();
+  Future<(double, double)> evaluate();
 }

@@ -16,7 +16,7 @@ class FakeMLClient extends MLClient {
   FakeMLClient(this.model);
 
   @override
-  Future<List<double>> evaluate() async => [0.1, 0.9];
+  Future<(double, double)> evaluate() async => (0.1, 0.9);
 
   @override
   Future<bool> ready() async => true;

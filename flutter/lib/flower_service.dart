@@ -108,9 +108,7 @@ class FlowerService {
         message.evaluateIns.parameters.tensors.map(Uint8List.fromList).toList();
     assertEqual(layers.length, model.layers_sizes.length);
     await mlClient.updateParameters(layers);
-    final lossAccuracy = await mlClient.evaluate();
-    final loss = lossAccuracy[0];
-    final accuracy = lossAccuracy[1];
+    final (loss, accuracy) = await mlClient.evaluate();
     onInfo('Test accuracy after this round: $accuracy.');
     final testSize = await mlClient.testSize;
     if (start != null) {
