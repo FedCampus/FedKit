@@ -109,19 +109,19 @@ class Train {
     _state = Prepared(state.model, mlClient, channel);
   }
 
-  FlowerService start(Function(String) onInfo) => switch (_state) {
-        Prepared state => _start(onInfo, state),
+  Stream<String> start() => switch (_state) {
+        Prepared state => _start(state),
         _ => throw Exception('`start` called with $_state'),
       };
 
-  FlowerService _start(Function(String) onInfo, Prepared state) {
+  Stream<String> _start(Prepared state) {
     final model = state.model;
     final flowerService =
-        FlowerService(state.channel, this, state.mlClient, model, onInfo)
-          ..run();
+        FlowerService(state.channel, this, state.mlClient, model);
+    final stream = flowerService.run();
     logger.d('Training for ${model.name} started.');
     _state = Training(model, flowerService);
-    return flowerService;
+    return stream;
   }
 
   Future<void> fitInsTelemetry(DateTime start, DateTime end) async {

@@ -17,38 +17,33 @@ import 'package:flutter/foundation.dart';
 import 'package:grpc/grpc.dart';
 
 class FlowerService {
-  final streamController = StreamController<ClientMessage>();
+  final _msgStreamCtl = StreamController<ClientMessage>();
+  final _infoStreamCtl = StreamController<String>.broadcast();
   bool _done = false;
-  bool _succeeded = true;
   final jobs = <Future<void>>[];
-  final _listeners = <StreamController<bool>>[];
   final ClientChannel channel;
   final Train train;
   final MLClient mlClient;
   final TFLiteModel model;
-  final Function(String) onInfo;
   late StreamSubscription<ServerMessage> _streamSub;
 
-  FlowerService(
-      this.channel, this.train, this.mlClient, this.model, this.onInfo);
+  FlowerService(this.channel, this.train, this.mlClient, this.model);
 
-  run() {
+  /// Start running this service.
+  /// Returns a stream of info.
+  Stream<String> run() {
     _streamSub = FlowerServiceClient(channel)
-        .join(streamController.stream)
+        .join(_msgStreamCtl.stream)
         .listen(_handleMessage, onError: (e, s) {
       _logErr(e, s);
-      _succeeded = false;
+      _infoStreamCtl.addError(e, s);
       close();
     }, onDone: close, cancelOnError: true);
+    return _infoStreamCtl.stream;
   }
 
-  /// Stream that, when this service is closed, receives whether succeeded.
-  Stream<bool> waitStream() {
-    if (done) return Stream.value(_succeeded);
-    final controller = StreamController<bool>();
-    _listeners.add(controller);
-    return controller.stream;
-  }
+  /// Stream of information produced.
+  Stream<String> get infoStream => _infoStreamCtl.stream;
 
   Future<void> _handleMessage(ServerMessage message) async {
     ClientMessage? response;
@@ -71,13 +66,13 @@ class FlowerService {
 
   Future<ClientMessage> _handleGetParameters(ServerMessage message) async {
     _logDebug('Handling GetParameters');
-    onInfo("Handling GetParameters message from the server.");
+    _infoStreamCtl.add("Handling GetParameters message from the server.");
     return weightsAsProto(await mlClient.getParameters());
   }
 
   Future<ClientMessage> _handleFitIns(ServerMessage message) async {
     _logDebug('Handling FitIns');
-    onInfo('Handling FitIns message from the server.');
+    _infoStreamCtl.add('Handling FitIns message from the server.');
     final start = train.telemetry ? DateTime.now() : null;
     final layers =
         message.fitIns.parameters.tensors.map(Uint8List.fromList).toList();
@@ -87,7 +82,8 @@ class FlowerService {
     await mlClient.updateParameters(layers);
     await mlClient.fit(
         epochs: epochs,
-        onLoss: (losses) => onInfo('Average loss: ${losses.average}'));
+        onLoss: (losses) =>
+            _infoStreamCtl.add('Average loss: ${losses.average}'));
     if (start != null) {
       final end = DateTime.now();
       final job = _spawnLogErr(() => train.fitInsTelemetry(start, end));
@@ -99,14 +95,14 @@ class FlowerService {
 
   Future<ClientMessage> _handleEvaluateIns(ServerMessage message) async {
     _logDebug('Handling EvaluateIns message from the server');
-    onInfo('Handling EvaluateIns');
+    _infoStreamCtl.add('Handling EvaluateIns');
     final start = train.telemetry ? DateTime.now() : null;
     final layers =
         message.evaluateIns.parameters.tensors.map(Uint8List.fromList).toList();
     assertEqual(layers.length, model.layers_sizes.length);
     await mlClient.updateParameters(layers);
     final (loss, accuracy) = await mlClient.evaluate();
-    onInfo('Test accuracy after this round: $accuracy.');
+    _infoStreamCtl.add('Test accuracy after this round: $accuracy.');
     final testSize = await mlClient.testSize;
     if (start != null) {
       final end = DateTime.now();
@@ -118,7 +114,7 @@ class FlowerService {
   }
 
   void _sendMessage(ClientMessage message) {
-    streamController.add(message);
+    _msgStreamCtl.add(message);
   }
 
   Future<void> _spawnLogErr(Future<void> Function() call) async {
@@ -137,6 +133,7 @@ class FlowerService {
     logger.d('FlowerService: $message.');
   }
 
+  /// Shut down this service.
   Future<void> close() async {
     if (done) {
       logger.w('FlowerService: second exit.');
@@ -149,9 +146,7 @@ class FlowerService {
     }
     _logDebug('exit');
     _done = true;
-    for (final controller in _listeners) {
-      controller.add(_succeeded);
-    }
+    _infoStreamCtl.close();
   }
 
   bool get done => _done;

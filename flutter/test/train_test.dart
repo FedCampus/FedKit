@@ -38,13 +38,11 @@ void main() {
     await train.prepare(
         FakeMLClient(model), exampleFlowerAddress, expectedPort);
 
-    final flowerService = train.start((msg) => logger.d(msg));
     final completer = Completer();
-    flowerService.waitStream().listen((succeeded) {
-      assert(succeeded);
-      completer.complete();
-    });
-    await completer.future;
-    assert(flowerService.done);
+    train.start().listen(logger.d,
+        onDone: () => completer.complete(true),
+        onError: (_) => completer.complete(false));
+    final succeeded = await completer.future;
+    assert(succeeded);
   });
 }

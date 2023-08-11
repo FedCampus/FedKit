@@ -1,5 +1,4 @@
 import 'package:app_set_id/app_set_id.dart';
-import 'package:fed_kit/flower_service.dart';
 import 'package:fed_kit_client/cifar10_ml_client.dart';
 import 'package:fed_kit/train.dart';
 import 'package:flutter/material.dart';
@@ -138,8 +137,10 @@ class _MyAppState extends State<MyApp> {
       canTrain = false;
     });
     try {
-      final flowerService = train.start(appendLog);
-      _watchFlowerServive(flowerService);
+      train.start().listen(appendLog,
+          onDone: () => appendLog('Training done.'),
+          onError: (e) => appendLog('Training failed: $e.'),
+          cancelOnError: true);
       return appendLog('Started training.');
     } on PlatformException catch (error, stacktrace) {
       appendLog('Training failed: ${error.message}.');
@@ -150,14 +151,6 @@ class _MyAppState extends State<MyApp> {
     }
     setState(() {
       canTrain = true;
-    });
-  }
-
-  Future<void> _watchFlowerServive(FlowerService flowerService) async {
-    flowerService.waitStream().listen((succeeded) {
-      canConnect = true;
-      final status = succeeded ? 'done' : 'failed';
-      appendLog('Training $status.');
     });
   }
 
