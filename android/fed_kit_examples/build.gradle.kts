@@ -27,6 +27,5 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     // Local dependencies.
-    implementation(project(":fed_kit"))
     implementation(project(":fed_kit_train"))
 }
