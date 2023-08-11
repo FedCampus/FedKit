@@ -41,6 +41,7 @@ class FlowerService {
     }, onDone: close, cancelOnError: true);
   }
 
+  /// Wait until this service is closed.
   Future<void> wait() async {
     if (done) {
       return;

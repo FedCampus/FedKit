@@ -26,8 +26,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
 
     // TensorFlow Lite.
-    implementation ("org.tensorflow:tensorflow-lite:2.13.0")
-    implementation ("org.tensorflow:tensorflow-lite-gpu:2.13.0")
-    implementation ("org.tensorflow:tensorflow-lite-support:0.4.4")
-    implementation ("org.tensorflow:tensorflow-lite-select-tf-ops:2.13.0")
+    implementation("org.tensorflow:tensorflow-lite:2.13.0")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.13.0")
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.4")
+    implementation("org.tensorflow:tensorflow-lite-select-tf-ops:2.13.0")
 }

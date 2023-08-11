@@ -1,7 +1,6 @@
 package org.eu.fedcampus.fed_kit_train
 
 import android.util.Log
-import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
 import org.eu.fedcampus.fed_kit_train.helpers.assertIntsEqual
 import org.tensorflow.lite.Interpreter
 import java.lang.Integer.min
@@ -21,7 +20,7 @@ import kotlin.concurrent.write
  */
 class FlowerClient<X : Any, Y : Any>(
     tfliteFileBuffer: MappedByteBuffer,
-    val model: TFLiteModel,
+    val layersSizes: IntArray,
     val spec: SampleSpec<X, Y>,
 ) : AutoCloseable {
     val interpreter = Interpreter(tfliteFileBuffer)
@@ -181,7 +180,7 @@ class FlowerClient<X : Any, Y : Any>(
     }
 
     fun parametersFromMap(map: Map<String, Any>): Array<ByteBuffer> {
-        assertIntsEqual(model.layers_sizes.size, map.size)
+        assertIntsEqual(layersSizes.size, map.size)
         return (0 until map.size).map {
             val buffer = map["a$it"] as ByteBuffer
             buffer.rewind()
@@ -190,7 +189,7 @@ class FlowerClient<X : Any, Y : Any>(
     }
 
     fun parametersToMap(parameters: Array<ByteBuffer>): Map<String, Any> {
-        assertIntsEqual(model.layers_sizes.size, parameters.size)
+        assertIntsEqual(layersSizes.size, parameters.size)
         return parameters.mapIndexed { index, bytes -> "a$index" to bytes }.toMap()
     }
 
@@ -205,7 +204,7 @@ class FlowerClient<X : Any, Y : Any>(
     }
 
     private fun emptyParameterMap(): Map<String, Any> {
-        return model.layers_sizes.mapIndexed { index, size -> "a$index" to ByteBuffer.allocate(size) }
+        return layersSizes.mapIndexed { index, size -> "a$index" to ByteBuffer.allocate(size) }
             .toMap()
     }
 

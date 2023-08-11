@@ -10,26 +10,25 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
-import org.eu.fedcampus.fed_kit.Train
-import org.eu.fedcampus.fed_kit.examples.cifar10.DATA_TYPE
 import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
 import org.eu.fedcampus.fed_kit.examples.cifar10.loadData
 import org.eu.fedcampus.fed_kit.examples.cifar10.sampleSpec
 import org.eu.fedcampus.fed_kit_train.FlowerClient
-import org.eu.fedcampus.fed_kit_train.helpers.deviceId
 import org.eu.fedcampus.fed_kit_train.helpers.loadMappedFile
+import java.io.File
+import java.nio.ByteBuffer
+
 
 class MainActivity : FlutterActivity() {
     val scope = MainScope()
-    lateinit var train: Train<Float3DArray, FloatArray>
     lateinit var flowerClient: FlowerClient<Float3DArray, FloatArray>
     var events: EventSink? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
-        MethodChannel(messenger, "fed_kit_flutter").setMethodCallHandler(::handle)
-        EventChannel(messenger, "fed_kit_flutter_events").setStreamHandler(object :
+        MethodChannel(messenger, "fed_kit_client_cifar10_ml_client").setMethodCallHandler(::handle)
+        EventChannel(messenger, "fed_kit_client_cifar10_ml_client_log").setStreamHandler(object :
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventSink?) {
                 if (eventSink === null) {
@@ -50,15 +49,14 @@ class MainActivity : FlutterActivity() {
         try {
             when (call.method) {
                 "getPlatformVersion" -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
-                "connect" -> {
-                    val partitionId = call.argument<Int>("partitionId")!!
-                    val host = call.argument<String>("host")!!
-                    val backendUrl = call.argument<String>("backendUrl")!!
-                    val startFresh = call.argument<Boolean>("startFresh")!!
-                    connect(partitionId, host, backendUrl, startFresh, result)
-                }
-
-                "train" -> train(result)
+                "evaluate" -> evaluate(result)
+                "fit" -> fit(call, result)
+                "getParameters" -> getParameters(result)
+                "ready" -> ready(result)
+                "testSize" -> result.success(flowerClient.testSamples.size)
+                "trainingSize" -> result.success(flowerClient.trainingSamples.size)
+                "updateParameters" -> updateParameters(call, result)
+                "initML" -> initML(call, result)
                 else -> result.notImplemented()
             }
         } catch (err: Throwable) {
@@ -66,38 +64,37 @@ class MainActivity : FlutterActivity() {
         }
     }
 
-    suspend fun connect(
-        partitionId: Int,
-        host: String,
-        backendUrl: String,
-        startFresh: Boolean,
-        result: Result
-    ) {
-        train = Train(this, backendUrl, sampleSpec())
-        train.enableTelemetry(deviceId(this))
-        val modelFile = train.prepareModel(DATA_TYPE)
-        val serverData = train.getServerInfo(startFresh)
-        if (serverData.port == null) {
-            return result.error(
-                TAG, "Flower server port not available", "status ${serverData.status}"
-            )
-        }
-        flowerClient =
-            train.prepare(loadMappedFile(modelFile), "dns:///$host:${serverData.port}", false)
-        try {
-            loadData(this, flowerClient, partitionId)
-        } catch (err: Throwable) {
-            return result.error(TAG, "Failed to load data", err.stackTraceToString())
-        }
-        result.success(serverData.port)
+    fun evaluate(result: Result) =
+        flowerClient.evaluate().let { floatArrayOf(it.first, it.second) }.let { result.success(it) }
+
+    fun fit(call: MethodCall, result: Result) {
+        val epochs = call.argument<Int>("epochs")!!
+        val batchSize = call.argument<Int>("batchSize")!!
+        flowerClient.fit(epochs, batchSize) { events?.success(it) }
+        result.success(null)
     }
 
-    fun train(result: Result) {
-        train.start {
-            runOnUiThread {
-                events?.success(it)
-            }
-        }
+    fun getParameters(result: Result) = flowerClient.getParameters().map { it.array() }.let {
+        result.success(it)
+    }
+
+    fun ready(result: Result) =
+        result.success(flowerClient.trainingSamples.isNotEmpty() && flowerClient.testSamples.isNotEmpty())
+
+    fun updateParameters(call: MethodCall, result: Result) {
+        val parameters = call.argument<List<ByteArray>>("parameters")!!.map { ByteBuffer.wrap(it) }
+            .toTypedArray()
+        flowerClient.updateParameters(parameters)
+        result.success(null)
+    }
+
+    suspend fun initML(call: MethodCall, result: Result) {
+        val modelDir = call.argument<String>("modelDir")!!
+        val layersSizes = call.argument<List<Int>>("layersSizes")!!.toIntArray()
+        val partitionId = call.argument<Int>("partitionId")!!
+        val buffer = loadMappedFile(File(modelDir))
+        flowerClient = FlowerClient(buffer, layersSizes, sampleSpec())
+        loadData(this, flowerClient, partitionId)
         result.success(null)
     }
 

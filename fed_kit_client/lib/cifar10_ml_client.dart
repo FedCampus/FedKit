@@ -9,6 +9,9 @@ class Cifar10MLClient extends MLClient {
   bool _listening = false;
   Function(List<double> p1)? _onLoss;
 
+  Future<String?> getPlatformVersion() =>
+      callChannel.invokeMethod<String>('getPlatformVersion');
+
   @override
   Future<(double, double)> evaluate() async {
     final lossAccuracy =
@@ -31,9 +34,8 @@ class Cifar10MLClient extends MLClient {
 
   @override
   Future<List<Uint8List>> getParameters() async {
-    final params =
-        await callChannel.invokeMethod<List<Uint8List>>('getParameters');
-    return params!;
+    final params = await callChannel.invokeMethod<List>('getParameters');
+    return params!.cast<Uint8List>().toList();
   }
 
   @override
@@ -56,7 +58,17 @@ class Cifar10MLClient extends MLClient {
 
   @override
   Future<void> updateParameters(List<Uint8List> parameters) async {
-    await callChannel.invokeMethod('updateParameters');
+    await callChannel
+        .invokeMethod('updateParameters', {'parameters': parameters});
+  }
+
+  Future<void> initML(
+      String modelDir, List<int> layersSizes, int partitionId) async {
+    await callChannel.invokeMethod('initML', {
+      'modelDir': modelDir,
+      'layersSizes': layersSizes,
+      'partitionId': partitionId
+    });
   }
 
   void ensureListening() {

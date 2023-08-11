@@ -40,6 +40,7 @@ dependencies:
   plugin_platform_interface: ^2.1.5
   http: ^1.1.0
   logger: ^2.0.0
+  app_set_id: ^1.0.0
 
 dev_dependencies:
   flutter_test:
