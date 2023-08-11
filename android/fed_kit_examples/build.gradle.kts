@@ -23,6 +23,7 @@ android {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
     testImplementation("junit:junit:4.13.2")
 
     // Local dependencies.

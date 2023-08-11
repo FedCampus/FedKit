@@ -4,10 +4,10 @@ import android.content.Context
 import android.util.Log
 import androidx.work.WorkerParameters
 import org.eu.fedcampus.fed_kit.background.BaseTrainWorker
-import org.eu.fedcampus.fed_kit.examples.cifar10.DATA_TYPE
-import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
-import org.eu.fedcampus.fed_kit.examples.cifar10.loadData
-import org.eu.fedcampus.fed_kit.examples.cifar10.sampleSpec
+import org.eu.fedcampus.fed_kit_examples.cifar10.DATA_TYPE
+import org.eu.fedcampus.fed_kit_examples.cifar10.Float3DArray
+import org.eu.fedcampus.fed_kit_examples.cifar10.loadData
+import org.eu.fedcampus.fed_kit_examples.cifar10.sampleSpec
 
 class BenchmarkCifar10Worker(context: Context, params: WorkerParameters) :
     BaseTrainWorker<Float3DArray, FloatArray>(

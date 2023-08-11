@@ -1,4 +1,4 @@
-package org.eu.fedcampus.fed_kit.examples.cifar10
+package org.eu.fedcampus.fed_kit_examples.cifar10
 
 import android.content.Context
 import android.graphics.Bitmap

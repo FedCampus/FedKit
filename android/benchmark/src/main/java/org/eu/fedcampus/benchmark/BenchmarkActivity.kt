@@ -15,7 +15,7 @@ import org.eu.fedcampus.benchmark.databinding.ActivityBenchmarkBinding
 import org.eu.fedcampus.fed_kit.background.BaseTrainWorker
 import org.eu.fedcampus.fed_kit.background.fastTrainWorkRequest
 import org.eu.fedcampus.fed_kit.background.trainWorkerData
-import org.eu.fedcampus.fed_kit.examples.cifar10.Float3DArray
+import org.eu.fedcampus.fed_kit_examples.cifar10.Float3DArray
 import org.eu.fedcampus.fed_kit_train.helpers.deviceId
 import java.text.SimpleDateFormat
 import java.util.Date
