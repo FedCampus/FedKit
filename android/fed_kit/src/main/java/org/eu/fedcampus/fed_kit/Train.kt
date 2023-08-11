@@ -4,9 +4,9 @@ import android.content.Context
 import android.util.Log
 import io.grpc.ManagedChannel
 import kotlinx.coroutines.*
-import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
 import org.eu.fedcampus.fed_kit_train.FlowerClient
 import org.eu.fedcampus.fed_kit_train.SampleSpec
+import org.eu.fedcampus.fed_kit_train.db.TFLiteModel
 import retrofit2.http.*
 import java.io.File
 import java.nio.MappedByteBuffer
@@ -132,7 +132,7 @@ class Train<X : Any, Y : Any> constructor(
         useTLS: Boolean,
         model: TFLiteModel
     ): FlowerClient<X, Y> {
-        val flowerClient = FlowerClient(buffer, model, sampleSpec)
+        val flowerClient = FlowerClient(buffer, model.layers_sizes, sampleSpec)
         val channel = withContext(Dispatchers.IO) {
             createChannel(address, useTLS)
         }

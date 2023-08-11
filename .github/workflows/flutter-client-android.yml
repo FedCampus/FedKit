@@ -1,14 +1,18 @@
 on:
   push:
     paths:
-      - '.github/workflows/flutter.yml'
-      - '**.dart'
-      - '**pubspec.yaml'
+      - '.github/workflows/flutter-android.yml'
+      - '**.gradle'
+      - '**.kt'
+      - '**.java'
+      - '**.xml'
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          lfs: true
       - uses: subosito/flutter-action@v2
         with:
           cache: true
@@ -16,13 +20,12 @@ jobs:
         run: |
           cd fed_kit_client/
           flutter pub get
-      - name: Test
+      - uses: actions/setup-java@v2
+        with:
+          distribution: zulu
+          java-version: 18
+          cache: gradle
+      - name: Build APK
         run: |
           cd fed_kit_client/
-          flutter test
-      - name: Analysis
-        run: |
-          cd fed_kit_client/
-          flutter analyze
-      - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed .
+          flutter build apk

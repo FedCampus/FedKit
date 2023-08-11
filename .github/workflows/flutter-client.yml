@@ -1,0 +1,24 @@
+on:
+  push:
+    paths:
+      - '.github/workflows/flutter.yml'
+      - 'fed_kit_client/**.dart'
+      - 'fed_kit_client/**pubspec.yaml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+      - uses: subosito/flutter-action@v2
+        with:
+          cache: true
+      - name: Test
+        run: |
+          cd fed_kit_client/
+          flutter test
+      - name: Analysis
+        run: |
+          cd fed_kit_client/
+          flutter analyze
