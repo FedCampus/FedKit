@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: subosito/flutter-action@v2
         with:
           lfs: true
+      - uses: subosito/flutter-action@v2
         with:
           cache: true
       - name: Verify formatting
