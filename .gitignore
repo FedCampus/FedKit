@@ -1,7 +1,5 @@
 # Specific
 **.csv
-**.freezed.dart
-**.g.dart
 **.idea/
 **.jar
 **.lock
@@ -9,7 +7,6 @@
 **.tflite
 **gradlew
 **gradlew.bat
-flutter/lib/transport.*.dart
 saved_model/
 
 # Artifacts
