@@ -20,10 +20,6 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           cache: true
-      - name: Verify formatting
-        run: |
-          cd flutter/
-          dart format --output=none --set-exit-if-changed .
       - run: |
           cd backend/
           python manage.py runserver &

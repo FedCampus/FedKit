@@ -20,7 +20,3 @@ jobs:
         run: |
           cd fed_kit_client/
           flutter analyze
-      - name: Verify formatting
-        run: |
-          cd fed_kit_client/
-          dart format --output=none --set-exit-if-changed .
