@@ -14,3 +14,5 @@ include ':fed_kit'
 project(':fed_kit').projectDir = new File('../../android/fed_kit/')
 include ':fed_kit_train'
 project(':fed_kit_train').projectDir = new File('../../android/fed_kit_train/')
+include ':fed_kit_examples'
+project(':fed_kit_examples').projectDir = new File('../../android/fed_kit_examples/')

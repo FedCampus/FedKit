@@ -55,5 +55,6 @@ dependencies {
 
     // Local dependencies.
     implementation project(path: ':fed_kit')
+    implementation project(path: ':fed_kit_examples')
     implementation project(path: ':fed_kit_train')
 }
