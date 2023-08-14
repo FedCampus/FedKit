@@ -44,6 +44,8 @@ fun <T, R> Iterable<T>.lazyMap(transform: (T) -> R) = sequence {
 
 fun FloatArray.argmax(): Int = indices.maxBy { this[it] }
 
+fun List<Double>.toFloatArray(): FloatArray = map { it.toFloat() }.toFloatArray()
+
 fun stringToLong(string: String): Long {
     val hashCode = string.hashCode().toLong()
     val secondHashCode = string.reversed().hashCode().toLong()
