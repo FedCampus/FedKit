@@ -14,7 +14,7 @@ import UIKit
 
     public func register() {
         let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
-        let channel = FlutterMethodChannel(name: "fed_kit_flutter", binaryMessenger: controller.binaryMessenger)
+        let channel = FlutterMethodChannel(name: "fed_kit_client_cifar10_ml_client", binaryMessenger: controller.binaryMessenger)
         channel.setMethodCallHandler(handle)
     }
 
