@@ -40,7 +40,7 @@ import UIKit
         result(FlutterStandardTypedData(float32: Data(buffer: UnsafeBufferPointer(start: fakeData, count: 2))))
     }
 
-    func fit(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    func fit(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
         // TODO: Real fit.
         result(nil)
     }
@@ -62,7 +62,7 @@ import UIKit
         result(nil)
     }
 
-    func initML(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    func initML(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
         // TODO: Initialize model and load data.
         result(nil)
     }
