@@ -4,7 +4,6 @@ import UIKit
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-    private var parameters: [FlutterStandardTypedData]?
     var mlClient: MLClient?
     let log = logger(String(describing: AppDelegate.self))
 
@@ -41,7 +40,7 @@ import UIKit
     func evaluate(_ result: @escaping FlutterResult) {
         // TODO: Real evaluation.
         var fakeData = [Float32(0.9), Float32(0.1)]
-        result(FlutterStandardTypedData(float32: Data(buffer: UnsafeBufferPointer(start: fakeData, count: 2))))
+        result(FlutterStandardTypedData(float32: Data(fromArray: fakeData)))
     }
 
     func fit(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -50,7 +49,9 @@ import UIKit
     }
 
     func getParameters(_ result: @escaping FlutterResult) {
-        // TODO: Real parameters.
+        let parameters = mlClient?.getParameters().compactMap { layer in
+            FlutterStandardTypedData(float32: Data(fromArray: layer))
+        }
         result(parameters)
     }
 
@@ -61,8 +62,11 @@ import UIKit
 
     func updateParameters(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let args = call.arguments as! [String: Any]
-        parameters = args["parameters"] as? [FlutterStandardTypedData]
-        // TODO: Real updates.
+        let params = args["parameters"] as! [FlutterStandardTypedData]
+        let parameters = params.compactMap { layer in
+            layer.data.toArray(type: Float.self)
+        }
+        mlClient?.updateParameters(parameters: parameters)
         result(nil)
     }
 
@@ -94,9 +98,11 @@ import UIKit
                     let e = FlutterError(code: "\(error)", message: error.localizedDescription, details: nil)
                     DispatchQueue.main.async { result(e) }
                 }
+            } else {
+                self.log.error("MNIST model file not there.")
             }
             DispatchQueue.main.async {
-                result(nil)
+                result("\(self.mlClient)")
             }
         }
     }

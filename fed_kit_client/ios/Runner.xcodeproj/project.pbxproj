@@ -13,14 +13,14 @@
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		3F3379472A91D7490084B7C8 /* MLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3379462A91D7490084B7C8 /* MLHelper.swift */; };
-		3F3379492A91E9C80084B7C8 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3379482A91E9C80084B7C8 /* Logger.swift */; };
+		3F3379492A91E9C80084B7C8 /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3379482A91E9C80084B7C8 /* Helpers.swift */; };
+		3F33794D2A91F6EF0084B7C8 /* MNIST_test.csv.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = 3F33794A2A91F6EF0084B7C8 /* MNIST_test.csv.lzfse */; };
+		3F33794E2A91F6EF0084B7C8 /* MNIST_train.csv.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = 3F33794B2A91F6EF0084B7C8 /* MNIST_train.csv.lzfse */; };
+		3F33794F2A91F6EF0084B7C8 /* MNIST_Model.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F33794C2A91F6EF0084B7C8 /* MNIST_Model.mlmodel */; };
 		3F4AFE3E2A90656F004B55C8 /* DataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE3D2A90656F004B55C8 /* DataLoader.swift */; };
 		3F4AFE432A906BAF004B55C8 /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F4AFE422A906BAF004B55C8 /* NIOCore */; };
 		3F4AFE452A906BAF004B55C8 /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = 3F4AFE442A906BAF004B55C8 /* NIOPosix */; };
 		3F4AFE4B2A909646004B55C8 /* MLModelInspect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE4A2A909646004B55C8 /* MLModelInspect.swift */; };
-		3F4AFE512A909759004B55C8 /* MNIST_train.csv.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = 3F4AFE4E2A909759004B55C8 /* MNIST_train.csv.lzfse */; };
-		3F4AFE522A909759004B55C8 /* MNIST_Model.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE4F2A909759004B55C8 /* MNIST_Model.mlmodel */; };
-		3F4AFE532A909759004B55C8 /* MNIST_test.csv.lzfse in Resources */ = {isa = PBXBuildFile; fileRef = 3F4AFE502A909759004B55C8 /* MNIST_test.csv.lzfse */; };
 		3F4AFE772A90977B004B55C8 /* Scaler.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE552A909778004B55C8 /* Scaler.pb.swift */; };
 		3F4AFE782A90977B004B55C8 /* AudioFeaturePrint.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE562A909778004B55C8 /* AudioFeaturePrint.pb.swift */; };
 		3F4AFE792A90977B004B55C8 /* DataStructures.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE572A909779004B55C8 /* DataStructures.pb.swift */; };
@@ -98,12 +98,12 @@
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		3F3379462A91D7490084B7C8 /* MLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLHelper.swift; sourceTree = "<group>"; };
-		3F3379482A91E9C80084B7C8 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		3F3379482A91E9C80084B7C8 /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		3F33794A2A91F6EF0084B7C8 /* MNIST_test.csv.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = MNIST_test.csv.lzfse; sourceTree = "<group>"; };
+		3F33794B2A91F6EF0084B7C8 /* MNIST_train.csv.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = MNIST_train.csv.lzfse; sourceTree = "<group>"; };
+		3F33794C2A91F6EF0084B7C8 /* MNIST_Model.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MNIST_Model.mlmodel; sourceTree = "<group>"; };
 		3F4AFE3D2A90656F004B55C8 /* DataLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoader.swift; sourceTree = "<group>"; };
 		3F4AFE4A2A909646004B55C8 /* MLModelInspect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLModelInspect.swift; sourceTree = "<group>"; };
-		3F4AFE4E2A909759004B55C8 /* MNIST_train.csv.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = MNIST_train.csv.lzfse; sourceTree = "<group>"; };
-		3F4AFE4F2A909759004B55C8 /* MNIST_Model.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = MNIST_Model.mlmodel; sourceTree = "<group>"; };
-		3F4AFE502A909759004B55C8 /* MNIST_test.csv.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = MNIST_test.csv.lzfse; sourceTree = "<group>"; };
 		3F4AFE552A909778004B55C8 /* Scaler.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Scaler.pb.swift; sourceTree = "<group>"; };
 		3F4AFE562A909778004B55C8 /* AudioFeaturePrint.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AudioFeaturePrint.pb.swift; sourceTree = "<group>"; };
 		3F4AFE572A909779004B55C8 /* DataStructures.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataStructures.pb.swift; sourceTree = "<group>"; };
@@ -203,7 +203,7 @@
 		3F4AFE4C2A9096D2004B55C8 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
-				3F3379482A91E9C80084B7C8 /* Logger.swift */,
+				3F3379482A91E9C80084B7C8 /* Helpers.swift */,
 				3F4AFE4A2A909646004B55C8 /* MLModelInspect.swift */,
 				3F8854222A90A52700B37487 /* Flwr */,
 				3F4AFE542A909769004B55C8 /* CoreMLProto */,
@@ -216,9 +216,9 @@
 		3F4AFE4D2A90974E004B55C8 /* MNIST */ = {
 			isa = PBXGroup;
 			children = (
-				3F4AFE4F2A909759004B55C8 /* MNIST_Model.mlmodel */,
-				3F4AFE502A909759004B55C8 /* MNIST_test.csv.lzfse */,
-				3F4AFE4E2A909759004B55C8 /* MNIST_train.csv.lzfse */,
+				3F33794C2A91F6EF0084B7C8 /* MNIST_Model.mlmodel */,
+				3F33794A2A91F6EF0084B7C8 /* MNIST_test.csv.lzfse */,
+				3F33794B2A91F6EF0084B7C8 /* MNIST_train.csv.lzfse */,
 			);
 			path = MNIST;
 			sourceTree = "<group>";
@@ -434,14 +434,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3F4AFE512A909759004B55C8 /* MNIST_train.csv.lzfse in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
-				3F4AFE532A909759004B55C8 /* MNIST_test.csv.lzfse in Resources */,
+				3F33794E2A91F6EF0084B7C8 /* MNIST_train.csv.lzfse in Resources */,
 				3F4AFE912A90977B004B55C8 /* README.rst in Resources */,
 				3F4AFE832A90977B004B55C8 /* LICENSE.txt in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				3F33794D2A91F6EF0084B7C8 /* MNIST_test.csv.lzfse in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -574,8 +574,7 @@
 				3F4AFE982A90977B004B55C8 /* SVM.pb.swift in Sources */,
 				3F4AFE902A90977B004B55C8 /* NonMaximumSuppression.pb.swift in Sources */,
 				3F4AFE922A90977B004B55C8 /* GLMRegressor.pb.swift in Sources */,
-				3F4AFE522A909759004B55C8 /* MNIST_Model.mlmodel in Sources */,
-				3F3379492A91E9C80084B7C8 /* Logger.swift in Sources */,
+				3F3379492A91E9C80084B7C8 /* Helpers.swift in Sources */,
 				3F4AFE862A90977B004B55C8 /* ArrayFeatureExtractor.pb.swift in Sources */,
 				3F4AFE812A90977B004B55C8 /* TextClassifier.pb.swift in Sources */,
 				3F4AFE932A90977B004B55C8 /* OneHotEncoder.pb.swift in Sources */,
@@ -584,6 +583,7 @@
 				3F4AFE8F2A90977B004B55C8 /* Parameters.pb.swift in Sources */,
 				3F4AFE8E2A90977B004B55C8 /* Normalizer.pb.swift in Sources */,
 				3F4AFE942A90977B004B55C8 /* SoundAnalysisPreprocessing.pb.swift in Sources */,
+				3F33794F2A91F6EF0084B7C8 /* MNIST_Model.mlmodel in Sources */,
 				3F4AFE8C2A90977B004B55C8 /* CategoricalMapping.pb.swift in Sources */,
 				3F4AFE802A90977B004B55C8 /* Gazetteer.pb.swift in Sources */,
 				3F4AFE772A90977B004B55C8 /* Scaler.pb.swift in Sources */,
