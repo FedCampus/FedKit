@@ -12,10 +12,10 @@ extension Data {
         self.init(buffer: UnsafeBufferPointer(start: &values, count: values.count))
     }
 
-    func toArray<T>(type: T.Type) -> [T] {
-        let value = self.withUnsafeBytes {
+    func toArray<T>(type _: T.Type) -> [T] {
+        let value = withUnsafeBytes {
             $0.baseAddress?.assumingMemoryBound(to: T.self)
         }
-        return [T](UnsafeBufferPointer(start: value, count: self.count / MemoryLayout<T>.stride))
+        return [T](UnsafeBufferPointer(start: value, count: count / MemoryLayout<T>.stride))
     }
 }

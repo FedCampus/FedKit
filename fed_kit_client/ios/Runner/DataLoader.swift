@@ -52,7 +52,7 @@ enum DataLoader {
         let destinationFileHandle = try! FileHandle(forWritingTo: destinationURL)
         let bufferSize = 65536
 
-        let filter = try! OutputFilter(.decompress, using: .lzfse, bufferCapacity: 655360) { data in
+        let filter = try! OutputFilter(.decompress, using: .lzfse, bufferCapacity: 655_360) { data in
             if let data = data {
                 destinationFileHandle.write(data)
             }
