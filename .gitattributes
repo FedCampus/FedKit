@@ -1,5 +1,6 @@
 **.freezed.dart filter=lfs diff=lfs merge=lfs -text
 **.g.dart filter=lfs diff=lfs merge=lfs -text
 flutter/lib/transport.*.dart filter=lfs diff=lfs merge=lfs -text
-fed_kit_client/ios/Runner/MNIST/**.mlmodel filter=lfs diff=lfs merge=lfs -text
-fed_kit_client/ios/Runner/MNIST/**.lzfse filter=lfs diff=lfs merge=lfs -text
+**.mlmodel filter=lfs diff=lfs merge=lfs -text
+**.lzfse filter=lfs diff=lfs merge=lfs -text
+fed_kit_client/ios/Runner/Utils/CoreMLProto/ filter=lfs diff=lfs merge=lfs -text
