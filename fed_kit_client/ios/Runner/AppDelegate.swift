@@ -73,23 +73,25 @@ import UIKit
     func initML(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
         DispatchQueue.global(qos: .default).async {
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
-                if count % 100 == 99 {
-                    self.log.debug("Prepared \(count) training data points.")
+                if count % 500 == 499 {
+                    self.log.error("Prepared \(count) training data points.")
                 }
             }
+            self.log.error("trainBatchProvider: \(trainBatchProvider.count)")
 
             let testBatchProvider = DataLoader.testBatchProvider { count in
-                if count % 100 == 99 {
-                    self.log.debug("Prepared \(count) test data points.")
+                if count % 500 == 499 {
+                    self.log.error("Prepared \(count) test data points.")
                 }
             }
+            self.log.error("testBatchProvider: \(testBatchProvider.count)")
 
             let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
             if let url = Bundle.main.url(forResource: "MNIST_Model", withExtension: "mlmodel") {
                 do {
-                    self.log.debug("\(url)")
+                    self.log.error("\(url)")
                     let compiledModelUrl = try MLModel.compileModel(at: url)
-                    self.log.debug("\(compiledModelUrl)")
+                    self.log.error("\(compiledModelUrl)")
                     let modelInspect = try MLModelInspect(serializedData: Data(contentsOf: url))
                     let layerWrappers = modelInspect.getLayerWrappers()
                     self.mlClient = MLClient(layerWrappers, dataLoader, compiledModelUrl)

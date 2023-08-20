@@ -6,7 +6,7 @@ func updateModelAsync(forModelAt: URL, trainingData: MLBatchProvider, configurat
 
     let progressHandler: (MLUpdateContext) -> Void = { contextProgress in
         let loss = String(format: "%.4f", contextProgress.metrics[.lossValue] as! Double)
-        log.debug("Epoch \(contextProgress.metrics[.epochIndex] as! Int + 1) finished with loss \(loss)")
+        log.error("Epoch \(contextProgress.metrics[.epochIndex] as! Int + 1) finished with loss \(loss)")
     }
 
     return try await withCheckedThrowingContinuation { continuation in

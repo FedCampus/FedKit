@@ -98,7 +98,7 @@ enum DataLoader {
         errno = 0
 
         if freopen(filePath, "r", stdin) == nil {
-            log.debug("error opening file")
+            log.error("error opening file")
         }
         var lengthEntry = 1
         shapeData.enumerated().forEach { _, value in
