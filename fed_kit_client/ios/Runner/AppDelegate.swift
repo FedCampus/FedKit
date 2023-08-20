@@ -6,6 +6,7 @@ import UIKit
 @objc class AppDelegate: FlutterAppDelegate {
     private var parameters: [FlutterStandardTypedData]?
     var mlClient: MLClient?
+    let log = logger(String(describing: AppDelegate.self))
 
     override func application(
         _ application: UIApplication,
@@ -69,27 +70,25 @@ import UIKit
         DispatchQueue.global(qos: .default).async {
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 100 == 99 {
-                    print("Prepared \(count) training data points.")
+                    self.log.debug("Prepared \(count) training data points.")
                 }
             }
 
             let testBatchProvider = DataLoader.testBatchProvider { count in
                 if count % 100 == 99 {
-                    print("Prepared \(count) test data points.")
+                    self.log.debug("Prepared \(count) test data points.")
                 }
             }
 
             let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
             if let url = Bundle.main.url(forResource: "MNIST_Model", withExtension: "mlmodel") {
                 do {
-                    print(url)
+                    self.log.debug("\(url)")
                     let compiledModelUrl = try MLModel.compileModel(at: url)
-                    print(compiledModelUrl)
+                    self.log.debug("\(compiledModelUrl)")
                     let modelInspect = try MLModelInspect(serializedData: Data(contentsOf: url))
                     let layerWrappers = modelInspect.getLayerWrappers()
                     self.mlClient = MLClient(layerWrappers, dataLoader, compiledModelUrl)
-
-                    // TODO: Initialize model and load data.
                     DispatchQueue.main.async { result(nil) }
                 } catch {
                     let e = FlutterError(code: "\(error)", message: error.localizedDescription, details: nil)

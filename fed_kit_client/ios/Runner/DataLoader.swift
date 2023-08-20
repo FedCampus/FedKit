@@ -4,6 +4,7 @@
 //
 //  Created by Daniel Nugraha on 25.05.22.
 //  Adapted from https://github.com/JacopoMangiavacchi/MNIST-CoreML-Training
+//  Modified by Steven Hé to adapt to fed_kit.
 
 import Compression
 import CoreML
@@ -18,6 +19,7 @@ enum DataLoader {
     private static let shapeData: [NSNumber] = [1, 28, 28]
     private static let normalization: Float = 255.0
     private static let shapeTarget: [NSNumber] = [1]
+    static let log = logger(String(describing: DataLoader.self))
 
     static func trainBatchProvider(progressHandler: @escaping (Int) -> Void) -> MLBatchProvider {
         return prepareMLBatchProvider(filePath: extractTrainFile(dataset: dataset), progressHandler: progressHandler)
@@ -50,7 +52,7 @@ enum DataLoader {
         let destinationFileHandle = try! FileHandle(forWritingTo: destinationURL)
         let bufferSize = 65536
 
-        let filter = try! OutputFilter(.decompress, using: .lzfse, bufferCapacity: 655_360) { data in
+        let filter = try! OutputFilter(.decompress, using: .lzfse, bufferCapacity: 655360) { data in
             if let data = data {
                 destinationFileHandle.write(data)
             }
@@ -96,7 +98,7 @@ enum DataLoader {
         errno = 0
 
         if freopen(filePath, "r", stdin) == nil {
-            print("error opening file")
+            log.debug("error opening file")
         }
         var lengthEntry = 1
         shapeData.enumerated().forEach { _, value in
@@ -137,7 +139,7 @@ enum DataLoader {
 
         let testFilePath = extractTestFile(dataset: dataset)
         if freopen(testFilePath, "r", stdin) == nil {
-            print("error opening file")
+            log.error("error opening file")
         }
         var lengthEntry = 1
         shapeData.enumerated().forEach { _, value in

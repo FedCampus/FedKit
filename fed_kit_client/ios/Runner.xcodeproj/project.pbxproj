@@ -13,6 +13,7 @@
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		3F3379472A91D7490084B7C8 /* MLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3379462A91D7490084B7C8 /* MLHelper.swift */; };
+		3F3379492A91E9C80084B7C8 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F3379482A91E9C80084B7C8 /* Logger.swift */; };
 		3F4AFE3E2A90656F004B55C8 /* DataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE3D2A90656F004B55C8 /* DataLoader.swift */; };
 		3F4AFE432A906BAF004B55C8 /* NIOCore in Frameworks */ = {isa = PBXBuildFile; productRef = 3F4AFE422A906BAF004B55C8 /* NIOCore */; };
 		3F4AFE452A906BAF004B55C8 /* NIOPosix in Frameworks */ = {isa = PBXBuildFile; productRef = 3F4AFE442A906BAF004B55C8 /* NIOPosix */; };
@@ -97,6 +98,7 @@
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
 		3F3379462A91D7490084B7C8 /* MLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLHelper.swift; sourceTree = "<group>"; };
+		3F3379482A91E9C80084B7C8 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		3F4AFE3D2A90656F004B55C8 /* DataLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLoader.swift; sourceTree = "<group>"; };
 		3F4AFE4A2A909646004B55C8 /* MLModelInspect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLModelInspect.swift; sourceTree = "<group>"; };
 		3F4AFE4E2A909759004B55C8 /* MNIST_train.csv.lzfse */ = {isa = PBXFileReference; lastKnownFileType = file; path = MNIST_train.csv.lzfse; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 		3F4AFE4C2A9096D2004B55C8 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				3F3379482A91E9C80084B7C8 /* Logger.swift */,
 				3F4AFE4A2A909646004B55C8 /* MLModelInspect.swift */,
 				3F8854222A90A52700B37487 /* Flwr */,
 				3F4AFE542A909769004B55C8 /* CoreMLProto */,
@@ -572,6 +575,7 @@
 				3F4AFE902A90977B004B55C8 /* NonMaximumSuppression.pb.swift in Sources */,
 				3F4AFE922A90977B004B55C8 /* GLMRegressor.pb.swift in Sources */,
 				3F4AFE522A909759004B55C8 /* MNIST_Model.mlmodel in Sources */,
+				3F3379492A91E9C80084B7C8 /* Logger.swift in Sources */,
 				3F4AFE862A90977B004B55C8 /* ArrayFeatureExtractor.pb.swift in Sources */,
 				3F4AFE812A90977B004B55C8 /* TextClassifier.pb.swift in Sources */,
 				3F4AFE932A90977B004B55C8 /* OneHotEncoder.pb.swift in Sources */,
@@ -666,7 +670,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
@@ -794,7 +798,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -843,7 +847,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
