@@ -1,27 +1,6 @@
-from typing import Callable
-
-import tensorflow as tf
+from tensorflow import keras
 
 from .. import *
-
-
-def repeat(fn: Callable[[], list], times: int):
-    return sum((fn() for _ in range(times)), [])
-
-
-def repeat3(fn: Callable[[], list]):
-    return repeat(fn, 3)
-
-
-def conv_layers():
-    return [
-        tf.keras.layers.Conv1D(7, kernel_size=3),
-        tf.keras.layers.BatchNormalization(),
-    ]
-
-
-def recurrent_layers():
-    return [tf.keras.layers.LSTM(7, dropout=0.2, return_sequences=True)]
 
 
 @tflite_model_class
@@ -30,18 +9,47 @@ class FedMCRNNModel(BaseTFLiteModel):
     Y_SHAPE = [1]
 
     def __init__(self):
-        self.model = tf.keras.models.Sequential(
-            [tf.keras.Input(shape=tuple(self.X_SHAPE))]
-            + repeat3(conv_layers)
-            + [
-                tf.keras.layers.Dense(56, activation="relu"),
-                tf.keras.layers.Flatten(),
-                tf.keras.layers.RepeatVector(7),
-            ]
-            + repeat3(recurrent_layers)
-            + [
-                tf.keras.layers.Flatten(),
-                tf.keras.layers.Dense(1),
-            ]
+        self.model = self.build_model()
+
+    def build_model(self):
+        """Written and tuned by Aicha Slaitane in Aug 2023."""
+        model = keras.Sequential()
+        # For the first LSTM layer, specify the input_shape
+        model.add(
+            keras.layers.LSTM(
+                # Tune number of units separately.
+                units=384,
+                input_shape=self.X_SHAPE,
+                return_sequences=True,
+            )
         )
-        self.model.compile(loss=tf.keras.losses.MeanSquaredError())
+        model.add(keras.layers.LeakyReLU(0.523629795960645))
+        model.add(keras.layers.Dropout(0.372150795833))
+
+        # For subsequent LSTM layers, no need to specify input_shape
+        model.add(
+            keras.layers.LSTM(
+                units=64,
+                return_sequences=True,
+            )
+        )
+        model.add(keras.layers.LeakyReLU(0.523629795960645))
+        model.add(keras.layers.Dropout(0.372150795833))
+
+        model.add(
+            keras.layers.LSTM(
+                units=480,
+                return_sequences=True,
+            )
+        )
+        model.add(keras.layers.LeakyReLU(0.523629795960645))
+        model.add(keras.layers.Dropout(0.372150795833))
+
+        model.add(keras.layers.Dense(1))
+
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate=0.00668472266354),
+            loss="mean_squared_error",
+            metrics=["mean_absolute_error"],
+        )
+        return model
