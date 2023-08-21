@@ -44,7 +44,7 @@ class FedMCRNNModel(BaseTFLiteModel):
         )
         model.add(keras.layers.LeakyReLU(0.523629795960645))
         model.add(keras.layers.Dropout(0.372150795833))
-
+        model.add(keras.layers.Flatten())
         model.add(keras.layers.Dense(1))
 
         model.compile(
