@@ -94,9 +94,7 @@ import UIKit
             let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
             guard let url = URL(string: modelDir) else {
                 self.log.error("Model file not at \(modelDir).")
-                let e = FlutterError(code: "Model file not at \(modelDir).", message: nil, details: nil)
-                DispatchQueue.main.async { result(e) }
-                return
+                throw MLClientErr.ParamsNil
             }
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
