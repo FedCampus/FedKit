@@ -70,7 +70,11 @@ import UIKit
         result(nil)
     }
 
-    func initML(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
+    func initML(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        let args = call.arguments as! [String: Any]
+        let modelDir = args["modelDir"] as! String
+        let layersSizes = (args["layersSizes"] as! [NSNumber]).compactMap { $0.int32Value }
+        let partitionId = (args["partitionId"] as! NSNumber).int32Value
         DispatchQueue.global(qos: .default).async {
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 500 == 499 {
@@ -87,24 +91,26 @@ import UIKit
             self.log.error("testBatchProvider: \(testBatchProvider.count)")
 
             let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
-            if let url = Bundle.main.url(forResource: "MNIST_Model", withExtension: "mlmodel") {
-                do {
-                    self.log.error("\(url)")
-                    let compiledModelUrl = try MLModel.compileModel(at: url)
-                    self.log.error("\(compiledModelUrl)")
-                    let modelInspect = try MLModelInspect(serializedData: Data(contentsOf: url))
-                    let layerWrappers = modelInspect.getLayerWrappers()
-                    self.mlClient = MLClient(layerWrappers, dataLoader, compiledModelUrl)
-                    DispatchQueue.main.async { result(nil) }
-                } catch {
-                    let e = FlutterError(code: "\(error)", message: error.localizedDescription, details: nil)
-                    DispatchQueue.main.async { result(e) }
-                }
-            } else {
-                self.log.error("MNIST model file not there.")
+            guard let url = URL(string: modelDir) else {
+                self.log.error("Model file not at \(modelDir).")
+                let e = FlutterError(code: "Model file not at \(modelDir).", message: nil, details: nil)
+                DispatchQueue.main.async { result(e) }
+                return
             }
-            DispatchQueue.main.async {
-                result("\(self.mlClient)")
+            do {
+                self.log.error("Model URL: \(url).")
+                let compiledModelUrl = try MLModel.compileModel(at: url)
+                self.log.error("Compiled model URL: \(compiledModelUrl).")
+                let modelData = try Data(contentsOf: url)
+                self.log.error("Model data of \(modelData.count).")
+                let modelInspect = try MLModelInspect(serializedData: modelData)
+                self.log.error("Model initialized inspection.")
+                let layerWrappers = modelInspect.getLayerWrappers()
+                self.mlClient = MLClient(layerWrappers, dataLoader, compiledModelUrl)
+                DispatchQueue.main.async { result(nil) }
+            } catch {
+                let e = FlutterError(code: "\(error)", message: error.localizedDescription, details: nil)
+                DispatchQueue.main.async { result(e) }
             }
         }
     }

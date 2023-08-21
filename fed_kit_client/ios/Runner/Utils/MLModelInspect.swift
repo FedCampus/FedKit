@@ -10,8 +10,8 @@ import Foundation
 struct MLModelInspect {
     private let mlModel: CoreML_Specification_Model?
 
-    init(serializedData data: Data) {
-        mlModel = try? CoreML_Specification_Model(serializedData: data)
+    init(serializedData data: Data) throws {
+        mlModel = try CoreML_Specification_Model(serializedData: data)
     }
 
     func getLayerWrappers() -> [MLLayerWrapper] {
