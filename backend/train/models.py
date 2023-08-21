@@ -10,7 +10,8 @@ class TrainingDataType(models.Model):
     name = models.CharField(max_length=256, unique=True, **cfg)
 
 
-# Always change together with Android `db.TFLiteModel.TFLiteModel`.
+# Always change together with Android `db.TFLiteModel.TFLiteModel`
+# & Dart `tflite_models.TFLiteModel`.
 class TFLiteModel(models.Model):
     name = models.CharField(max_length=64, unique=True, **cfg)
     file_path = models.CharField(max_length=64, unique=True, **cfg)

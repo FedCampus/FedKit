@@ -65,7 +65,7 @@ class Cifar10MLClient extends MLClient {
 
   Future<void> initML(
       String modelDir, List<int> layersSizes, int partitionId) async {
-    final result= await callChannel.invokeMethod('initML', {
+    final result = await callChannel.invokeMethod('initML', {
       'modelDir': modelDir,
       'layersSizes': layersSizes,
       'partitionId': partitionId

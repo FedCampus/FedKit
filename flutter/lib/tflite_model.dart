@@ -11,6 +11,7 @@ class TFLiteModel with _$TFLiteModel {
     required int id,
     required String name,
     required String file_path,
+    required String? mlmodel_path,
     required List<int> layers_sizes,
   }) = _TFLiteModel;
 
