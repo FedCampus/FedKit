@@ -22,7 +22,7 @@ def model_params(model: TFLiteModel):
         logger.warning(err)
 
 
-TWELVE_HOURS = 12 * 60 * 60
+TEN_MINUTES = 10 * 60
 
 
 class Server:
@@ -35,7 +35,7 @@ class Server:
         self.session = TrainingSession(tflite_model=model)
         self.process = Process(target=flwr_server, args=(params,))
         self.process.start()
-        self.timeout = Thread(target=Process.join, args=(self.process, TWELVE_HOURS))
+        self.timeout = Thread(target=Process.join, args=(self.process, TEN_MINUTES))
         self.timeout.start()
         self.update_session_end_time()
         logger.warning(f"Started flower server for model {model}")
