@@ -49,10 +49,11 @@ import UIKit
     }
 
     func getParameters(_ result: @escaping FlutterResult) {
-        let parameters = mlClient?.getParameters().compactMap { layer in
-            FlutterStandardTypedData(float32: Data(fromArray: layer))
+        runAsync(result) {
+            try (await self.mlClient?.getParameters().map { layer in
+                FlutterStandardTypedData(float32: Data(fromArray: layer))
+            })!
         }
-        result(parameters)
     }
 
     func ready(_ result: @escaping FlutterResult) {
@@ -63,7 +64,7 @@ import UIKit
     func updateParameters(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         let args = call.arguments as! [String: Any]
         let params = args["parameters"] as! [FlutterStandardTypedData]
-        let parameters = params.compactMap { layer in
+        let parameters = params.map { layer in
             layer.data.toArray(type: Float.self)
         }
         mlClient?.updateParameters(parameters: parameters)
@@ -71,11 +72,11 @@ import UIKit
     }
 
     func initML(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        let args = call.arguments as! [String: Any]
-        let modelDir = args["modelDir"] as! String
-        let layersSizes = (args["layersSizes"] as! [NSNumber]).compactMap { $0.int32Value }
-        let partitionId = (args["partitionId"] as! NSNumber).int32Value
-        DispatchQueue.global(qos: .default).async {
+        runAsync(result) {
+            let args = call.arguments as! [String: Any]
+            let modelDir = args["modelDir"] as! String
+            let layersSizes = (args["layersSizes"] as! [NSNumber]).map { $0.int32Value }
+            let partitionId = (args["partitionId"] as! NSNumber).int32Value
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 500 == 499 {
                     self.log.error("Prepared \(count) training data points.")
@@ -97,21 +98,42 @@ import UIKit
                 DispatchQueue.main.async { result(e) }
                 return
             }
-            do {
-                self.log.error("Model URL: \(url).")
-                let compiledModelUrl = try MLModel.compileModel(at: url)
-                self.log.error("Compiled model URL: \(compiledModelUrl).")
-                let modelData = try Data(contentsOf: url)
-                self.log.error("Model data of \(modelData.count).")
-                let modelInspect = try MLModelInspect(serializedData: modelData)
-                self.log.error("Model initialized inspection.")
-                let layerWrappers = modelInspect.getLayerWrappers()
-                self.mlClient = MLClient(layerWrappers, dataLoader, compiledModelUrl)
-                DispatchQueue.main.async { result(nil) }
-            } catch {
-                let e = FlutterError(code: "\(error)", message: error.localizedDescription, details: nil)
-                DispatchQueue.main.async { result(e) }
+            self.log.error("Model URL: \(url).")
+            let compiledModelUrl = try MLModel.compileModel(at: url)
+            self.log.error("Compiled model URL: \(compiledModelUrl).")
+            self.mlClient = MLClient(layerNames, dataLoader, compiledModelUrl)
+            return nil
+        }
+    }
+
+    private func runAsync(_ result: @escaping FlutterResult, _ task: @escaping () async throws -> Any?) {
+        DispatchQueue.global(qos: .default).async {
+            Task {
+                do {
+                    let output = try await task()
+                    DispatchQueue.main.async { result(output) }
+                } catch {
+                    let e = FlutterError(code: "\(error)", message: error.localizedDescription, details: nil)
+                    DispatchQueue.main.async { result(e) }
+                }
             }
         }
     }
 }
+
+let layerNames = [
+    "transpose_6",
+    "sequential/conv2d/Conv2Dx",
+    "sequential/conv2d/Relu",
+    "max_pool_0",
+    "sequential/conv2d_1/Conv2Dx",
+    "transpose_5",
+    "sequential/conv2d_1/Relu",
+    "sequential/flatten/Reshape",
+    "sequential/dense/MatMul",
+    "sequential/dense/Relu",
+    "sequential/dense_1/MatMul",
+    "sequential/dense_1/Relu",
+    "sequential/dense_2/MatMul",
+    "sequential/dense_2/Softmax",
+]

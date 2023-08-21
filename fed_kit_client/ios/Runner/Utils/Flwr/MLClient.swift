@@ -19,17 +19,20 @@ public enum MLTask {
 
 enum MLClientErr: Error {
     case NoParamUpdate
+    case ParamsNil
+    case ParamNotMultiArray
 }
 
 public class MLClient {
-    var parameters: MLParameter
+    let layerNames: [String]
+    var parameters: [MLMultiArray]?
     var dataLoader: MLDataLoader
     var compiledModelUrl: URL
     var tempModelUrl: URL
     private var paramUpdate: [[Float]]?
 
-    init(_ layerWrappers: [MLLayerWrapper], _ dataLoader: MLDataLoader, _ compiledModelUrl: URL) {
-        parameters = MLParameter(layerWrappers: layerWrappers)
+    init(_ layerNames: [String], _ dataLoader: MLDataLoader, _ compiledModelUrl: URL) {
+        self.layerNames = layerNames
         self.dataLoader = dataLoader
         self.compiledModelUrl = compiledModelUrl
 
@@ -37,8 +40,17 @@ public class MLClient {
         tempModelUrl = appDirectory.appendingPathComponent("temp\(modelFileName).mlmodelc")
     }
 
-    func getParameters() -> [[Float]] {
-        return parameters.layerWrappers.compactMap { $0.weights }
+    func getParameters() async throws -> [[Float]] {
+        if parameters == nil {
+            try await fit()
+        }
+        guard let parameters else {
+            throw MLClientErr.ParamsNil
+        }
+        return try parameters.map { layer in
+            let pointer = try UnsafeBufferPointer<Float>(layer)
+            return Array(pointer)
+        }
     }
 
     func updateParameters(parameters: [[Float]]) {
@@ -46,28 +58,41 @@ public class MLClient {
     }
 
     func fit() async throws {
-        var configuration: MLModelConfiguration?
-        if let paramUpdate {
-            configuration = parameters.parametersToWeights(parameters: paramUpdate)
-        }
+        let config = try config()
         let updateContext = try await updateModelAsync(
-            forModelAt: tempModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: configuration
+            forModelAt: tempModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: config
         )
-        parameters.updateLayerWrappers(context: updateContext)
+        parameters = try layerNames.map { name in
+            let paramKey = MLParameterKey.weights.scoped(to: name)
+            guard let weightsMultiArray = try updateContext.model.parameterValue(for: paramKey) as? MLMultiArray else {
+                throw MLClientErr.ParamNotMultiArray
+            }
+            return weightsMultiArray
+        }
         try saveModel(updateContext)
     }
 
     func evaluate() async throws -> (Double, Double) {
-        guard let paramUpdate else {
-            throw MLClientErr.NoParamUpdate
-        }
-        let configuration = parameters.parametersToWeights(parameters: paramUpdate)
-        configuration.parameters![MLParameterKey.epochs] = 1
+        let config = try config()
+        config.parameters![MLParameterKey.epochs] = 1
         let updateContext = try await updateModelAsync(
-            forModelAt: tempModelUrl, trainingData: dataLoader.testBatchProvider, configuration: configuration
+            forModelAt: tempModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
         )
         let loss = updateContext.metrics[.lossValue] as! Double
         return (loss, (1.0 - loss) * 100)
+    }
+
+    private func config() throws -> MLModelConfiguration {
+        let config = MLModelConfiguration()
+        if let paramUpdate {
+            for (index, weightsArray) in paramUpdate.enumerated() {
+                let layerParams = try MLMultiArray(weightsArray)
+                let paramKey = MLParameterKey.weights.scoped(to: layerNames[index])
+                config.parameters?[paramKey] = layerParams
+            }
+            self.paramUpdate = nil
+        }
+        return config
     }
 
     private func saveModel(_ updateContext: MLUpdateContext) throws {
