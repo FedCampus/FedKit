@@ -98,6 +98,7 @@ import UIKit
                 DispatchQueue.main.async { result(e) }
                 return
             }
+            self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
