@@ -39,8 +39,8 @@ class Train {
 
   Future<(TFLiteModel, String)> _prepareModel(String dataType) async {
     final model = await _advertisedModel(dataType);
-    final modelDir = await getModelDir(model);
-    await downloadModelFile(modelDir);
+    final (modelUrl, modelDir) = await getModelDir(model);
+    await downloadModelFile(modelUrl, modelDir);
     return (model, modelDir);
   }
 
@@ -58,19 +58,20 @@ class Train {
     return model;
   }
 
-  Future<void> downloadModelFile(String modelDir) => switch (_state) {
-        WithModel state => _downloadModelFile(modelDir, state.model),
+  Future<void> downloadModelFile(String modelUrl, String modelDir) =>
+      switch (_state) {
+        WithModel state => _downloadModelFile(modelUrl, modelDir, state.model),
         _ => throw Exception('`downloadModelFile` called with $_state'),
       };
 
-  Future<void> _downloadModelFile(String modelDir, TFLiteModel model) async {
+  Future<void> _downloadModelFile(
+      String modelUrl, String modelDir, TFLiteModel model) async {
     if (await Directory(modelDir).exists()) {
       logger.d('Skipping already downloaded model ${model.name}');
       return;
     }
-    final fileUrl = model.file_path;
-    await _client.downloadFile(fileUrl, modelDir);
-    logger.d('Downloaded ${model.name}: $fileUrl -> $modelDir.');
+    await _client.downloadFile(modelUrl, modelDir);
+    logger.d('Downloaded ${model.name}: $modelUrl -> $modelDir.');
   }
 
   Future<ServerData> getServerInfo({bool startFresh = false}) =>
