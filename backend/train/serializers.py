@@ -14,6 +14,11 @@ class TFLiteModelSerializer(serializers.Serializer):
         fields = ["id", "name", "file_path", "mlmodel_path", "layers_sizes"]
 
 
+class PostAdvertisedDataSerializer(serializers.Serializer):
+    data_type = serializers.CharField()
+    require_mlmodel = serializers.BooleanField(default=False)  # type: ignore
+
+
 # Always change together with Android `HttpClient.PostServerData`
 # & Dart `backend_client.PostServerData`.
 class PostServerDataSerializer(serializers.Serializer):

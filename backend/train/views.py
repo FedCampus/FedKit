@@ -18,15 +18,13 @@ from backend.settings import BASE_DIR
 logger = logging.getLogger(__name__)
 
 
-def model_for_data_type(data_type):
-    if not type(data_type) == str:
-        logger.error(f"Looking up model for non-string data_type `{data_type}`.")
-        return
+def model_for_data_type(data: OrderedDict):
     try:
-        data_type = TrainingDataType.objects.get(name=data_type)
-        return TFLiteModel.objects.filter(data_type=data_type).last()
+        data_type = TrainingDataType.objects.get(name=data["data_type"])
+        filter = TFLiteModel.objects.filter(data_type=data_type)
+        return filter.last()
     except Exception as err:
-        logger.error(f"{err} while looking up model for data_type `{data_type}`.")
+        logger.error(f"{err} while looking up model for `{data}`.")
         return
 
 
@@ -35,8 +33,12 @@ def model_for_data_type(data_type):
 # https://stackoverflow.com/questions/31335736/cannot-apply-djangomodelpermissions-on-a-view-that-does-not-have-queryset-pro
 @permission_classes((permissions.AllowAny,))
 def advertise_model(request):
-    data_type = request.data.get("data_type")
-    model = model_for_data_type(data_type)
+    serializer = PostAdvertisedDataSerializer(data=request.data)
+    if not serializer.is_valid():
+        logger.error(serializer.errors)
+        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+    data: OrderedDict = serializer.validated_data  # type: ignore
+    model = model_for_data_type(data)
     if model is None:
         return Response("No model corresponding to data_type", HTTP_404_NOT_FOUND)
     serializer = TFLiteModelSerializer(model)
