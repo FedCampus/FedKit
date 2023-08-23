@@ -29,8 +29,8 @@ import UIKit
         case "fit": fit(call, result)
         case "getParameters": getParameters(result)
         case "ready": ready(result)
-        case "testSize": result(Int(9)) // TODO: Actual test size.
-        case "trainingSize": result(Int(99)) // TODO: Actual training size.
+        case "testSize": result(Int(mlClient!.dataLoader.testBatchProvider.count))
+        case "trainingSize": result(Int(mlClient!.dataLoader.trainBatchProvider.count))
         case "updateParameters": updateParameters(call, result)
         case "initML": initML(call, result)
         default: result(FlutterMethodNotImplemented)
