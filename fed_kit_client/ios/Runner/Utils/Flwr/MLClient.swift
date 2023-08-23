@@ -84,11 +84,14 @@ public class MLClient {
 
     private func config() throws -> MLModelConfiguration {
         let config = MLModelConfiguration()
+        if config.parameters == nil {
+            config.parameters = [:]
+        }
         if let paramUpdate {
             for (index, weightsArray) in paramUpdate.enumerated() {
                 let layerParams = try MLMultiArray(weightsArray)
                 let paramKey = MLParameterKey.weights.scoped(to: layerNames[index])
-                config.parameters?[paramKey] = layerParams
+                config.parameters![paramKey] = layerParams
             }
             self.paramUpdate = nil
         }

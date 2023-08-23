@@ -2,6 +2,10 @@ import CoreML
 import Flutter
 import UIKit
 
+enum AppErr: Error {
+    case ModelNotFound
+}
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     var mlClient: MLClient?
@@ -38,9 +42,11 @@ import UIKit
     }
 
     func evaluate(_ result: @escaping FlutterResult) {
-        // TODO: Real evaluation.
-        var fakeData = [Float32(0.9), Float32(0.1)]
-        result(FlutterStandardTypedData(float32: Data(fromArray: fakeData)))
+        runAsync(result) {
+            let (loss, accuracy) = try await self.mlClient!.evaluate()
+            let lossAccuracy = [Float(loss), Float(accuracy)]
+            return FlutterStandardTypedData(float32: Data(fromArray: lossAccuracy))
+        }
     }
 
     func fit(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -94,7 +100,7 @@ import UIKit
             let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
             guard let url = URL(string: modelDir) else {
                 self.log.error("Model file not at \(modelDir).")
-                throw MLClientErr.ParamsNil
+                throw AppErr.ModelNotFound
             }
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
