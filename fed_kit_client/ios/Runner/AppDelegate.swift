@@ -98,16 +98,22 @@ enum AppErr: Error {
             self.log.error("testBatchProvider: \(testBatchProvider.count)")
 
             let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
-            guard let url = URL(string: modelDir) else {
-                self.log.error("Model file not at \(modelDir).")
-                throw AppErr.ModelNotFound
-            }
+            let url = URL(fileURLWithPath: modelDir)
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
+            try self.checkModel(url)
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
             self.mlClient = MLClient(layerNames, dataLoader, compiledModelUrl)
             return nil
+        }
+    }
+
+    private func checkModel(_ url: URL) throws {
+        let content = try Data(contentsOf: url)
+        let layers = try MLModelInspect(serializedData: content).getLayerWrappers()
+        for layer in layers {
+            log.error("\(layer.name), updatable: \(layer.isUpdatable), shape: \(layer.shape).")
         }
     }
 
@@ -127,18 +133,6 @@ enum AppErr: Error {
 }
 
 let layerNames = [
-    "transpose_6",
     "sequential/conv2d/Conv2Dx",
-    "sequential/conv2d/Relu",
-    "max_pool_0",
     "sequential/conv2d_1/Conv2Dx",
-    "transpose_5",
-    "sequential/conv2d_1/Relu",
-    "sequential/flatten/Reshape",
-    "sequential/dense/MatMul",
-    "sequential/dense/Relu",
-    "sequential/dense_1/MatMul",
-    "sequential/dense_1/Relu",
-    "sequential/dense_2/MatMul",
-    "sequential/dense_2/Softmax",
 ]
