@@ -3,6 +3,7 @@
 **.idea/
 **.jar
 **.lock
+**.mlmodel
 **.settings/
 **.tflite
 **gradlew
