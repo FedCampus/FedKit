@@ -9,9 +9,15 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.views import Request
 from train import scheduler
-from train.models import *
+from train.models import CoreMLModel, ModelParams, TFLiteModel, TrainingDataType
 from train.scheduler import server
-from train.serializers import *
+from train.serializers import (
+    PostAdvertisedDataSerializer,
+    PostServerDataSerializer,
+    TFLiteModelSerializer,
+    UploadCoreMLSerializer,
+    UploadTFLiteSerializer,
+)
 
 from backend.settings import BASE_DIR
 
@@ -70,43 +76,81 @@ def file_in_request(request: Request):
             return file
 
 
-@api_view(["POST"])
-@permission_classes((permissions.AllowAny,))
-def upload_file(request: Request):
-    # Deserialize request data.
-    serializer = UploadDataSerializer(data=request.data)  # type: ignore
-    if not serializer.is_valid():
-        logger.error(serializer.errors)
-        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
-    data: OrderedDict = serializer.validated_data  # type: ignore
-    name = data["name"]
-    data_type_name = data["data_type"]
-    # Validate unique file name.
+def file_name_not_unique(file_name: str):
     try:
-        model = TFLiteModel.objects.get(name=data["name"])
-        return Response("Model name used", HTTP_400_BAD_REQUEST)
+        _ = TFLiteModel.objects.get(name=file_name)
+        return True
     except TFLiteModel.DoesNotExist:
-        pass
-    # Get model file.
-    file = file_in_request(request)
-    if file is None:
-        return Response("No file in request.", HTTP_400_BAD_REQUEST)
-    # Get `data_type`.
+        return False
+
+
+def get_data_type(data_type_name: str):
     try:
         data_type = TrainingDataType.objects.get(name=data_type_name)
     except TrainingDataType.DoesNotExist:
         logger.warn(f"upload: Creating new data_type `{data_type_name}`.")
         data_type = TrainingDataType(name=data_type_name)
         data_type.save()
-    # Save model file.
-    path = f"static/{name}--{file.name}"  # Guaranteed unique.
+    return data_type
+
+
+def save_model_file(name: str, file: UploadedFile):
+    """Given that the name is unique, guarantee unique file name."""
+    path = f"static/{name}--{file.name}"
     with open(BASE_DIR / path, "wb") as fd:
         fd.write(file.file.read())
-    # Save model.
+    return path
+
+
+@api_view(["POST"])
+@permission_classes((permissions.AllowAny,))
+def upload_tflite(request: Request):
+    serializer = UploadTFLiteSerializer(data=request.data)  # type: ignore
+    if not serializer.is_valid():
+        logger.error(serializer.errors)
+        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+    data: OrderedDict = serializer.validated_data  # type: ignore
+    name = data["name"]
+    data_type_name = data["data_type"]
+    if file_name_not_unique(name):
+        return Response("Model name used", HTTP_400_BAD_REQUEST)
+    file = file_in_request(request)
+    if file is None:
+        return Response("No file in request.", HTTP_400_BAD_REQUEST)
+    data_type = get_data_type(data_type_name)
+    path = save_model_file(name, file)
     model = TFLiteModel(
         name=name,
         file_path=f"/{path}",
         layers_sizes=data["layers_sizes"],
+        data_type=data_type,
+    )
+    model.save()
+
+    return Response("ok")
+
+
+@api_view(["POST"])
+@permission_classes((permissions.AllowAny,))
+def upload_coreml(request: Request):
+    serializer = UploadCoreMLSerializer(data=request.data)  # type: ignore
+    if not serializer.is_valid():
+        logger.error(serializer.errors)
+        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+    data: OrderedDict = serializer.validated_data  # type: ignore
+    name = data["name"]
+    data_type_name = data["data_type"]
+    if file_name_not_unique(name):
+        return Response("Model name used", HTTP_400_BAD_REQUEST)
+    file = file_in_request(request)
+    if file is None:
+        return Response("No file in request.", HTTP_400_BAD_REQUEST)
+    data_type = get_data_type(data_type_name)
+    path = save_model_file(name, file)
+    model = CoreMLModel(
+        name=name,
+        file_path=f"/{path}",
+        layers_names=data["layers_names"],
         data_type=data_type,
     )
     model.save()

@@ -1,9 +1,16 @@
 from django.urls import path
-from train.views import *
+from train.views import (
+    advertise_model,
+    request_server,
+    store_params,
+    upload_coreml,
+    upload_tflite,
+)
 
 urlpatterns = [
     path("advertised", advertise_model),
     path("server", request_server),
-    path("upload", upload_file),
+    path("upload", upload_tflite),
+    path("upload_coreml", upload_coreml),
     path("params", store_params),
 ]

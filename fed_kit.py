@@ -31,3 +31,21 @@ def upload(
         "data_type": data_type,
     }
     return requests.post(url, data=data, files=files)
+
+
+def upload_coreml(
+    file: str,
+    name: str,
+    layers_names: list[str],
+    data_type: str,
+    base: str = DEFAULT_URL,
+):
+    """Upload CoreML model `file` and store it as `name` on the backend."""
+    url = base + "/train/upload_coreml"
+    files = {"file": open(file, "rb")}
+    data = {
+        "name": name,
+        "layers_sizes": layers_names,
+        "data_type": data_type,
+    }
+    return requests.post(url, data=data, files=files)
