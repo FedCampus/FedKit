@@ -12,7 +12,8 @@ from train import scheduler
 from train.models import CoreMLModel, ModelParams, TFLiteModel, TrainingDataType
 from train.scheduler import server
 from train.serializers import (
-    PostAdvertisedTFLiteSerializer,
+    CoreMLModelSerializer,
+    PostAdvertisedDataSerializer,
     PostServerDataSerializer,
     TFLiteModelSerializer,
     UploadCoreMLSerializer,
@@ -28,8 +29,9 @@ def deserialize(cls, data):
     """Deserialize `data` using `cls`.
     Return `(validated_data, err)`."""
     serializer = cls(data=data)
+    is_valid = serializer.is_valid()
     validated: OrderedDict = serializer.validated_data  # type: ignore
-    if serializer.is_valid():
+    if is_valid:
         return (validated, None)
     else:
         logger.error(serializer.errors)
@@ -51,13 +53,36 @@ def tflite_model_for_data_type(data: OrderedDict):
 # https://stackoverflow.com/questions/31335736/cannot-apply-djangomodelpermissions-on-a-view-that-does-not-have-queryset-pro
 @permission_classes((permissions.AllowAny,))
 def advertise_model(request: Request):
-    (data, err) = deserialize(PostAdvertisedTFLiteSerializer, request.data)
+    (data, err) = deserialize(PostAdvertisedDataSerializer, request.data)
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
     model = tflite_model_for_data_type(data)
     if model is None:
         return Response("No model corresponding to data_type", HTTP_404_NOT_FOUND)
     serializer = TFLiteModelSerializer(model)
+    return Response(serializer.data)
+
+
+def coreml_model_for_data_type(data: OrderedDict):
+    try:
+        data_type = TrainingDataType.objects.get(name=data["data_type"])
+        filter = CoreMLModel.objects.filter(data_type=data_type)
+        return filter.last()
+    except Exception as err:
+        logger.error(f"{err} while looking up model for `{data}`.")
+        return
+
+
+@api_view(["POST"])
+@permission_classes((permissions.AllowAny,))
+def which_coreml(request: Request):
+    (data, err) = deserialize(PostAdvertisedDataSerializer, request.data)
+    if err:
+        return Response(err, HTTP_400_BAD_REQUEST)
+    model = coreml_model_for_data_type(data)
+    if model is None:
+        return Response("No model corresponding to data_type", HTTP_404_NOT_FOUND)
+    serializer = CoreMLModelSerializer(model)
     return Response(serializer.data)
 
 
