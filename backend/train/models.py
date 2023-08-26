@@ -25,6 +25,19 @@ class TFLiteModel(models.Model):
         return f"TFLiteModel {self.name} for {self.data_type.name} at {self.file_path}, {len(self.layers_sizes)} layers"
 
 
+class CoreMLModel(models.Model):
+    name = models.CharField(max_length=64, unique=True, **cfg)
+    file_path = models.CharField(max_length=64, unique=True, **cfg)
+    layers_names = models.JSONField(**cfg)
+    """Updatable layers."""
+    data_type = models.ForeignKey(
+        TrainingDataType, on_delete=models.CASCADE, related_name="coreml_models", **cfg
+    )
+
+    def __str__(self) -> str:
+        return f"CoreMLModel {self.name} for {self.data_type.name} at {self.file_path}, {len(self.layers_names)} updatable layers"
+
+
 class ModelParams(models.Model):
     """Do not initialize this class directly, use `make_model_params` instead."""
 
