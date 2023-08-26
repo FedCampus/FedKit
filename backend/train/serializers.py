@@ -24,7 +24,7 @@ class CoreMLModelSerializer(serializers.Serializer):
         fields = ["id", "name", "file_path", "layers_names"]
 
 
-class PostAdvertisedDataSerializer(serializers.Serializer):
+class PostAdvertisedTFLiteSerializer(serializers.Serializer):
     data_type = serializers.CharField(max_length=256)
 
 
