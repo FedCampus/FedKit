@@ -47,7 +47,6 @@ class BackendClient {
 class PostAdvertisedData with _$PostAdvertisedData {
   const factory PostAdvertisedData({
     required String data_type,
-    required bool require_mlmodel,
   }) = _PostAdvertisedData;
 
   factory PostAdvertisedData.fromJson(Map<String, dynamic> json) =>

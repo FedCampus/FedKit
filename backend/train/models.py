@@ -15,9 +15,6 @@ class TrainingDataType(models.Model):
 class TFLiteModel(models.Model):
     name = models.CharField(max_length=64, unique=True, **cfg)
     file_path = models.CharField(max_length=64, unique=True, **cfg)
-    mlmodel_path = models.CharField(
-        max_length=64, unique=True, null=True, editable=False
-    )
     layers_sizes = models.JSONField(**cfg)
     """Size of each layer of parameters in bytes."""
     data_type = models.ForeignKey(

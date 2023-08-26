@@ -51,8 +51,8 @@ class Train {
       };
 
   Future<TFLiteModel> _advertisedModel(String dataType) async {
-    final model = await _client.advertisedModel(PostAdvertisedData(
-        data_type: dataType, require_mlmodel: Platform.isIOS));
+    final model =
+        await _client.advertisedModel(PostAdvertisedData(data_type: dataType));
     logger.d('Advertised model: $model.');
     _state = WithModel(model);
     return model;

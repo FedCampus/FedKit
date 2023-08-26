@@ -12,5 +12,4 @@ s = TFLiteModelSerializer(m)
 assert s.data["name"] == name
 assert s.data["file_path"] == file
 assert s.data["layers_sizes"] == sizes
-assert s.data["mlmodel_path"] == None
 print("Successfully added CIFAR10 data type and model to the database.")
