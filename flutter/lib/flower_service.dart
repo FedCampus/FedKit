@@ -6,7 +6,6 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
-import 'package:fed_kit/helpers.dart';
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
 import 'package:fed_kit/ml_model.dart';
@@ -24,7 +23,7 @@ class FlowerService {
   final ClientChannel channel;
   final Train train;
   final MLClient mlClient;
-  final TFLiteModel model;
+  final MlModel model;
   late StreamSubscription<ServerMessage> _streamSub;
 
   FlowerService(this.channel, this.train, this.mlClient, this.model);
@@ -76,7 +75,6 @@ class FlowerService {
     final start = train.telemetry ? DateTime.now() : null;
     final layers =
         message.fitIns.parameters.tensors.map(Uint8List.fromList).toList();
-    assertEqual(layers.length, model.layers_sizes.length);
     final epochConfig = message.fitIns.config['local_epochs'];
     final epochs = epochConfig?.sint64.toInt() ?? 1;
     await mlClient.updateParameters(layers);
@@ -99,7 +97,6 @@ class FlowerService {
     final start = train.telemetry ? DateTime.now() : null;
     final layers =
         message.evaluateIns.parameters.tensors.map(Uint8List.fromList).toList();
-    assertEqual(layers.length, model.layers_sizes.length);
     await mlClient.updateParameters(layers);
     final (loss, accuracy) = await mlClient.evaluate();
     _infoStreamCtl.add('Test accuracy after this round: $accuracy.');

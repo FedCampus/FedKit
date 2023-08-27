@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/train.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
@@ -26,7 +27,8 @@ void main() {
   });
 
   test('walk through training', () async {
-    final (model, modelFile) = await train.prepareModel(dataType);
+    final (m, modelFile) = await train.prepareModel(dataType);
+    final model = m as TFLiteModel;
     expect(model, expectedModel);
     expect(
         modelFile, '$kApplicationDocumentsPath/models/CIFAR10/cifar10.tflite');

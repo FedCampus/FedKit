@@ -25,6 +25,7 @@ abstract class MlModel {
   }
 }
 
+// Always change together with Django `train.models.TFLiteModel`.
 @MappableClass()
 class TFLiteModel extends MlModel with TFLiteModelMappable {
   final List<int> layers_sizes;
@@ -37,11 +38,12 @@ class TFLiteModel extends MlModel with TFLiteModelMappable {
   });
 }
 
+// Always change together with Django `train.models.CoreMLModel`.
 @MappableClass()
-class CoremlModel extends MlModel with CoremlModelMappable {
+class CoreMLModel extends MlModel with CoreMLModelMappable {
   final List<String> layers_names;
 
-  CoremlModel({
+  CoreMLModel({
     required super.id,
     required super.name,
     required super.file_path,

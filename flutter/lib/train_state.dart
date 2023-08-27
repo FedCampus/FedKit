@@ -8,14 +8,14 @@ sealed class TrainState {}
 class Initialized extends TrainState {}
 
 class WithModel extends TrainState {
-  final TFLiteModel model;
+  final MlModel model;
 
   WithModel(this.model);
 }
 
 /// The platform side has a `FlowerClient` ready.
 class Prepared extends TrainState {
-  final TFLiteModel model;
+  final MlModel model;
   final MLClient mlClient;
   final ClientChannel channel;
 
@@ -23,7 +23,7 @@ class Prepared extends TrainState {
 }
 
 class Training extends TrainState {
-  final TFLiteModel model;
+  final MlModel model;
   final FlowerService flowerService;
 
   Training(this.model, this.flowerService);

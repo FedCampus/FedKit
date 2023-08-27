@@ -28,7 +28,7 @@ void main() {
 
   test('ask backend for advertised model', () async {
     final actual =
-        await client.advertisedModel(PostAdvertisedData(data_type: dataType));
+        await client.whichModel(PostAdvertisedData(data_type: dataType));
     expect(actual, expectedModel);
   });
 
