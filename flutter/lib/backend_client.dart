@@ -1,6 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 import 'package:dio/dio.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 part 'backend_client.mapper.dart';
 

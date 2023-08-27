@@ -4,7 +4,7 @@ import 'package:fed_kit/backend_client.dart';
 import 'package:fed_kit/flower_service.dart';
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:fed_kit/train_state.dart';
 import 'package:grpc/grpc.dart';
 

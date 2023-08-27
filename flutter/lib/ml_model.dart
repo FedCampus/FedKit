@@ -2,7 +2,7 @@
 import 'package:path_provider/path_provider.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 
-part 'tflite_model.mapper.dart';
+part 'ml_model.mapper.dart';
 
 @MappableClass()
 class TFLiteModel with TFLiteModelMappable {

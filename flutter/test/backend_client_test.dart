@@ -1,6 +1,6 @@
 @Skip('Launch a backend and test with `--run-skipped` for integration test.')
 import 'package:fed_kit/backend_client.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const exampleBackendUrl = 'http://0:8000';

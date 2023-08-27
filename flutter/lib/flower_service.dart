@@ -9,7 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:fed_kit/helpers.dart';
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:fed_kit/train.dart';
 import 'package:fed_kit/transport.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
