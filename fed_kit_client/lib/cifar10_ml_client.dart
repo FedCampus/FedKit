@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit_client/main.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:flutter/services.dart';
 
 class Cifar10MLClient extends MLClient {
@@ -63,14 +64,19 @@ class Cifar10MLClient extends MLClient {
         .invokeMethod('updateParameters', {'parameters': parameters});
   }
 
-  Future<void> initML(
-      String modelDir, List<int> layersSizes, int partitionId) async {
-    final result = await callChannel.invokeMethod('initML', {
-      'modelDir': modelDir,
-      'layersSizes': layersSizes,
-      'partitionId': partitionId
-    });
-    logger.d("initML: $result.");
+  Future<void> initML(String modelDir, MlModel mlModel, int partitionId) async {
+    final args = Platform.isIOS
+        ? {
+            'modelDir': modelDir,
+            'layersNames': (mlModel as CoreMLModel).layers_names,
+            'partitionId': partitionId
+          }
+        : {
+            'modelDir': modelDir,
+            'layersSizes': (mlModel as TFLiteModel).layers_sizes,
+            'partitionId': partitionId
+          };
+    await callChannel.invokeMethod('initML', args);
   }
 
   void ensureListening() {
