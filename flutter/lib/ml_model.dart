@@ -16,7 +16,13 @@ abstract class MlModel {
   });
 
   /// Return `(fileUrl, fileDir)`.
-  Future<(String, String)> get dir;
+  Future<(String, String)> get urlAndDir async {
+    final fileUrl = file_path;
+    final base = await getApplicationDocumentsDirectory();
+    final fileName = fileUrl.split('/').last;
+    final fileDir = '${base.path}/models/$name/$fileName';
+    return (fileUrl, fileDir);
+  }
 }
 
 @MappableClass()
@@ -29,13 +35,16 @@ class TFLiteModel extends MlModel with TFLiteModelMappable {
     required super.file_path,
     required this.layers_sizes,
   });
+}
 
-  @override
-  Future<(String, String)> get dir async {
-    final fileUrl = file_path;
-    final base = await getApplicationDocumentsDirectory();
-    final fileName = fileUrl.split('/').last;
-    final fileDir = '${base.path}/models/$name/$fileName';
-    return (fileUrl, fileDir);
-  }
+@MappableClass()
+class CoremlModel extends MlModel with CoremlModelMappable {
+  final List<String> layers_names;
+
+  CoremlModel({
+    required super.id,
+    required super.name,
+    required super.file_path,
+    required this.layers_names,
+  });
 }
