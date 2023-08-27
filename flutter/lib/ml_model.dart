@@ -4,25 +4,38 @@ import 'package:dart_mappable/dart_mappable.dart';
 
 part 'ml_model.mapper.dart';
 
-@MappableClass()
-class TFLiteModel with TFLiteModelMappable {
+abstract class MlModel {
   final int id;
   final String name;
   final String file_path;
-  final List<int> layers_sizes;
 
-  TFLiteModel({
+  MlModel({
     required this.id,
     required this.name,
     required this.file_path,
-    required this.layers_sizes,
   });
+
+  /// Return `(fileUrl, fileDir)`.
+  Future<(String, String)> get dir;
 }
 
-Future<(String, String)> getModelDir(TFLiteModel model) async {
-  final fileUrl = model.file_path;
-  final base = await getApplicationDocumentsDirectory();
-  final fileName = fileUrl.split('/').last;
-  final fileDir = '${base.path}/models/${model.name}/$fileName';
-  return (fileUrl, fileDir);
+@MappableClass()
+class TFLiteModel extends MlModel with TFLiteModelMappable {
+  final List<int> layers_sizes;
+
+  TFLiteModel({
+    required super.id,
+    required super.name,
+    required super.file_path,
+    required this.layers_sizes,
+  });
+
+  @override
+  Future<(String, String)> get dir async {
+    final fileUrl = file_path;
+    final base = await getApplicationDocumentsDirectory();
+    final fileName = fileUrl.split('/').last;
+    final fileDir = '${base.path}/models/$name/$fileName';
+    return (fileUrl, fileDir);
+  }
 }

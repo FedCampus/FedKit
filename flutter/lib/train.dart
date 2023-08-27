@@ -39,7 +39,7 @@ class Train {
 
   Future<(TFLiteModel, String)> _prepareModel(String dataType) async {
     final model = await _advertisedModel(dataType);
-    final (modelUrl, modelDir) = await getModelDir(model);
+    final (modelUrl, modelDir) = await model.dir;
     await downloadModelFile(modelUrl, modelDir);
     return (model, modelDir);
   }
