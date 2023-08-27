@@ -6,15 +6,15 @@ import 'package:flutter_test/flutter_test.dart';
 const exampleBackendUrl = 'http://0:8000';
 const exampleFlowerAddress = '0';
 const dataType = 'CIFAR10_32x32x3';
-const expectedModel = TFLiteModel(
+final expectedModel = TFLiteModel(
     id: 1,
     name: 'CIFAR10',
     file_path: '/static/cifar10.tflite',
     layers_sizes: [1800, 24, 9600, 64, 768000, 480, 40320, 336, 3360, 40]);
 const expectedPort = 8080;
-const fitInsTelemetry =
+final fitInsTelemetry =
     FitInsTelemetryData(device_id: 1, session_id: 1, start: 0, end: 1);
-const evaluateInsTelemetry = EvaluateInsTelemetryData(
+final evaluateInsTelemetry = EvaluateInsTelemetryData(
     device_id: 1,
     session_id: 1,
     start: 0,
@@ -27,8 +27,8 @@ void main() {
   const client = BackendClient(exampleBackendUrl);
 
   test('ask backend for advertised model', () async {
-    final actual = await client
-        .advertisedModel(const PostAdvertisedData(data_type: dataType));
+    final actual =
+        await client.advertisedModel(PostAdvertisedData(data_type: dataType));
     expect(actual, expectedModel);
   });
 

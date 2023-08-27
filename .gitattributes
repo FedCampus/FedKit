@@ -1,5 +1,4 @@
-**.freezed.dart filter=lfs diff=lfs merge=lfs -text
-**.g.dart filter=lfs diff=lfs merge=lfs -text
+**.mapper.dart filter=lfs diff=lfs merge=lfs -text
 flutter/lib/transport.*.dart filter=lfs diff=lfs merge=lfs -text
 **.mlmodel filter=lfs diff=lfs merge=lfs -text
 **.lzfse filter=lfs diff=lfs merge=lfs -text

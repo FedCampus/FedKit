@@ -1,21 +1,22 @@
 // ignore_for_file: non_constant_identifier_names
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:path_provider/path_provider.dart';
-part 'tflite_model.freezed.dart';
-part 'tflite_model.g.dart';
+import 'package:dart_mappable/dart_mappable.dart';
 
-// Always change together with Python `train.models.TFLiteModel`.
-@freezed
-class TFLiteModel with _$TFLiteModel {
-  const factory TFLiteModel({
-    required int id,
-    required String name,
-    required String file_path,
-    required List<int> layers_sizes,
-  }) = _TFLiteModel;
+part 'tflite_model.mapper.dart';
 
-  factory TFLiteModel.fromJson(Map<String, dynamic> json) =>
-      _$TFLiteModelFromJson(json);
+@MappableClass()
+class TFLiteModel with TFLiteModelMappable {
+  final int id;
+  final String name;
+  final String file_path;
+  final List<int> layers_sizes;
+
+  TFLiteModel({
+    required this.id,
+    required this.name,
+    required this.file_path,
+    required this.layers_sizes,
+  });
 }
 
 Future<(String, String)> getModelDir(TFLiteModel model) async {
