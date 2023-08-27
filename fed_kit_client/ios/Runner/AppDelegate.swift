@@ -81,7 +81,7 @@ enum AppErr: Error {
         runAsync(result) {
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
-            let layersSizes = (args["layersSizes"] as! [NSNumber]).map { $0.int32Value }
+            let layersNames = args["layersSizes"] as! [String]
             let partitionId = (args["partitionId"] as! NSNumber).int32Value
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 500 == 499 {
@@ -104,7 +104,7 @@ enum AppErr: Error {
             try self.checkModel(url)
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
-            self.mlClient = MLClient(layerNames, dataLoader, compiledModelUrl)
+            self.mlClient = MLClient(layersNames, dataLoader, compiledModelUrl)
             return nil
         }
     }
@@ -131,8 +131,3 @@ enum AppErr: Error {
         }
     }
 }
-
-let layerNames = [
-    "sequential/conv2d/Conv2Dx",
-    "sequential/conv2d_1/Conv2Dx",
-]
