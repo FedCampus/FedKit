@@ -105,11 +105,11 @@ def file_in_request(request: Request):
     files = request.FILES
     if isinstance(files, MultiValueDict):
         file = files.get("file")
-        if isinstance(file, UploadedFile) and file.file is not None:
-            return file.file
+        if isinstance(file, UploadedFile) and file.name and file.file:
+            return (file.name, file.file)
 
 
-def file_name_not_unique(file_name: str):
+def tflite_name_not_unique(file_name: str):
     try:
         _ = TFLiteModel.objects.get(name=file_name)
         return True
@@ -127,9 +127,9 @@ def get_data_type(data_type_name: str):
     return data_type
 
 
-def save_model_file(name: str, file: IO):
+def save_model_file(name: str, file_name: str, file: IO):
     """Given that the name is unique, guarantee unique file name."""
-    path = f"static/{name}--{file.name}"
+    path = f"static/{name}--{file_name}"
     with open(BASE_DIR / path, "wb") as fd:
         fd.write(file.read())
     return path
@@ -143,13 +143,13 @@ def upload_tflite(request: Request):
         return Response(err, HTTP_400_BAD_REQUEST)
     name = data["name"]
     data_type_name = data["data_type"]
-    if file_name_not_unique(name):
+    if tflite_name_not_unique(name):
         return Response("Model name used", HTTP_400_BAD_REQUEST)
     file = file_in_request(request)
     if file is None:
         return Response("No file in request.", HTTP_400_BAD_REQUEST)
     data_type = get_data_type(data_type_name)
-    path = save_model_file(name, file)
+    path = save_model_file(name, *file)
     model = TFLiteModel(
         name=name,
         file_path=f"/{path}",
@@ -161,6 +161,14 @@ def upload_tflite(request: Request):
     return Response("ok")
 
 
+def coreml_name_not_unique(file_name: str):
+    try:
+        _ = CoreMLModel.objects.get(name=file_name)
+        return True
+    except CoreMLModel.DoesNotExist:
+        return False
+
+
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
 def upload_coreml(request: Request):
@@ -169,13 +177,13 @@ def upload_coreml(request: Request):
         return Response(err, HTTP_400_BAD_REQUEST)
     name = data["name"]
     data_type_name = data["data_type"]
-    if file_name_not_unique(name):
+    if coreml_name_not_unique(name):
         return Response("Model name used", HTTP_400_BAD_REQUEST)
     file = file_in_request(request)
     if file is None:
         return Response("No file in request.", HTTP_400_BAD_REQUEST)
     data_type = get_data_type(data_type_name)
-    path = save_model_file(name, file)
+    path = save_model_file(name, *file)
     model = CoreMLModel(
         name=name,
         file_path=f"/{path}",
@@ -197,7 +205,7 @@ def store_params(request: Request):
     file = file_in_request(request)
     if file is None:
         return Response("No file in request.", HTTP_400_BAD_REQUEST)
-    params = file.read()
+    params = file[1].read()
     to_save = ModelParams(params=params, tflite_model=server.model)
     to_save.save()
     server.update_session_end_time()
