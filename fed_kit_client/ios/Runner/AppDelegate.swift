@@ -102,6 +102,7 @@ enum AppErr: Error {
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
             try self.checkModel(url)
+            // TODO: compiler error:  Error reading protobuf spec. validator error: Optimizer is not recognized.
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
             self.mlClient = MLClient(layersNames, dataLoader, compiledModelUrl)
