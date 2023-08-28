@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_set_id/app_set_id.dart';
 import 'package:fed_kit_client/cifar10_ml_client.dart';
 import 'package:fed_kit/train.dart';
@@ -114,7 +116,8 @@ class _MyAppState extends State<MyApp> {
     final id = await deviceId();
     logger.d('Device ID: $id');
     train.enableTelemetry(id);
-    final (model, modelDir) = await train.prepareModel(dataType);
+    final (model, modelDir) =
+        await train.prepareModel(Platform.isIOS ? iosDataType : dataType);
     appendLog('Prepared model ${model.name}.');
     final serverData = await train.getServerInfo(startFresh: startFresh);
     if (serverData.port == null) {
@@ -225,3 +228,4 @@ class _MyAppState extends State<MyApp> {
 Future<int> deviceId() async => (await AppSetId().getIdentifier()).hashCode;
 
 const dataType = 'CIFAR10_32x32x3';
+const iosDataType = 'MNIST_28x28x1';
