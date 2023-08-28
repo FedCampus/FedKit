@@ -81,7 +81,7 @@ enum AppErr: Error {
         runAsync(result) {
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
-            let layersNames = args["layersSizes"] as! [String]
+            let layersNames = args["layersNames"] as! [String]
             let partitionId = (args["partitionId"] as! NSNumber).int32Value
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 500 == 499 {
