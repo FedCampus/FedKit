@@ -56,9 +56,9 @@ enum AppErr: Error {
 
     func getParameters(_ result: @escaping FlutterResult) {
         runAsync(result) {
-            try (await self.mlClient?.getParameters().map { layer in
-                FlutterStandardTypedData(float32: Data(fromArray: layer))
-            })!
+            try await self.mlClient!.getParameters().map { layer in
+                FlutterStandardTypedData(bytes: Data(fromArray: layer))
+            }
         }
     }
 
