@@ -60,7 +60,7 @@ public class MLClient {
     func fit() async throws {
         let config = try config()
         let updateContext = try await updateModelAsync(
-            forModelAt: tempModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: config
+            forModelAt: compiledModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: config
         )
         parameters = try layerNames.map { name in
             let paramKey = MLParameterKey.weights.scoped(to: name)
@@ -76,7 +76,7 @@ public class MLClient {
         let config = try config()
         config.parameters![MLParameterKey.epochs] = 1
         let updateContext = try await updateModelAsync(
-            forModelAt: tempModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
+            forModelAt: compiledModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
         )
         let loss = updateContext.metrics[.lossValue] as! Double
         return (loss, (1.0 - loss) * 100)
