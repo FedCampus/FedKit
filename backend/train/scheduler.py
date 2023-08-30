@@ -37,7 +37,11 @@ class Server:
         self.model = model
         self.start_fresh = start_fresh
         params = None if start_fresh else model_params(model)
-        self.session = TrainingSession(tflite_model=model)
+        self.session = (
+            TrainingSession(tflite_model=model)
+            if isinstance(model, TFLiteModel)
+            else None
+        )
         self.process = Process(target=flwr_server, args=(params, port))
         self.process.start()
         self.timeout = Thread(target=Process.join, args=(self.process, TEN_MINUTES))
@@ -46,7 +50,8 @@ class Server:
         logger.warning(f"Started flower server for model {model}")
 
     def update_session_end_time(self):
-        self.session.save()
+        if self.session:
+            self.session.save()
 
 
 tf_server: Server | None = None
@@ -74,10 +79,14 @@ def server(model: TFLiteModel | CoreMLModel, start_fresh: bool) -> ServerData:
         if server.model == model:
             if start_fresh and not server.start_fresh:
                 return ServerData("started_non_fresh", None, None)
-            return ServerData("started", server.session.id, port)
+            return ServerData(
+                "started", session.id if (session := server.session) else None, port
+            )
         else:
             return ServerData("occupied", None, None)
     else:
         # Start new server.
-        tf_server = Server(model, port, start_fresh)
-        return ServerData("new", tf_server.session.id, port)
+        server = Server(model, port, start_fresh)
+        return ServerData(
+            "new", session.id if (session := server.session) else None, port
+        )
