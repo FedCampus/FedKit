@@ -33,6 +33,7 @@ class PostAdvertisedDataSerializer(serializers.Serializer):
 class PostServerDataSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     start_fresh = serializers.BooleanField(required=False, default=False)  # type: ignore
+    is_coreml = serializers.BooleanField(required=False, default=False)  # type: ignore
 
 
 # Always change together with `upload` in `fed_kit.py`.

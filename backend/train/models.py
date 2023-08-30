@@ -39,8 +39,6 @@ class CoreMLModel(models.Model):
 
 
 class ModelParams(models.Model):
-    """Do not initialize this class directly, use `make_model_params` instead."""
-
     params = models.BinaryField(**cfg)
     tflite_model = models.ForeignKey(
         TFLiteModel, on_delete=models.CASCADE, related_name="params", **cfg
@@ -53,5 +51,14 @@ class ModelParams(models.Model):
         return f"ModelParams for {self.tflite_model.name}: {self.decode_params()}"
 
 
-def make_model_params(params: list[NDArray], tflite_model: TFLiteModel) -> ModelParams:
-    return ModelParams(params=dumps(params), tflite_model=tflite_model)
+class CoreMLModelParams(models.Model):
+    params = models.BinaryField(**cfg)
+    coreml_model = models.ForeignKey(
+        CoreMLModel, on_delete=models.CASCADE, related_name="params", **cfg
+    )
+
+    def decode_params(self) -> list[NDArray]:
+        return loads(self.params)
+
+    def __str__(self) -> str:
+        return f"ModelParams for {self.coreml_model.name}: {self.decode_params()}"

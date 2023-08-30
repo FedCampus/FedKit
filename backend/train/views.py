@@ -92,9 +92,10 @@ def request_server(request: Request):
     (data, err) = deserialize(PostServerDataSerializer, request.data)
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
+    ModelClass = CoreMLModel if data["is_coreml"] else TFLiteModel
     try:
-        model = TFLiteModel.objects.get(pk=data["id"])
-    except TFLiteModel.DoesNotExist:
+        model = ModelClass.objects.get(pk=data["id"])
+    except ModelClass.DoesNotExist:
         logger.error(f"Model with id {data['id']} not found.")
         return Response("Model not found", HTTP_404_NOT_FOUND)
     response = server(model, data["start_fresh"])
@@ -198,7 +199,7 @@ def upload_coreml(request: Request):
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
 def store_params(request: Request):
-    server = scheduler.task
+    server = scheduler.tf_server
     if server is None:
         logger.error("No server running but got params to store.")
         return Response("No server running.", HTTP_400_BAD_REQUEST)

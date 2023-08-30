@@ -11,8 +11,6 @@ from flwr.server.strategy.aggregate import aggregate
 from numpy import isnan
 from numpy.typing import NDArray
 
-PORT = 8080
-
 logger = getLogger(__name__)
 
 
@@ -69,7 +67,7 @@ def fit_config(server_round: int):
     return config
 
 
-def flwr_server(initial_parameters: Parameters | None):
+def flwr_server(initial_parameters: Parameters | None, port: int):
     # TODO: Make configurable.
     strategy = FedAvgAndroidSave(
         fraction_fit=1.0,
@@ -86,7 +84,7 @@ def flwr_server(initial_parameters: Parameters | None):
     try:
         # Start Flower server for 3 rounds of federated learning
         start_server(
-            server_address=f"0.0.0.0:{PORT}",
+            server_address=f"0.0.0.0:{port}",
             config=ServerConfig(num_rounds=3),
             strategy=strategy,
         )

@@ -38,9 +38,11 @@ class BackendClient {
   }
 
   Future<ServerData> postServer(MlModel model, bool startFresh) async {
-    PostServerData body = PostServerData(id: model.id, start_fresh: startFresh);
-    Response response =
-        await dio.post('$url/train/server', data: body.toJson());
+    var body = PostServerData(id: model.id, start_fresh: startFresh).toMap();
+    if (Platform.isIOS) {
+      body['is_coreml'] = true;
+    }
+    Response response = await dio.post('$url/train/server', data: body);
     return ServerDataMapper.fromMap(response.data);
   }
 
