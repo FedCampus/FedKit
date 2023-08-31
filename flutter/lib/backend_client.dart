@@ -41,15 +41,19 @@ class BackendClient {
   }
 }
 
+// Always change together with Django `train.serializers.PostAdvertisedDataSerializer`.
 @MappableClass()
 class PostAdvertisedData with PostAdvertisedDataMappable {
   final String data_type;
+  final bool is_coreml;
 
   PostAdvertisedData({
     required this.data_type,
+    this.is_coreml = false,
   });
 }
 
+// Always change together with Django `train.data.ServerData`.
 @MappableClass()
 class ServerData with ServerDataMappable {
   final String status;
@@ -63,6 +67,7 @@ class ServerData with ServerDataMappable {
   });
 }
 
+// Always change together with Django `train.serializers.PostServerDataSerializer`.
 @MappableClass()
 class PostServerData with PostServerDataMappable {
   final int id;

@@ -66,8 +66,7 @@ def server(model: TFLiteModel, start_fresh: bool) -> ServerData:
     "new" if newly started,
     or "occupied" if the background process is unavailable."""
     global tf_server, cm_server
-    server = cm_server if model.is_coreml else tf_server
-    port = CM_PORT if model.is_coreml else TF_PORT
+    server, port = (cm_server, CM_PORT) if model.is_coreml else (tf_server, TF_PORT)
     cleanup_task()
     if server:
         if server.model == model:

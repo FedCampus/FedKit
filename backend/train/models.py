@@ -10,7 +10,8 @@ class TrainingDataType(models.Model):
     name = models.CharField(max_length=256, unique=True, **cfg)
 
 
-# Always change together with Android `db.TFLiteModel`
+# Always change together with `serializers.TFLiteModelSerializer`
+# & Android `db.TFLiteModel`
 # & Flutter `ml_models.TFliteModel`.
 class TFLiteModel(models.Model):
     name = models.CharField(max_length=64, unique=True, **cfg)

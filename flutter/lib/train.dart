@@ -31,7 +31,8 @@ class Train {
     _telemetry = false;
   }
 
-  Future<(TFLiteModel, String)> prepareModel(String dataType) => switch (_state) {
+  Future<(TFLiteModel, String)> prepareModel(String dataType) =>
+      switch (_state) {
         Initialized() || WithModel() => _prepareModel(dataType),
         _ => throw Exception('`prepareModel` called with $_state'),
       };
@@ -49,8 +50,8 @@ class Train {
       };
 
   Future<TFLiteModel> _whichModel(String dataType) async {
-    final model =
-        await _client.whichModel(PostAdvertisedData(data_type: dataType));
+    final model = await _client.whichModel(
+        PostAdvertisedData(data_type: dataType, is_coreml: Platform.isIOS));
     logger.d('Advertised model: $model.');
     _state = WithModel(model);
     return model;
