@@ -1,4 +1,4 @@
-from pickle import dumps, loads
+from pickle import loads
 
 from django.db import models
 from numpy.typing import NDArray
@@ -25,19 +25,6 @@ class TFLiteModel(models.Model):
         return f"TFLiteModel {self.name} for {self.data_type.name} at {self.file_path}, {len(self.layers_sizes)} layers"
 
 
-class CoreMLModel(models.Model):
-    name = models.CharField(max_length=64, unique=True, **cfg)
-    file_path = models.CharField(max_length=64, unique=True, **cfg)
-    layers_names = models.JSONField(**cfg)
-    """Updatable layers."""
-    data_type = models.ForeignKey(
-        TrainingDataType, on_delete=models.CASCADE, related_name="coreml_models", **cfg
-    )
-
-    def __str__(self) -> str:
-        return f"CoreMLModel {self.name} for {self.data_type.name} at {self.file_path}, {len(self.layers_names)} updatable layers"
-
-
 class ModelParams(models.Model):
     params = models.BinaryField(**cfg)
     tflite_model = models.ForeignKey(
@@ -49,16 +36,3 @@ class ModelParams(models.Model):
 
     def __str__(self) -> str:
         return f"ModelParams for {self.tflite_model.name}: {self.decode_params()}"
-
-
-class CoreMLModelParams(models.Model):
-    params = models.BinaryField(**cfg)
-    coreml_model = models.ForeignKey(
-        CoreMLModel, on_delete=models.CASCADE, related_name="params", **cfg
-    )
-
-    def decode_params(self) -> list[NDArray]:
-        return loads(self.params)
-
-    def __str__(self) -> str:
-        return f"ModelParams for {self.coreml_model.name}: {self.decode_params()}"

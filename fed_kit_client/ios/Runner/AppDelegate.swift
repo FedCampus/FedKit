@@ -81,7 +81,6 @@ enum AppErr: Error {
         runAsync(result) {
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
-            let layersNames = args["layersNames"] as! [String]
             let partitionId = (args["partitionId"] as! NSNumber).int32Value
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 500 == 499 {
@@ -102,9 +101,9 @@ enum AppErr: Error {
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
             try self.checkModel(url)
-            // TODO: compiler error:  Error reading protobuf spec. validator error: Optimizer is not recognized.
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
+            // TODO: roll back to use ModelInspect
             self.mlClient = MLClient(layersNames, dataLoader, compiledModelUrl)
             return nil
         }

@@ -126,7 +126,7 @@ class _MyAppState extends State<MyApp> {
     }
     appendLog(
         'Ready to connected to Flower server on port ${serverData.port}.');
-    await _mlClient.initML(modelDir, model, partitionId);
+    await _mlClient.initML(modelDir, model.layers_sizes, partitionId);
     appendLog('Prepared ML client and loaded dataset.');
     await train.prepare(_mlClient, host.host, serverData.port!);
     canTrain = true;

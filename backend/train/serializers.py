@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from train.models import CoreMLModel, TFLiteModel
+from train.models import TFLiteModel
 
 
 class TFLiteModelSerializer(serializers.Serializer):
@@ -11,17 +11,6 @@ class TFLiteModelSerializer(serializers.Serializer):
     class Meta:
         model = TFLiteModel
         fields = ["id", "name", "file_path", "layers_sizes"]
-
-
-class CoreMLModelSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    file_path = serializers.CharField()
-    layers_names = serializers.ListField(child=serializers.CharField())
-
-    class Meta:
-        model = CoreMLModel
-        fields = ["id", "name", "file_path", "layers_names"]
 
 
 class PostAdvertisedDataSerializer(serializers.Serializer):
@@ -40,10 +29,4 @@ class PostServerDataSerializer(serializers.Serializer):
 class UploadTFLiteSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=256)
     layers_sizes = serializers.ListField(child=serializers.IntegerField(min_value=0))
-    data_type = serializers.CharField(max_length=256)
-
-
-class UploadCoreMLSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=256)
-    layers_names = serializers.ListField(max_length=256)
     data_type = serializers.CharField(max_length=256)

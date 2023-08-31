@@ -1,8 +1,6 @@
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/ml_model.dart';
 import 'package:flutter/services.dart';
 
 /// We run MNIST on iOS, but I'm too lazy to come up with a name to fit both.
@@ -65,19 +63,13 @@ class Cifar10MLClient extends MLClient {
         .invokeMethod('updateParameters', {'parameters': parameters});
   }
 
-  Future<void> initML(String modelDir, MlModel mlModel, int partitionId) async {
-    final args = Platform.isIOS
-        ? {
-            'modelDir': modelDir,
-            'layersNames': (mlModel as CoreMLModel).layers_names,
-            'partitionId': partitionId
-          }
-        : {
-            'modelDir': modelDir,
-            'layersSizes': (mlModel as TFLiteModel).layers_sizes,
-            'partitionId': partitionId
-          };
-    await callChannel.invokeMethod('initML', args);
+  Future<void> initML(
+      String modelDir, List<int> layersSizes, int partitionId) async {
+    await callChannel.invokeMethod('initML', {
+      'modelDir': modelDir,
+      'layersSizes': layersSizes,
+      'partitionId': partitionId
+    });
   }
 
   void ensureListening() {

@@ -9,14 +9,12 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.views import Request
 from train import scheduler
-from train.models import CoreMLModel, ModelParams, TFLiteModel, TrainingDataType
+from train.models import ModelParams, TFLiteModel, TrainingDataType
 from train.scheduler import server
 from train.serializers import (
-    CoreMLModelSerializer,
     PostAdvertisedDataSerializer,
     PostServerDataSerializer,
     TFLiteModelSerializer,
-    UploadCoreMLSerializer,
     UploadTFLiteSerializer,
 )
 
@@ -63,39 +61,15 @@ def advertise_model(request: Request):
     return Response(serializer.data)
 
 
-def coreml_model_for_data_type(data: OrderedDict):
-    try:
-        data_type = TrainingDataType.objects.get(name=data["data_type"])
-        filter = CoreMLModel.objects.filter(data_type=data_type)
-        return filter.last()
-    except Exception as err:
-        logger.error(f"{err} while looking up model for `{data}`.")
-        return
-
-
-@api_view(["POST"])
-@permission_classes((permissions.AllowAny,))
-def which_coreml(request: Request):
-    (data, err) = deserialize(PostAdvertisedDataSerializer, request.data)
-    if err:
-        return Response(err, HTTP_400_BAD_REQUEST)
-    model = coreml_model_for_data_type(data)
-    if model is None:
-        return Response("No model corresponding to data_type", HTTP_404_NOT_FOUND)
-    serializer = CoreMLModelSerializer(model)
-    return Response(serializer.data)
-
-
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
 def request_server(request: Request):
     (data, err) = deserialize(PostServerDataSerializer, request.data)
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
-    ModelClass = CoreMLModel if data["is_coreml"] else TFLiteModel
     try:
-        model = ModelClass.objects.get(pk=data["id"])
-    except ModelClass.DoesNotExist:
+        model = TFLiteModel.objects.get(pk=data["id"])
+    except TFLiteModel.DoesNotExist:
         logger.error(f"Model with id {data['id']} not found.")
         return Response("Model not found", HTTP_404_NOT_FOUND)
     response = server(model, data["start_fresh"])
@@ -162,43 +136,10 @@ def upload_tflite(request: Request):
     return Response("ok")
 
 
-def coreml_name_not_unique(file_name: str):
-    try:
-        _ = CoreMLModel.objects.get(name=file_name)
-        return True
-    except CoreMLModel.DoesNotExist:
-        return False
-
-
-@api_view(["POST"])
-@permission_classes((permissions.AllowAny,))
-def upload_coreml(request: Request):
-    (data, err) = deserialize(UploadCoreMLSerializer, request.data)
-    if err:
-        return Response(err, HTTP_400_BAD_REQUEST)
-    name = data["name"]
-    data_type_name = data["data_type"]
-    if coreml_name_not_unique(name):
-        return Response("Model name used", HTTP_400_BAD_REQUEST)
-    file = file_in_request(request)
-    if file is None:
-        return Response("No file in request.", HTTP_400_BAD_REQUEST)
-    data_type = get_data_type(data_type_name)
-    path = save_model_file(name, *file)
-    model = CoreMLModel(
-        name=name,
-        file_path=f"/{path}",
-        layers_names=data["layers_names"],
-        data_type=data_type,
-    )
-    model.save()
-
-    return Response("ok")
-
-
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
 def store_params(request: Request):
+    # TODO: CoreML server.
     server = scheduler.tf_server
     if server is None:
         logger.error("No server running but got params to store.")

@@ -1,6 +1,4 @@
 // ignore_for_file: non_constant_identifier_names
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:fed_kit/ml_model.dart';
 import 'package:dart_mappable/dart_mappable.dart';
@@ -13,19 +11,10 @@ class BackendClient {
   final String url;
   const BackendClient(this.url);
 
-  Future<MlModel> whichModel(PostAdvertisedData body) =>
-      Platform.isIOS ? _whichCoreml(body) : _whichTFlite(body);
-
-  Future<TFLiteModel> _whichTFlite(PostAdvertisedData body) async {
+  Future<TFLiteModel> whichModel(PostAdvertisedData body) async {
     Response response =
         await dio.post('$url/train/advertised', data: body.toJson());
     return TFLiteModelMapper.fromMap(response.data);
-  }
-
-  Future<CoreMLModel> _whichCoreml(PostAdvertisedData body) async {
-    Response response =
-        await dio.post('$url/train/which_coreml', data: body.toJson());
-    return CoreMLModelMapper.fromMap(response.data);
   }
 
   Future<void> downloadFile(String urlPath, String destination) async {
@@ -37,12 +26,9 @@ class BackendClient {
     }
   }
 
-  Future<ServerData> postServer(MlModel model, bool startFresh) async {
-    var body = PostServerData(id: model.id, start_fresh: startFresh).toMap();
-    if (Platform.isIOS) {
-      body['is_coreml'] = true;
-    }
-    Response response = await dio.post('$url/train/server', data: body);
+  Future<ServerData> postServer(TFLiteModel model, bool startFresh) async {
+    PostServerData body = PostServerData(id: model.id, start_fresh: startFresh);
+    Response response = await dio.post('$url/train/server', data: body.toMap());
     return ServerDataMapper.fromMap(response.data);
   }
 
