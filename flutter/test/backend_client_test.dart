@@ -10,6 +10,7 @@ final expectedModel = TFLiteModel(
     id: 1,
     name: 'CIFAR10',
     file_path: '/static/cifar10.tflite',
+    is_coreml: false,
     layers_sizes: [1800, 24, 9600, 64, 768000, 480, 40320, 336, 3360, 40]);
 const expectedPort = 8080;
 final fitInsTelemetry =

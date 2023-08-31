@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:fed_kit/log.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:fed_kit/train.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -36,7 +37,7 @@ void main() {
     expect(serverInfo.port, expectedPort);
 
     await train.prepare(
-        FakeMLClient(model), exampleFlowerAddress, expectedPort);
+        FakeMLClient(model as TFLiteModel), exampleFlowerAddress, expectedPort);
 
     final completer = Completer();
     train.start().listen(logger.d,

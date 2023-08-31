@@ -1,4 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:fed_kit/ml_model.dart';
 import 'package:dart_mappable/dart_mappable.dart';
@@ -11,10 +13,14 @@ class BackendClient {
   final String url;
   const BackendClient(this.url);
 
-  Future<TFLiteModel> whichModel(PostAdvertisedData body) async {
+  Future<MlModel> whichModel(PostAdvertisedData body) async {
     Response response =
         await dio.post('$url/train/advertised', data: body.toJson());
-    return TFLiteModelMapper.fromMap(response.data);
+    if (Platform.isIOS) {
+      return TFLiteModelMapper.fromMap(response.data);
+    } else {
+      return CoreMLModelMapper.fromMap(response.data);
+    }
   }
 
   Future<void> downloadFile(String urlPath, String destination) async {
@@ -26,7 +32,7 @@ class BackendClient {
     }
   }
 
-  Future<ServerData> postServer(TFLiteModel model, bool startFresh) async {
+  Future<ServerData> postServer(MlModel model, bool startFresh) async {
     PostServerData body = PostServerData(id: model.id, start_fresh: startFresh);
     Response response = await dio.post('$url/train/server', data: body.toMap());
     return ServerDataMapper.fromMap(response.data);
