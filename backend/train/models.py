@@ -20,6 +20,7 @@ class TFLiteModel(models.Model):
     data_type = models.ForeignKey(
         TrainingDataType, on_delete=models.CASCADE, related_name="tflite_models", **cfg
     )
+    is_coreml = models.BooleanField(**cfg, default=False)
 
     def __str__(self) -> str:
         return f"TFLiteModel {self.name} for {self.data_type.name} at {self.file_path}, {len(self.layers_sizes)} layers"
