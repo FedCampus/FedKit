@@ -16,13 +16,25 @@ def nn_builder(mlmodel: MLModel) -> NeuralNetworkBuilder:
 
 def try_make_layers_updatable(builder: NeuralNetworkBuilder):
     assert builder.nn_spec is not None
-    updatable_layers: list[str] = []
+    updatable_layers: list[dict[str, str | list[int]]] = []
     for layer in builder.nn_spec.layers:
         name = layer.name
         try:
             builder.make_updatable([name])
-            updatable_layers.append(name)
             print(f"made {name} updatable")
+            info = {"name": name}
+            if conv := layer.convolution:
+                info["shape"] = [
+                    conv.outputChannels,
+                    conv.kernelChannels,
+                    conv.kernelSize[0],
+                    conv.kernelSize[1],
+                ]
+            elif inpd := layer.innerProduct:
+                info["shape"] = [inpd.outputChannels, inpd.inputChannels]
+            else:
+                raise ValueError(f"Unexpected updatable layer {layer}")
+            updatable_layers.append(info)
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except Exception:

@@ -18,7 +18,7 @@ DEFAULT_URL = "http://localhost:8000/"
 def upload(
     file: str,
     name: str,
-    layers_sizes: list[int],
+    layers_sizes: list[int] | list[dict[str, str | list[int]]],
     data_type: str,
     base: str = DEFAULT_URL,
     is_coreml: bool = False,

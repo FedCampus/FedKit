@@ -7,7 +7,7 @@ class TFLiteModelSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     file_path = serializers.CharField()
-    layers_sizes = serializers.ListField(child=serializers.IntegerField(min_value=0))
+    layers_sizes = serializers.ListField()
     is_coreml = serializers.BooleanField()
 
     class Meta:

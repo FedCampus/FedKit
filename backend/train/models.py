@@ -17,7 +17,8 @@ class TFLiteModel(models.Model):
     name = models.CharField(max_length=64, unique=True, **cfg)
     file_path = models.CharField(max_length=64, unique=True, **cfg)
     layers_sizes = models.JSONField(**cfg)
-    """Size of each layer of parameters in bytes."""
+    """For TFLite, size of each layer of parameters in bytes.
+    For CoreML, {name: str, shape: [int]} of each layer of parameters."""
     data_type = models.ForeignKey(
         TrainingDataType, on_delete=models.CASCADE, related_name="tflite_models", **cfg
     )
