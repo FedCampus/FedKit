@@ -39,9 +39,9 @@ def deserialize(cls, data):
 def tflite_model_for_data_type(data: OrderedDict):
     try:
         data_type = TrainingDataType.objects.get(name=data["data_type"])
-        filter = TFLiteModel.objects.filter(data_type=data_type)
-        if data["is_coreml"]:
-            filter = filter.filter(is_coreml=True)
+        filter = TFLiteModel.objects.filter(
+            data_type=data_type, is_coreml=data["is_coreml"]
+        )
         return filter.last()
     except Exception as err:
         logger.error(f"{err} while looking up model for `{data}`.")
