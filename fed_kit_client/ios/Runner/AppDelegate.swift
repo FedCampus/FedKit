@@ -81,6 +81,7 @@ enum AppErr: Error {
         runAsync(result) {
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
+            let layers = args["layersSizes"] as! [[String: Any]]
             let partitionId = (args["partitionId"] as! NSNumber).int32Value
             let trainBatchProvider = DataLoader.trainBatchProvider { count in
                 if count % 500 == 499 {
@@ -103,7 +104,7 @@ enum AppErr: Error {
             try self.checkModel(url)
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
-            // TODO: roll back to use ModelInspect
+            // TODO: make use of `layers`
             self.mlClient = MLClient([], dataLoader, compiledModelUrl)
             return nil
         }

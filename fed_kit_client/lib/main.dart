@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:app_set_id/app_set_id.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:fed_kit_client/cifar10_ml_client.dart';
 import 'package:fed_kit/train.dart';
 import 'package:flutter/material.dart';
@@ -126,7 +127,10 @@ class _MyAppState extends State<MyApp> {
     }
     appendLog(
         'Ready to connected to Flower server on port ${serverData.port}.');
-    await _mlClient.initML(modelDir, model.layers_sizes, partitionId);
+    final layers = Platform.isIOS
+        ? (model as CoreMLModel).layers_sizes
+        : (model as TFLiteModel).layers_sizes;
+    await _mlClient.initML(modelDir, layers, partitionId);
     appendLog('Prepared ML client and loaded dataset.');
     await train.prepare(_mlClient, host.host, serverData.port!);
     canTrain = true;
