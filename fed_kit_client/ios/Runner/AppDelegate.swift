@@ -104,7 +104,7 @@ enum AppErr: Error {
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
             // TODO: roll back to use ModelInspect
-            self.mlClient = MLClient(layersNames, dataLoader, compiledModelUrl)
+            self.mlClient = MLClient([], dataLoader, compiledModelUrl)
             return nil
         }
     }

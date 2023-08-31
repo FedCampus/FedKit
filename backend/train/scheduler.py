@@ -78,4 +78,8 @@ def server(model: TFLiteModel, start_fresh: bool) -> ServerData:
     else:
         # Start new server.
         server = Server(model, port, start_fresh)
+        if model.is_coreml:
+            cm_server = server
+        else:
+            tf_server = server
         return ServerData("new", server.session.id, port)
