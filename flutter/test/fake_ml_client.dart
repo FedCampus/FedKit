@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/ml_model.dart';
+import 'package:fed_kit/tflite_model.dart';
 
 class FakeMLClient extends MLClient {
   List<Uint8List>? _parameters;

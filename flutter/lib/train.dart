@@ -4,7 +4,7 @@ import 'package:fed_kit/backend_client.dart';
 import 'package:fed_kit/flower_service.dart';
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/ml_model.dart';
+import 'package:fed_kit/tflite_model.dart';
 import 'package:fed_kit/train_state.dart';
 import 'package:grpc/grpc.dart';
 
@@ -31,24 +31,25 @@ class Train {
     _telemetry = false;
   }
 
-  Future<(MlModel, String)> prepareModel(String dataType) => switch (_state) {
+  Future<(TFLiteModel, String)> prepareModel(String dataType) =>
+      switch (_state) {
         Initialized() || WithModel() => _prepareModel(dataType),
         _ => throw Exception('`prepareModel` called with $_state'),
       };
 
-  Future<(MlModel, String)> _prepareModel(String dataType) async {
+  Future<(TFLiteModel, String)> _prepareModel(String dataType) async {
     final model = await _whichModel(dataType);
     final (modelUrl, modelDir) = await model.urlAndDir;
     await downloadModelFile(modelUrl, modelDir);
     return (model, modelDir);
   }
 
-  Future<MlModel> whichModel(String dataType) async => switch (_state) {
+  Future<TFLiteModel> whichModel(String dataType) async => switch (_state) {
         Initialized() || WithModel() => _whichModel(dataType),
         _ => throw Exception('`advertisedModel` called with $_state'),
       };
 
-  Future<MlModel> _whichModel(String dataType) async {
+  Future<TFLiteModel> _whichModel(String dataType) async {
     final model = await _client.whichModel(
         PostAdvertisedData(data_type: dataType, is_coreml: Platform.isIOS));
     logger.d('Advertised model: $model.');
@@ -63,7 +64,7 @@ class Train {
       };
 
   Future<void> _downloadModelFile(
-      String modelUrl, String modelDir, MlModel model) async {
+      String modelUrl, String modelDir, TFLiteModel model) async {
     if (await Directory(modelDir).exists()) {
       logger.d('Skipping already downloaded model ${model.name}');
       return;
@@ -78,7 +79,7 @@ class Train {
         _ => throw Exception('`getServerInfo` called with $_state'),
       };
 
-  Future<ServerData> _getServerInfo(MlModel model, bool startFresh) async {
+  Future<ServerData> _getServerInfo(TFLiteModel model, bool startFresh) async {
     final serverData = await _client.postServer(model, startFresh);
     _sessionId = serverData.session_id;
     logger.d('Server info: $serverData.');
