@@ -24,15 +24,15 @@ enum MLClientErr: Error {
 }
 
 public class MLClient {
-    let layerNames: [String]
+    let layers: [Layer]
     var parameters: [MLMultiArray]?
     var dataLoader: MLDataLoader
     var compiledModelUrl: URL
     var tempModelUrl: URL
     private var paramUpdate: [[Float]]?
 
-    init(_ layerNames: [String], _ dataLoader: MLDataLoader, _ compiledModelUrl: URL) {
-        self.layerNames = layerNames
+    init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ compiledModelUrl: URL) {
+        self.layers = layers
         self.dataLoader = dataLoader
         self.compiledModelUrl = compiledModelUrl
 
@@ -62,8 +62,8 @@ public class MLClient {
         let updateContext = try await updateModelAsync(
             forModelAt: compiledModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: config
         )
-        parameters = try layerNames.map { name in
-            let paramKey = MLParameterKey.weights.scoped(to: name)
+        parameters = try layers.map { layer in
+            let paramKey = MLParameterKey.weights.scoped(to: layer.name)
             guard let weightsMultiArray = try updateContext.model.parameterValue(for: paramKey) as? MLMultiArray else {
                 throw MLClientErr.ParamNotMultiArray
             }
@@ -82,6 +82,7 @@ public class MLClient {
         return (loss, (1.0 - loss) * 100)
     }
 
+    /// Guarantee that the config returned has non-nil `parameters`.
     private func config() throws -> MLModelConfiguration {
         let config = MLModelConfiguration()
         if config.parameters == nil {
@@ -89,8 +90,9 @@ public class MLClient {
         }
         if let paramUpdate {
             for (index, weightsArray) in paramUpdate.enumerated() {
-                let layerParams = try MLMultiArray(weightsArray)
-                let paramKey = MLParameterKey.weights.scoped(to: layerNames[index])
+                let shapedArray = MLShapedArray(scalars: weightsArray, shape: layers[index].shape)
+                let layerParams = MLMultiArray(shapedArray)
+                let paramKey = MLParameterKey.weights.scoped(to: layers[index].name)
                 config.parameters![paramKey] = layerParams
             }
             self.paramUpdate = nil

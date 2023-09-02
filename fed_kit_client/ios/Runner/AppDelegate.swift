@@ -104,8 +104,7 @@ enum AppErr: Error {
             try self.checkModel(url)
             let compiledModelUrl = try MLModel.compileModel(at: url)
             self.log.error("Compiled model URL: \(compiledModelUrl).")
-            // TODO: make use of `layers`
-            self.mlClient = MLClient([], dataLoader, compiledModelUrl)
+            self.mlClient = MLClient(layers, dataLoader, compiledModelUrl)
             return nil
         }
     }
