@@ -28,3 +28,25 @@ func updateModelAsync(forModelAt: URL, trainingData: MLBatchProvider, configurat
         }
     }
 }
+
+enum ConversionError: Error {
+    case missingValue(key: String)
+    case invalidValue(key: String, expectedType: Any.Type)
+}
+
+struct Layer {
+    let name: String
+    let shape: [NSNumber]
+
+    init(dictionary: [String: Any?]) throws {
+        guard let name = dictionary["name"] as? String else {
+            throw ConversionError.missingValue(key: "name")
+        }
+
+        guard let shape = dictionary["shape"] as? [NSNumber] else {
+            throw ConversionError.missingValue(key: "shape")
+        }
+        self.name = name
+        self.shape = shape
+    }
+}
