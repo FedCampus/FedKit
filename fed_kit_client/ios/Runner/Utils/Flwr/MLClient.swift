@@ -88,14 +88,12 @@ public class MLClient {
             config.parameters = [:]
         }
         if let paramUpdate {
-            let parameters = try await parameters()
-            log.error("MLClient: parameters shapes: \(parameters.map { $0.shape }).")
             for (index, weightsArray) in paramUpdate.enumerated() {
-                let shape = parameters[index].shape.map { Int(truncating: $0) }
-                let shapedArray = MLShapedArray(scalars: weightsArray, shape: shape)
+                let layer = layers[index]
+                let shapedArray = MLShapedArray(scalars: weightsArray, shape: layer.shape)
                 let layerParams = MLMultiArray(shapedArray)
-                log.error("MLClient: layerParams shape: \(layerParams.shape).")
-                let paramKey = MLParameterKey.weights.scoped(to: layers[index].name)
+                log.error("MLClient: layerParams for \(layer.name) shape: \(layerParams.shape) count: \(layerParams.count) is float: \(layerParams.dataType == .float).")
+                let paramKey = MLParameterKey.weights.scoped(to: layer.name)
                 config.parameters![paramKey] = layerParams
             }
             self.paramUpdate = nil
