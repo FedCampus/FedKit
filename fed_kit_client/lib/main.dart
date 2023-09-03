@@ -137,7 +137,10 @@ class _MyAppState extends State<MyApp> {
     try {
       train.start().listen(appendLog,
           onDone: () => appendLog('Training done.'),
-          onError: (e) => appendLog('Training failed: $e.'),
+          onError: (e) {
+            canPrepare = true;
+            appendLog('Training failed: $e.');
+          },
           cancelOnError: true);
       canTrain = false;
       appendLog('Started training.');

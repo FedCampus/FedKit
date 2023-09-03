@@ -32,35 +32,43 @@ class FlowerService {
   /// Start running this service.
   /// Returns a stream of info.
   Stream<String> run() {
-    _streamSub = FlowerServiceClient(channel)
-        .join(_msgStreamCtl.stream)
-        .listen(_handleMessage, onError: (e, s) {
-      _logErr(e, s);
-      _infoStreamCtl.addError(e, s);
-      close();
-    }, onDone: close, cancelOnError: true);
+    _streamSub = FlowerServiceClient(channel).join(_msgStreamCtl.stream).listen(
+        _handleMessage,
+        onError: _onErr,
+        onDone: close,
+        cancelOnError: true);
     return _infoStreamCtl.stream;
   }
 
   /// Stream of information produced.
   Stream<String> get infoStream => _infoStreamCtl.stream;
 
+  Future<void> _onErr(err, StackTrace trace) async {
+    _logErr(err, trace);
+    _infoStreamCtl.addError(err, trace);
+    await close();
+  }
+
   Future<void> _handleMessage(ServerMessage message) async {
     ClientMessage? response;
-    if (message.hasGetParametersIns()) {
-      response = await _handleGetParameters(message);
-    } else if (message.hasFitIns()) {
-      response = await _handleFitIns(message);
-    } else if (message.hasEvaluateIns()) {
-      response = await _handleEvaluateIns(message);
-    } else if (message.hasReconnectIns()) {
-      _logDebug('Handling reconnectIns');
-      await close();
-    } else {
-      throw Exception('Unknown message type: $message');
-    }
-    if (response != null) {
-      _sendMessage(response);
+    try {
+      if (message.hasGetParametersIns()) {
+        response = await _handleGetParameters(message);
+      } else if (message.hasFitIns()) {
+        response = await _handleFitIns(message);
+      } else if (message.hasEvaluateIns()) {
+        response = await _handleEvaluateIns(message);
+      } else if (message.hasReconnectIns()) {
+        _logDebug('Handling reconnectIns');
+        await close();
+      } else {
+        throw Exception('Unknown message type: $message');
+      }
+      if (response != null) {
+        _sendMessage(response);
+      }
+    } catch (err, trace) {
+      await _onErr(err, trace);
     }
   }
 
