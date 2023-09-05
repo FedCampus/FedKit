@@ -8,14 +8,14 @@
 import Foundation
 
 struct MLModelInspect {
-    private let mlModel: CoreML_Specification_Model?
+    private let mlModel: CoreML_Specification_Model
 
     init(serializedData data: Data) throws {
         mlModel = try CoreML_Specification_Model(serializedData: data)
     }
 
     func getLayerWrappers() -> [MLLayerWrapper] {
-        return (mlModel?.neuralNetwork.layers.compactMap { getLayerWrapper(layer: $0) })!
+        return mlModel.neuralNetwork.layers.compactMap { getLayerWrapper(layer: $0) }
     }
 
     private func getLayerWrapper(layer: CoreML_Specification_NeuralNetworkLayer) -> MLLayerWrapper? {
