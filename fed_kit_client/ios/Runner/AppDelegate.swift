@@ -9,6 +9,24 @@ enum AppErr: Error {
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     var mlClient: MLClient?
+    lazy var dataLoader = {
+        let trainBatchProvider = DataLoader.trainBatchProvider { count in
+            if count % 500 == 499 {
+                self.log.error("Prepared \(count) training data points.")
+            }
+        }
+        self.log.error("trainBatchProvider: \(trainBatchProvider.count)")
+
+        let testBatchProvider = DataLoader.testBatchProvider { count in
+            if count % 500 == 499 {
+                self.log.error("Prepared \(count) test data points.")
+            }
+        }
+        self.log.error("testBatchProvider: \(testBatchProvider.count)")
+
+        return MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
+    }()
+
     let log = logger(String(describing: AppDelegate.self))
 
     override func application(
@@ -87,26 +105,11 @@ enum AppErr: Error {
             let modelDir = args["modelDir"] as! String
             let layers = try (args["layersSizes"] as! [[String: Any]]).map(Layer.init)
             let partitionId = (args["partitionId"] as! NSNumber).int32Value
-            let trainBatchProvider = DataLoader.trainBatchProvider { count in
-                if count % 500 == 499 {
-                    self.log.error("Prepared \(count) training data points.")
-                }
-            }
-            self.log.error("trainBatchProvider: \(trainBatchProvider.count)")
-
-            let testBatchProvider = DataLoader.testBatchProvider { count in
-                if count % 500 == 499 {
-                    self.log.error("Prepared \(count) test data points.")
-                }
-            }
-            self.log.error("testBatchProvider: \(testBatchProvider.count)")
-
-            let dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
             let url = URL(fileURLWithPath: modelDir)
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
             try self.checkModel(url)
-            self.mlClient = try MLClient(layers, dataLoader, url)
+            self.mlClient = try MLClient(layers, self.dataLoader, url)
             return nil
         }
     }
