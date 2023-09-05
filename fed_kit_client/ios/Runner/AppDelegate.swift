@@ -102,9 +102,7 @@ enum AppErr: Error {
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
             try self.checkModel(url)
-            let compiledModelUrl = try MLModel.compileModel(at: url)
-            self.log.error("Compiled model URL: \(compiledModelUrl).")
-            self.mlClient = MLClient(layers, dataLoader, compiledModelUrl)
+            self.mlClient = try await MLClient(layers, dataLoader, url)
             return nil
         }
     }

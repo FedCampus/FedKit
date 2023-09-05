@@ -28,18 +28,26 @@ public class MLClient {
     var parameters: [MLMultiArray]?
     var dataLoader: MLDataLoader
     var compiledModelUrl: URL
+    var rewriteModelUrl: URL
     var tempModelUrl: URL
+    var mlModel: CoreML_Specification_Model
     private var paramUpdate: [[Float]]?
 
     let log = logger(String(describing: MLClient.self))
 
-    init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ compiledModelUrl: URL) {
+    init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL) async throws {
         self.layers = layers
         self.dataLoader = dataLoader
-        self.compiledModelUrl = compiledModelUrl
-
+        compiledModelUrl = try await MLModel.compileModel(at: modelUrl)
+        log.error("Compiled model URL: \(compiledModelUrl).")
         let modelFileName = compiledModelUrl.deletingPathExtension().lastPathComponent
         tempModelUrl = appDirectory.appendingPathComponent("temp\(modelFileName).mlmodelc")
+        rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
+
+        let content = try Data(contentsOf: modelUrl)
+        mlModel = try CoreML_Specification_Model(serializedData: content)
+        try mlModel.serializedData().write(to: rewriteModelUrl)
+        compiledModelUrl = try await MLModel.compileModel(at: rewriteModelUrl)
     }
 
     func getParameters() async throws -> [[Float]] {
