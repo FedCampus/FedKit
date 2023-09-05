@@ -98,7 +98,7 @@ public class MLClient {
             config.parameters = [:]
         }
         if let paramUpdate {
-            for var nnLayer in mlModel.neuralNetwork.layers {
+            try mlModel.neuralNetwork.layers.forEachMut { nnLayer in
                 let name = nnLayer.name
                 for (index, layer) in layers.enumerated() {
                     if layer.name != name { continue }

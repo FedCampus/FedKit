@@ -49,3 +49,14 @@ struct Layer {
         self.shape = shape
     }
 }
+
+extension MutableCollection {
+    /// <https://forums.swift.org/t/inout-variables-in-for-in-loops/61380/6>
+    mutating func forEachMut(_ body: (inout Element) throws -> Void) rethrows {
+        var i = startIndex
+        while i < endIndex {
+            try body(&self[i])
+            formIndex(after: &i)
+        }
+    }
+}
