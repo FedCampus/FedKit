@@ -98,20 +98,16 @@ public class MLClient {
             config.parameters = [:]
         }
         if let paramUpdate {
-            var index = 0
-            for var layer in mlModel.neuralNetwork.layers {
-                let name = layer.name
-                if name != layers[index].name {
-                    index += 1
-                    if index >= layers.count {
-                        break
+            for var nnLayer in mlModel.neuralNetwork.layers {
+                let name = nnLayer.name
+                for (index, layer) in layers.enumerated() {
+                    if layer.name != name { continue }
+                    switch nnLayer.layer! {
+                    case .convolution: nnLayer.convolution.weights.floatValue = paramUpdate[index]
+                    case .innerProduct: nnLayer.innerProduct.weights.floatValue = paramUpdate[index]
+                    default: throw MLClientErr.UnexpectedLayer(name)
                     }
-                    continue
-                }
-                switch layer.layer! {
-                case .convolution: layer.convolution.weights.floatValue = paramUpdate[index]
-                case .innerProduct: layer.innerProduct.weights.floatValue = paramUpdate[index]
-                default: throw MLClientErr.UnexpectedLayer(name)
+                    log.error("Updated layer \(name) with weights of \(paramUpdate[index].count).")
                 }
             }
             try recompile()
