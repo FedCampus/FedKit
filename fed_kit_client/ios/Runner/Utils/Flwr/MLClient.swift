@@ -21,6 +21,7 @@ enum MLClientErr: Error {
     case NoParamUpdate
     case ParamsNil
     case ParamNotMultiArray
+    case UnexpectedLayer(String)
 }
 
 public class MLClient {
@@ -90,20 +91,30 @@ public class MLClient {
     }
 
     /// Guarantee that the config returned has non-nil `parameters`.
+    /// Update `compiledModelUrl` to match new parameters.
     private func config() async throws -> MLModelConfiguration {
         let config = MLModelConfiguration()
         if config.parameters == nil {
             config.parameters = [:]
         }
         if let paramUpdate {
-            for (index, weightsArray) in paramUpdate.enumerated() {
-                let layer = layers[index]
-                let shapedArray = MLShapedArray(scalars: weightsArray, shape: layer.shape)
-                let layerParams = MLMultiArray(shapedArray)
-                log.error("MLClient: layerParams for \(layer.name) shape: \(layerParams.shape) count: \(layerParams.count) is float: \(layerParams.dataType == .float).")
-                let paramKey = MLParameterKey.weights.scoped(to: layer.name)
-                config.parameters![paramKey] = layerParams
+            var index = 0
+            for var layer in mlModel.neuralNetwork.layers {
+                let name = layer.name
+                if name != layers[index].name {
+                    index += 1
+                    if index >= layers.count {
+                        break
+                    }
+                    continue
+                }
+                switch layer.layer! {
+                case .convolution: layer.convolution.weights.floatValue = paramUpdate[index]
+                case .innerProduct: layer.innerProduct.weights.floatValue = paramUpdate[index]
+                default: throw MLClientErr.UnexpectedLayer(name)
+                }
             }
+            try recompile()
             self.paramUpdate = nil
         }
         return config
