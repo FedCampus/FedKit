@@ -49,9 +49,13 @@ enum AppErr: Error {
         }
     }
 
-    func fit(_: FlutterMethodCall, _ result: @escaping FlutterResult) {
-        // TODO: Real fit.
-        result(nil)
+    func fit(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
+        runAsync(result) {
+            let args = call.arguments as! [String: Any]
+            let epochs = args["epochs"] as? Int
+            try await self.mlClient?.fit(epochs: epochs)
+            return nil
+        }
     }
 
     func getParameters(_ result: @escaping FlutterResult) {
