@@ -27,6 +27,8 @@ enum AppErr: Error {
         return MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
     }()
 
+    var ready = false
+
     let log = logger(String(describing: AppDelegate.self))
 
     override func application(
@@ -85,8 +87,7 @@ enum AppErr: Error {
     }
 
     func ready(_ result: @escaping FlutterResult) {
-        // TODO: Test.
-        result(true)
+        result(ready)
     }
 
     func updateParameters(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
@@ -110,6 +111,7 @@ enum AppErr: Error {
             self.log.error("Model URL: \(url).")
             try self.checkModel(url)
             self.mlClient = try MLClient(layers, self.dataLoader, url)
+            self.ready = true
             return nil
         }
     }
