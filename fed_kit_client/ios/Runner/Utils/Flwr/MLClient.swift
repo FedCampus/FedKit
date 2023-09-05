@@ -35,19 +35,19 @@ public class MLClient {
 
     let log = logger(String(describing: MLClient.self))
 
-    init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL) async throws {
+    init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL) throws {
         self.layers = layers
         self.dataLoader = dataLoader
-        compiledModelUrl = try await MLModel.compileModel(at: modelUrl)
-        log.error("Compiled model URL: \(compiledModelUrl).")
+        // Initial models.
+        let url = try MLModel.compileModel(at: modelUrl)
+        log.error("Compiled model URL: \(url).")
+        compiledModelUrl = url
         let modelFileName = compiledModelUrl.deletingPathExtension().lastPathComponent
         tempModelUrl = appDirectory.appendingPathComponent("temp\(modelFileName).mlmodelc")
         rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
-
+        // ProtoBuf representation.
         let content = try Data(contentsOf: modelUrl)
         mlModel = try CoreML_Specification_Model(serializedData: content)
-        try mlModel.serializedData().write(to: rewriteModelUrl)
-        compiledModelUrl = try await MLModel.compileModel(at: rewriteModelUrl)
     }
 
     func getParameters() async throws -> [[Float]] {
@@ -125,5 +125,10 @@ public class MLClient {
             throw MLClientErr.ParamsNil
         }
         return parameters
+    }
+
+    private func recompile() throws {
+        try mlModel.serializedData().write(to: rewriteModelUrl)
+        compiledModelUrl = try MLModel.compileModel(at: rewriteModelUrl)
     }
 }
