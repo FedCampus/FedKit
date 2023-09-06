@@ -17,7 +17,7 @@ logger = getLogger(__name__)
 class FedAvgAndroidSave(FedAvgAndroid):
     def aggregate_fit(
         self,
-        server_round: int,
+        _: int,
         results: list[tuple[ClientProxy, FitRes]],
         failures: list[tuple[ClientProxy, FitRes] | BaseException],
     ) -> tuple[Parameters | None, dict[str, Scalar]]:
@@ -35,7 +35,8 @@ class FedAvgAndroidSave(FedAvgAndroid):
             weights = self.parameters_to_ndarrays(fit_res.parameters)
             if any(isnan(weight).any() for weight in weights):
                 logger.error(
-                    f"aggregate_fit: disgarding weights with NaN from {client}: {weights}."
+                    f"aggregate_fit: disgarding weights with NaN from {client}: \
+{weights}."
                 )
             else:
                 weights_results.append((weights, fit_res.num_examples))
@@ -54,13 +55,13 @@ class FedAvgAndroidSave(FedAvgAndroid):
         return requests.post(url, files=files)
 
 
-def fit_config(server_round: int):
+def fit_config(_: int):
     """Return training configuration dict for each round.
 
     Keep batch size fixed at 32, perform two rounds of training with one
     local epoch, increase to two local epochs afterwards.
     """
-    config = {
+    config: dict[str, Scalar] = {
         "batch_size": 32,
         "local_epochs": 2,
     }
