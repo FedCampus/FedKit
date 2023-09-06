@@ -21,12 +21,12 @@ enum DataLoader {
     private static let shapeTarget: [NSNumber] = [1]
     static let log = logger(String(describing: DataLoader.self))
 
-    static func trainBatchProvider(progressHandler: @escaping (Int) -> Void) -> MLBatchProvider {
-        return prepareMLBatchProvider(filePath: extractTrainFile(dataset: dataset), progressHandler: progressHandler)
+    static func trainBatchProvider(progressHandler: @escaping (Int) -> Void) async -> MLBatchProvider {
+        return await prepareMLBatchProvider(filePath: extractTrainFile(dataset: dataset), progressHandler: progressHandler)
     }
 
-    static func testBatchProvider(progressHandler: @escaping (Int) -> Void) -> MLBatchProvider {
-        return prepareMLBatchProvider(filePath: extractTestFile(dataset: dataset), progressHandler: progressHandler)
+    static func testBatchProvider(progressHandler: @escaping (Int) -> Void) async -> MLBatchProvider {
+        return await prepareMLBatchProvider(filePath: extractTestFile(dataset: dataset), progressHandler: progressHandler)
     }
 
     /// Extract file
@@ -91,41 +91,46 @@ enum DataLoader {
         return extractFile(from: sourceURL, to: destinationURL)
     }
 
-    private static func prepareMLBatchProvider(filePath: String, progressHandler: @escaping (Int) -> Void) -> MLBatchProvider {
-        var featureProviders = [MLFeatureProvider]()
-
+    private static func prepareMLBatchProvider(filePath: String, progressHandler: @escaping (Int) -> Void) async -> MLBatchProvider {
         var count = 0
         errno = 0
 
         if freopen(filePath, "r", stdin) == nil {
             log.error("error opening file")
         }
-        var lengthEntry = 1
-        shapeData.enumerated().forEach { _, value in
-            lengthEntry = Int(truncating: value) * lengthEntry
+        let lengthEntry = shapeData.reduce(1) { acc, value in
+            Int(truncating: value) * acc
         }
 
         // MARK: Fails if commas occur in the values of csv
 
-        while let line = readLine()?.split(separator: ",") {
-            if count > 5000 {
-                break
+        let featureProviders = await withTaskGroup(of: MLDictionaryFeatureProvider.self) { group in
+            while let line = readLine()?.split(separator: ",") {
+                if count > 5000 {
+                    break
+                }
+                count += 1
+                progressHandler(count)
+                group.addTask {
+                    let imageMultiArr = try! MLMultiArray(shape: shapeData, dataType: .float32)
+                    let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .int32)
+                    for i in 0 ..< lengthEntry {
+                        imageMultiArr[i] = NSNumber(value: Float(String(line[i]))! / normalization)
+                    }
+                    outputMultiArr[0] = NSNumber(value: Float(String(line.last!))!)
+                    let imageValue = MLFeatureValue(multiArray: imageMultiArr)
+                    let outputValue = MLFeatureValue(multiArray: outputMultiArr)
+                    let dataPointFeatures: [String: MLFeatureValue] = ["image": imageValue,
+                                                                       "output_true": outputValue]
+                    return try! MLDictionaryFeatureProvider(dictionary: dataPointFeatures)
+                }
             }
-            count += 1
-            progressHandler(count)
-            let imageMultiArr = try! MLMultiArray(shape: shapeData, dataType: .float32)
-            let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .int32)
-            for i in 0 ..< lengthEntry {
-                imageMultiArr[i] = NSNumber(value: Float(String(line[i]))! / normalization)
-            }
-            outputMultiArr[0] = NSNumber(value: Float(String(line.last!))!)
-            let imageValue = MLFeatureValue(multiArray: imageMultiArr)
-            let outputValue = MLFeatureValue(multiArray: outputMultiArr)
-            let dataPointFeatures: [String: MLFeatureValue] = ["image": imageValue,
-                                                               "output_true": outputValue]
-            if let provider = try? MLDictionaryFeatureProvider(dictionary: dataPointFeatures) {
+
+            var featureProviders = [MLFeatureProvider]()
+            for await provider in group {
                 featureProviders.append(provider)
             }
+            return featureProviders
         }
 
         return MLArrayBatchProvider(array: featureProviders)

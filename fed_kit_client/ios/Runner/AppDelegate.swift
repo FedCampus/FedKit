@@ -9,23 +9,7 @@ enum AppErr: Error {
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     var mlClient: MLClient?
-    lazy var dataLoader = {
-        let trainBatchProvider = DataLoader.trainBatchProvider { count in
-            if count % 500 == 499 {
-                self.log.error("Prepared \(count) training data points.")
-            }
-        }
-        self.log.error("trainBatchProvider: \(trainBatchProvider.count)")
-
-        let testBatchProvider = DataLoader.testBatchProvider { count in
-            if count % 500 == 499 {
-                self.log.error("Prepared \(count) test data points.")
-            }
-        }
-        self.log.error("testBatchProvider: \(testBatchProvider.count)")
-
-        return MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
-    }()
+    private var dataLoader: MLDataLoader?
 
     var ready = false
 
@@ -110,7 +94,7 @@ enum AppErr: Error {
             self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             self.log.error("Model URL: \(url).")
             try self.checkModel(url)
-            self.mlClient = try MLClient(layers, self.dataLoader, url)
+            self.mlClient = try MLClient(layers, await self.dataLoader(), url)
             self.ready = true
             return nil
         }
@@ -136,5 +120,27 @@ enum AppErr: Error {
                 }
             }
         }
+    }
+
+    private func dataLoader() async -> MLDataLoader {
+        if dataLoader != nil {
+            return dataLoader!
+        }
+        let trainBatchProvider = await DataLoader.trainBatchProvider { count in
+            if count % 1000 == 999 {
+                self.log.error("Prepared \(count) training data points.")
+            }
+        }
+        log.error("trainBatchProvider: \(trainBatchProvider.count)")
+
+        let testBatchProvider = await DataLoader.testBatchProvider { count in
+            if count % 1000 == 999 {
+                self.log.error("Prepared \(count) test data points.")
+            }
+        }
+        log.error("testBatchProvider: \(testBatchProvider.count)")
+
+        dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
+        return dataLoader!
     }
 }
