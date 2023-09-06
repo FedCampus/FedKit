@@ -106,11 +106,8 @@ enum DataLoader {
 
         let featureProviders = await withTaskGroup(of: MLDictionaryFeatureProvider.self) { group in
             while let line = readLine()?.split(separator: ",") {
-                if count > 5000 {
-                    break
-                }
                 count += 1
-                progressHandler(count)
+                let countNow = count
                 group.addTask {
                     let imageMultiArr = try! MLMultiArray(shape: shapeData, dataType: .float32)
                     let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .int32)
@@ -122,6 +119,7 @@ enum DataLoader {
                     let outputValue = MLFeatureValue(multiArray: outputMultiArr)
                     let dataPointFeatures: [String: MLFeatureValue] = ["image": imageValue,
                                                                        "output_true": outputValue]
+                    progressHandler(countNow)
                     return try! MLDictionaryFeatureProvider(dictionary: dataPointFeatures)
                 }
             }

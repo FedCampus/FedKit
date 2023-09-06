@@ -5,7 +5,7 @@ func updateModelAsync(forModelAt: URL, trainingData: MLBatchProvider, configurat
     let log = logger("updateModelAsync")
 
     let progressHandler: (MLUpdateContext) -> Void = { contextProgress in
-        let loss = String(format: "%.4f", contextProgress.metrics[.lossValue] as! Double)
+        let loss = contextProgress.metrics[.lossValue] as! Double
         log.error("Epoch \(contextProgress.metrics[.epochIndex] as! Int + 1) finished with loss \(loss)")
     }
 
