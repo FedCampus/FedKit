@@ -49,8 +49,8 @@ class Train {
       };
 
   Future<MLModel> _whichModel(String dataType) async {
-    final model = await _client.whichModel(
-        PostAdvertisedData(data_type: dataType, is_coreml: Platform.isIOS));
+    final model = await _client.whichModel(PostAdvertisedData(
+        data_type: dataType, tflite: !Platform.isIOS, coreml: Platform.isIOS));
     logger.d('Advertised model: $model.');
     _state = WithModel(model);
     return model;

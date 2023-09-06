@@ -32,7 +32,7 @@ class MLModel with MLModelMappable {
 
   /// Return `(fileUrl, fileDir)`.
   Future<(String, String)> get urlAndDir async {
-    final fileUrl = tflite_path!;
+    final fileUrl = Platform.isIOS ? coreml_path! : tflite_path!;
     final base = await getApplicationDocumentsDirectory();
     final fileName = fileUrl.split('/').last;
     final fileDir = '${base.path}/models/$name/$fileName';

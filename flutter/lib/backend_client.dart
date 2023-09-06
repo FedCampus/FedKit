@@ -51,11 +51,13 @@ class BackendClient {
 @MappableClass()
 class PostAdvertisedData with PostAdvertisedDataMappable {
   final String data_type;
-  final bool is_coreml;
+  final bool tflite;
+  final bool coreml;
 
   PostAdvertisedData({
     required this.data_type,
-    this.is_coreml = false,
+    this.tflite = true,
+    this.coreml = false,
   });
 }
 

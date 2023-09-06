@@ -7,6 +7,9 @@ from numpy.typing import NDArray
 class TrainingDataType(models.Model):
     name = models.CharField(max_length=256, unique=True, editable=False)
 
+    def __str__(self):
+        return self.name
+
 
 # Always change together with `serializers.MLModelSerializer`
 # & Android `db.MLModel`
