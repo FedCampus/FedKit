@@ -8,9 +8,9 @@ class TrainingDataType(models.Model):
     name = models.CharField(max_length=256, unique=True, editable=False)
 
 
-# Always change together with `serializers.TFLiteModelSerializer`
-# & Android `db.TFLiteModel`
-# & Flutter `ml_models.TFliteModel`.
+# Always change together with `serializers.MLModelSerializer`
+# & Android `db.MLModel`
+# & Flutter `ml_model.MLModel`.
 class MLModel(models.Model):
     name = models.CharField(max_length=64, unique=True, editable=False)
     tflite_path = models.CharField(max_length=64, unique=True, null=True, default=None)
@@ -31,7 +31,7 @@ class MLModel(models.Model):
     tflite = models.BooleanField(default=True)
     coreml = models.BooleanField(default=False)
 
-    def __repl__(self) -> str:
+    def __str__(self) -> str:
         desc = [f"MLModel {self.name} for {self.data_type.name}"]
         if self.tflite:
             desc.append(

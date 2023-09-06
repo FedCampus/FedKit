@@ -2,7 +2,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:dart_mappable/dart_mappable.dart';
 part 'backend_client.mapper.dart';
 
@@ -13,13 +13,13 @@ class BackendClient {
   final String url;
   const BackendClient(this.url);
 
-  Future<TFLiteModel> whichModel(PostAdvertisedData body) async {
+  Future<MLModel> whichModel(PostAdvertisedData body) async {
     Response response =
         await dio.post('$url/train/advertised', data: body.toJson());
     if (Platform.isIOS) {
-      return TFLiteModelMapper.fromMap<Map<String, dynamic>>(response.data);
+      return MLModelMapper.fromMap(response.data);
     } else {
-      return TFLiteModelMapper.fromMap<int>(response.data);
+      return MLModelMapper.fromMap(response.data);
     }
   }
 
@@ -32,7 +32,7 @@ class BackendClient {
     }
   }
 
-  Future<ServerData> postServer(TFLiteModel model, bool startFresh) async {
+  Future<ServerData> postServer(MLModel model, bool startFresh) async {
     PostServerData body = PostServerData(id: model.id, start_fresh: startFresh);
     Response response = await dio.post('$url/train/server', data: body.toMap());
     return ServerDataMapper.fromMap(response.data);

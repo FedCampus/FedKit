@@ -2,7 +2,7 @@ from rest_framework import serializers
 from train.models import MLModel
 
 
-# Always change together with `models.TFLiteModel`.
+# Always change together with `models.MLModel`.
 class MLModelSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()

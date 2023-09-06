@@ -75,7 +75,7 @@ save_tflite_model(tflite_model, "my_model.tflite")
 ```
 
 The script prints the `Model parameter sizes in bytes` in <span style="color: red;">red</span>. Copy that red list for later storing into the database.
-That list is `TFLiteModel.layers_sizes` for your model.
+That list is `MLModel.tflite_layers` for your model.
 
 The above script generates the `.tflite` file at `../my_model.tflite`. Move that file to `../backend/static/a_more_proper_name.tflite`.
 

@@ -1,17 +1,18 @@
 import 'dart:typed_data';
 
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 
 class FakeMLClient extends MLClient {
   List<Uint8List>? _parameters;
 
   List<Uint8List> get parameters {
-    _parameters ??= model.layers_sizes.map((size) => Uint8List(size)).toList();
+    _parameters ??=
+        model.tflite_layers!.map((size) => Uint8List(size)).toList();
     return _parameters!;
   }
 
-  final TFLiteModel model;
+  final MLModel model;
 
   FakeMLClient(this.model);
 
