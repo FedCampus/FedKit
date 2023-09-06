@@ -27,7 +27,7 @@ func trainBatchProvider(
     progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
-        filePath: extractTrainFile(dataset: dataset), progressHandler: progressHandler
+        filePath: extract("_train"), progressHandler: progressHandler
     )
 }
 
@@ -35,8 +35,14 @@ func testBatchProvider(
     progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
-        filePath: extractTestFile(dataset: dataset), progressHandler: progressHandler
+        filePath: extract("_test"), progressHandler: progressHandler
     )
+}
+
+private func extract(_ set: String) throws -> URL {
+    let sourceURL = Bundle.main.url(forResource: dataset + set, withExtension: "csv.lzfse")!
+    let destinationURL = appDirectory.appendingPathComponent(dataset + set + ".csv")
+    return try extractFile(from: sourceURL, to: destinationURL)
 }
 
 /// Extract file
@@ -83,24 +89,6 @@ private func extractFile(from sourceURL: URL, to destinationURL: URL) throws -> 
     try filter.finalize()
 
     return destinationURL
-}
-
-/// Extract train file
-///
-/// - returns: Temporary path of extracted file
-private func extractTrainFile(dataset: String) throws -> URL {
-    let sourceURL = Bundle.main.url(forResource: dataset + "_train", withExtension: "csv.lzfse")!
-    let destinationURL = appDirectory.appendingPathComponent(dataset + "_train.csv")
-    return try extractFile(from: sourceURL, to: destinationURL)
-}
-
-/// Extract test file
-///
-/// - returns: Temporary path of extracted file
-private func extractTestFile(dataset: String) throws -> URL {
-    let sourceURL = Bundle.main.url(forResource: dataset + "_test", withExtension: "csv.lzfse")!
-    let destinationURL = appDirectory.appendingPathComponent(dataset + "_test.csv")
-    return try extractFile(from: sourceURL, to: destinationURL)
 }
 
 private func prepareMLBatchProvider(
