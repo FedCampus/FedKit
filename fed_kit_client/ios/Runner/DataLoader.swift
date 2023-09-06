@@ -9,8 +9,6 @@
 import Compression
 import CoreML
 import Foundation
-import os
-import UIKit
 
 let appDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
 
@@ -24,11 +22,13 @@ private let normalization: Float = 255.0
 private let shapeTarget: [NSNumber] = [1]
 
 func trainBatchProvider(
-    progressHandler: @escaping (Int) -> Void
+    _ partitionId: Int, progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
         filePath: extract("_train"), progressHandler: progressHandler
-    )
+    ) { index in
+        index / 6000 + 1 == partitionId
+    }
 }
 
 func testBatchProvider(
@@ -92,16 +92,17 @@ private func extractFile(from sourceURL: URL, to destinationURL: URL) throws -> 
 }
 
 private func prepareMLBatchProvider(
-    filePath: URL, progressHandler: @escaping (Int) -> Void
+    filePath: URL, progressHandler: @escaping (Int) -> Void, indexFilter: ((Int) -> Bool)? = nil
 ) async throws -> MLBatchProvider {
     var count = 0
     let featureProviders = try await withThrowingTaskGroup(of: MLDictionaryFeatureProvider.self) { group in
         let (bytes, _) = try await URLSession.shared.bytes(from: filePath)
         for try await line in bytes.lines {
-            let splits = line.split(separator: ",")
             count += 1
+            if indexFilter.map({ !$0(count) }) ?? false { continue }
             let countNow = count
             group.addTask {
+                let splits = line.split(separator: ",")
                 let imageMultiArr = try! MLMultiArray(shape: shapeData, dataType: .float32)
                 let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .int32)
                 for i in 0 ..< lengthEntry {

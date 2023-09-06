@@ -12,6 +12,7 @@ let log = logger(String(describing: AppDelegate.self))
 @objc class AppDelegate: FlutterAppDelegate {
     var mlClient: MLClient?
     private var dataLoader: MLDataLoader?
+    private var partitionId = -1
 
     var ready = false
 
@@ -89,12 +90,12 @@ let log = logger(String(describing: AppDelegate.self))
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
             let layers = try (args["layersSizes"] as! [[String: Any]]).map(Layer.init)
-            let partitionId = (args["partitionId"] as! NSNumber).int32Value
+            let partitionId = (args["partitionId"] as! NSNumber).intValue
             let url = URL(fileURLWithPath: modelDir)
             log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             log.error("Model URL: \(url).")
             try self.checkModel(url)
-            self.mlClient = try MLClient(layers, await self.dataLoader(), url)
+            self.mlClient = try MLClient(layers, await self.dataLoader(partitionId), url)
             self.ready = true
             return nil
         }
@@ -122,11 +123,11 @@ let log = logger(String(describing: AppDelegate.self))
         }
     }
 
-    private func dataLoader() async throws -> MLDataLoader {
-        if dataLoader != nil {
+    private func dataLoader(_ partitionId: Int) async throws -> MLDataLoader {
+        if dataLoader != nil && self.partitionId == partitionId {
             return dataLoader!
         }
-        let trainBatchProvider = try await trainBatchProvider { count in
+        let trainBatchProvider = try await trainBatchProvider(partitionId) { count in
             if count % 1000 == 999 {
                 log.error("Prepared \(count) training data points.")
             }
@@ -141,6 +142,7 @@ let log = logger(String(describing: AppDelegate.self))
         log.error("testBatchProvider: \(testBatchProvider.count)")
 
         dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
+        self.partitionId = partitionId
         return dataLoader!
     }
 }
