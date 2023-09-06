@@ -7,8 +7,8 @@ import java.io.File
 data class TFLiteModel(
     val id: Long,
     val name: String,
-    val file_path: String,
-    val layers_sizes: IntArray,
+    val tflite_path: String,
+    val tflite_layers: IntArray,
 ) {
     @Throws
     fun getModelDir(context: Context): File {
