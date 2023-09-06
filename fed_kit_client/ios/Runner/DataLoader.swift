@@ -45,40 +45,42 @@ func testBatchProvider(
 /// - parameter destinationFilename: Choosen destination filename
 ///
 /// - returns: Temporary path of extracted file
-private func extractFile(from sourceURL: URL, to destinationURL: URL) -> URL {
-    let sourceFileHandle = try! FileHandle(forReadingFrom: sourceURL)
-    var isDir: ObjCBool = true
+private func extractFile(from sourceURL: URL, to destinationURL: URL) throws -> URL {
     let fileManager = FileManager.default
-    if !fileManager.fileExists(atPath: appDirectory.path, isDirectory: &isDir) {
-        try! fileManager.createDirectory(at: appDirectory, withIntermediateDirectories: true)
-    }
     if fileManager.fileExists(atPath: destinationURL.path) {
         return destinationURL
     }
-    FileManager.default.createFile(atPath: destinationURL.path,
-                                   contents: nil,
-                                   attributes: nil)
+    var isDir: ObjCBool = true
+    if !fileManager.fileExists(atPath: appDirectory.path, isDirectory: &isDir) {
+        try fileManager.createDirectory(at: appDirectory, withIntermediateDirectories: true)
+    }
+    fileManager.createFile(atPath: destinationURL.path, contents: nil, attributes: nil)
 
-    let destinationFileHandle = try! FileHandle(forWritingTo: destinationURL)
-    let bufferSize = 65536
+    let destinationFileHandle = try FileHandle(forWritingTo: destinationURL)
+    defer {
+        destinationFileHandle.closeFile()
+    }
 
-    let filter = try! OutputFilter(.decompress, using: .lzfse, bufferCapacity: 655_360) { data in
+    let filter = try OutputFilter(.decompress, using: .lzfse) { data in
         if let data = data {
             destinationFileHandle.write(data)
         }
     }
 
+    let sourceFileHandle = try FileHandle(forReadingFrom: sourceURL)
+    defer {
+        sourceFileHandle.closeFile()
+    }
+    let bufferSize = 65536
     while true {
         let data = sourceFileHandle.readData(ofLength: bufferSize)
 
-        try! filter.write(data)
+        try filter.write(data)
         if data.count < bufferSize {
             break
         }
     }
-
-    sourceFileHandle.closeFile()
-    destinationFileHandle.closeFile()
+    try filter.finalize()
 
     return destinationURL
 }
@@ -86,19 +88,19 @@ private func extractFile(from sourceURL: URL, to destinationURL: URL) -> URL {
 /// Extract train file
 ///
 /// - returns: Temporary path of extracted file
-private func extractTrainFile(dataset: String) -> URL {
+private func extractTrainFile(dataset: String) throws -> URL {
     let sourceURL = Bundle.main.url(forResource: dataset + "_train", withExtension: "csv.lzfse")!
     let destinationURL = appDirectory.appendingPathComponent(dataset + "_train.csv")
-    return extractFile(from: sourceURL, to: destinationURL)
+    return try extractFile(from: sourceURL, to: destinationURL)
 }
 
 /// Extract test file
 ///
 /// - returns: Temporary path of extracted file
-private func extractTestFile(dataset: String) -> URL {
+private func extractTestFile(dataset: String) throws -> URL {
     let sourceURL = Bundle.main.url(forResource: dataset + "_test", withExtension: "csv.lzfse")!
     let destinationURL = appDirectory.appendingPathComponent(dataset + "_test.csv")
-    return extractFile(from: sourceURL, to: destinationURL)
+    return try extractFile(from: sourceURL, to: destinationURL)
 }
 
 private func prepareMLBatchProvider(
