@@ -122,18 +122,18 @@ enum AppErr: Error {
         }
     }
 
-    private func dataLoader() async -> MLDataLoader {
+    private func dataLoader() async throws -> MLDataLoader {
         if dataLoader != nil {
             return dataLoader!
         }
-        let trainBatchProvider = await DataLoader.trainBatchProvider { count in
+        let trainBatchProvider = try await DataLoader.trainBatchProvider { count in
             if count % 1000 == 999 {
                 self.log.error("Prepared \(count) training data points.")
             }
         }
         log.error("trainBatchProvider: \(trainBatchProvider.count)")
 
-        let testBatchProvider = await DataLoader.testBatchProvider { count in
+        let testBatchProvider = try await DataLoader.testBatchProvider { count in
             if count % 1000 == 999 {
                 self.log.error("Prepared \(count) test data points.")
             }
