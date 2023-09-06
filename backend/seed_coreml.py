@@ -1,5 +1,5 @@
-from train.models import *
-from train.serializers import *
+from train.models import TFLiteModel, TrainingDataType
+from train.serializers import TFLiteModelSerializer
 
 d = TrainingDataType(name="MNIST_28x28x1")
 d.save()

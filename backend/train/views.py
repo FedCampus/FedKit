@@ -4,10 +4,10 @@ from typing import IO, OrderedDict
 from django.core.files.uploadedfile import UploadedFile
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.request import MultiValueDict # type: ignore
+from rest_framework.request import MultiValueDict  # type: ignore
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
-from rest_framework.views import Request # type: ignore
+from rest_framework.views import Request  # type: ignore
 from train import scheduler
 from train.models import ModelParams, TFLiteModel, TrainingDataType
 from train.scheduler import server
