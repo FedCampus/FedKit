@@ -11,30 +11,46 @@ class TrainingDataType(models.Model):
 # Always change together with `serializers.TFLiteModelSerializer`
 # & Android `db.TFLiteModel`
 # & Flutter `ml_models.TFliteModel`.
-class TFLiteModel(models.Model):
+class MLModel(models.Model):
     name = models.CharField(max_length=64, unique=True, null=False, editable=False)
-    file_path = models.CharField(max_length=64, unique=True, null=False, editable=False)
-    layers_sizes = models.JSONField(null=False, editable=False)
-    """For TFLite, size of each layer of parameters in bytes.
-    For CoreML, {name: str, shape: [int]} of each layer of parameters."""
+    tflite_path = models.CharField(max_length=64, unique=True, default=None)
+    """Path to `.tflite` file."""
+    coreml_path = models.CharField(max_length=64, unique=True, default=None)
+    """Path to `.mlmodel` file."""
+    tflite_layers = models.JSONField(default=None)
+    """Size of each layer of parameters in bytes."""
+    coreml_layers = models.JSONField(default=None)
+    """`[name: [types]]` of each layer of parameters.
+    `type` can either be `"weights"` or `"bias"`."""
     data_type = models.ForeignKey(
         TrainingDataType,
         on_delete=models.CASCADE,
-        related_name="tflite_models",
+        related_name="ml_models",
         null=False,
         editable=False,
     )
-    is_coreml = models.BooleanField(null=False, editable=False, default=False)
+    tflite = models.BooleanField(null=False, default=True)
+    coreml = models.BooleanField(null=False, default=False)
 
-    def __str__(self) -> str:
-        return f"TFLiteModel {self.name} for {self.data_type.name} at \
-{self.file_path}, {len(self.layers_sizes)} layers"
+    def __repl__(self) -> str:
+        desc = [f"MLModel {self.name} for {self.data_type.name}"]
+        if self.tflite:
+            desc.append(
+                f"TFLite model at {self.tflite_path} of \
+{len(self.tflite_layers)} layers"
+            )
+        if self.coreml:
+            desc.append(
+                f"CoreML model at {self.coreml_path} of \
+{len(self.coreml_layers)} layers"
+            )
+        return ", ".join(desc)
 
 
 class ModelParams(models.Model):
     params = models.BinaryField(null=False, editable=False)
     tflite_model = models.ForeignKey(
-        TFLiteModel,
+        MLModel,
         on_delete=models.CASCADE,
         related_name="params",
         null=False,
