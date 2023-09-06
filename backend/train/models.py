@@ -5,32 +5,31 @@ from numpy.typing import NDArray
 
 
 class TrainingDataType(models.Model):
-    name = models.CharField(max_length=256, unique=True, null=False, editable=False)
+    name = models.CharField(max_length=256, unique=True, editable=False)
 
 
 # Always change together with `serializers.TFLiteModelSerializer`
 # & Android `db.TFLiteModel`
 # & Flutter `ml_models.TFliteModel`.
 class MLModel(models.Model):
-    name = models.CharField(max_length=64, unique=True, null=False, editable=False)
-    tflite_path = models.CharField(max_length=64, unique=True, default=None)
+    name = models.CharField(max_length=64, unique=True, editable=False)
+    tflite_path = models.CharField(max_length=64, unique=True, null=True, default=None)
     """Path to `.tflite` file."""
-    coreml_path = models.CharField(max_length=64, unique=True, default=None)
+    coreml_path = models.CharField(max_length=64, unique=True, null=True, default=None)
     """Path to `.mlmodel` file."""
-    tflite_layers = models.JSONField(default=None)
+    tflite_layers = models.JSONField(null=True, default=None)
     """Size of each layer of parameters in bytes."""
-    coreml_layers = models.JSONField(default=None)
+    coreml_layers = models.JSONField(null=True, default=None)
     """`[name: [types]]` of each layer of parameters.
     `type` can either be `"weights"` or `"bias"`."""
     data_type = models.ForeignKey(
         TrainingDataType,
         on_delete=models.CASCADE,
         related_name="ml_models",
-        null=False,
         editable=False,
     )
-    tflite = models.BooleanField(null=False, default=True)
-    coreml = models.BooleanField(null=False, default=False)
+    tflite = models.BooleanField(default=True)
+    coreml = models.BooleanField(default=False)
 
     def __repl__(self) -> str:
         desc = [f"MLModel {self.name} for {self.data_type.name}"]
@@ -48,12 +47,11 @@ class MLModel(models.Model):
 
 
 class ModelParams(models.Model):
-    params = models.BinaryField(null=False, editable=False)
+    params = models.BinaryField(editable=False)
     tflite_model = models.ForeignKey(
         MLModel,
         on_delete=models.CASCADE,
         related_name="params",
-        null=False,
         editable=False,
     )
 
