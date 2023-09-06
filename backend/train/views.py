@@ -9,13 +9,13 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.views import Request  # type: ignore
 from train import scheduler
-from train.models import ModelParams, TFLiteModel, TrainingDataType
+from train.models import MLModel, ModelParams, TrainingDataType
 from train.scheduler import server
 from train.serializers import (
+    MLModelSerializer,
     PostAdvertisedDataSerializer,
     PostServerDataSerializer,
-    TFLiteModelSerializer,
-    UploadTFLiteSerializer,
+    UploadModelSerializer,
 )
 
 from backend.settings import BASE_DIR
@@ -36,12 +36,14 @@ def deserialize(cls, data):
         return (validated, serializer.errors)
 
 
-def tflite_model_for_data_type(data: OrderedDict):
+def ml_model_for_data_type(data: OrderedDict):
     try:
         data_type = TrainingDataType.objects.get(name=data["data_type"])
-        filter = TFLiteModel.objects.filter(
-            data_type=data_type, is_coreml=data["is_coreml"]
-        )
+        filter = MLModel.objects.filter(data_type=data_type)
+        if data["tflite"]:
+            filter = filter.filter(tflite=True)
+        if data["coreml"]:
+            filter = filter.filter(coreml=True)
         return filter.last()
     except Exception as err:
         logger.error(f"{err} while looking up model for `{data}`.")
@@ -56,10 +58,10 @@ def advertise_model(request: Request):
     (data, err) = deserialize(PostAdvertisedDataSerializer, request.data)
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
-    model = tflite_model_for_data_type(data)
+    model = ml_model_for_data_type(data)
     if model is None:
         return Response("No model corresponding to data_type", HTTP_404_NOT_FOUND)
-    serializer = TFLiteModelSerializer(model)
+    serializer = MLModelSerializer(model)
     return Response(serializer.data)
 
 
@@ -70,27 +72,27 @@ def request_server(request: Request):
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
     try:
-        model = TFLiteModel.objects.get(pk=data["id"])
-    except TFLiteModel.DoesNotExist:
+        model = MLModel.objects.get(pk=data["id"])
+    except MLModel.DoesNotExist:
         logger.error(f"Model with id {data['id']} not found.")
         return Response("Model not found", HTTP_404_NOT_FOUND)
     response = server(model, data["start_fresh"])
     return Response(response.__dict__)
 
 
-def file_in_request(request: Request):
+def file_in_request(request: Request, name: str):
     files = request.FILES
     if isinstance(files, MultiValueDict):
-        file = files.get("file")
+        file = files.get(name)
         if isinstance(file, UploadedFile) and file.name and file.file:
             return (file.name, file.file)
 
 
-def tflite_name_not_unique(file_name: str):
+def model_name_not_unique(file_name: str):
     try:
-        _ = TFLiteModel.objects.get(name=file_name)
+        _ = MLModel.objects.get(name=file_name)
         return True
-    except TFLiteModel.DoesNotExist:
+    except MLModel.DoesNotExist:
         return False
 
 
@@ -114,24 +116,35 @@ def save_model_file(name: str, file_name: str, file: IO):
 
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
-def upload_tflite(request: Request):
-    (data, err) = deserialize(UploadTFLiteSerializer, request.data)
+def upload_model(request: Request):
+    (data, err) = deserialize(UploadModelSerializer, request.data)
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
-    name = data["name"]
-    data_type_name = data["data_type"]
-    if tflite_name_not_unique(name):
+    name, data_type_name = data["name"], data["data_type"]
+    if model_name_not_unique(name):
         return Response("Model name used", HTTP_400_BAD_REQUEST)
-    file = file_in_request(request)
-    if file is None:
-        return Response("No file in request.", HTTP_400_BAD_REQUEST)
+    tflite, coreml = data["tflite"], data["coreml"]
+    tflite_path, coreml_path = None, None
+    if tflite:
+        file = file_in_request(request, "tflite")
+        if file is None:
+            return Response("No TFLite file in request.", HTTP_400_BAD_REQUEST)
+        tflite_path = save_model_file(name, *file)
+    if coreml:
+        file = file_in_request(request, "coreml")
+        if file is None:
+            return Response("No CoreML file in request.", HTTP_400_BAD_REQUEST)
+        coreml_path = save_model_file(name, *file)
     data_type = get_data_type(data_type_name)
-    path = save_model_file(name, *file)
-    model = TFLiteModel(
+    model = MLModel(
         name=name,
-        file_path=f"/{path}",
-        layers_sizes=data["layers_sizes"],
+        tflite_path=tflite_path,
+        coreml_path=coreml_path,
+        tflite_layers=data["tflite_layers"],
+        coreml_layers=data["coreml_layers"],
         data_type=data_type,
+        tflite=tflite,
+        coreml=coreml,
     )
     model.save()
 
@@ -146,7 +159,7 @@ def store_params(request: Request):
     if server is None:
         logger.error("No server running but got params to store.")
         return Response("No server running.", HTTP_400_BAD_REQUEST)
-    file = file_in_request(request)
+    file = file_in_request(request, "file")
     if file is None:
         return Response("No file in request.", HTTP_400_BAD_REQUEST)
     params = file[1].read()
