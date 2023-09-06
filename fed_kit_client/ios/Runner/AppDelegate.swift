@@ -6,14 +6,14 @@ enum AppErr: Error {
     case ModelNotFound
 }
 
+let log = logger(String(describing: AppDelegate.self))
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     var mlClient: MLClient?
     private var dataLoader: MLDataLoader?
 
     var ready = false
-
-    let log = logger(String(describing: AppDelegate.self))
 
     override func application(
         _ application: UIApplication,
@@ -91,8 +91,8 @@ enum AppErr: Error {
             let layers = try (args["layersSizes"] as! [[String: Any]]).map(Layer.init)
             let partitionId = (args["partitionId"] as! NSNumber).int32Value
             let url = URL(fileURLWithPath: modelDir)
-            self.log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
-            self.log.error("Model URL: \(url).")
+            log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
+            log.error("Model URL: \(url).")
             try self.checkModel(url)
             self.mlClient = try MLClient(layers, await self.dataLoader(), url)
             self.ready = true
@@ -126,16 +126,16 @@ enum AppErr: Error {
         if dataLoader != nil {
             return dataLoader!
         }
-        let trainBatchProvider = try await DataLoader.trainBatchProvider { count in
+        let trainBatchProvider = try await trainBatchProvider { count in
             if count % 1000 == 999 {
-                self.log.error("Prepared \(count) training data points.")
+                log.error("Prepared \(count) training data points.")
             }
         }
         log.error("trainBatchProvider: \(trainBatchProvider.count)")
 
-        let testBatchProvider = try await DataLoader.testBatchProvider { count in
+        let testBatchProvider = try await testBatchProvider { count in
             if count % 1000 == 999 {
-                self.log.error("Prepared \(count) test data points.")
+                log.error("Prepared \(count) test data points.")
             }
         }
         log.error("testBatchProvider: \(testBatchProvider.count)")
