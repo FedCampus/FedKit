@@ -12,13 +12,7 @@ import NIOCore
 import NIOPosix
 import os
 
-public enum MLTask {
-    case train
-    case test
-}
-
 enum MLClientErr: Error {
-    case NoParamUpdate
     case ParamsNil
     case ParamNotMultiArray
     case UnexpectedLayer(String)
@@ -33,8 +27,6 @@ public class MLClient {
     var tempModelUrl: URL
     var mlModel: CoreML_Specification_Model
     private var paramUpdate: [[Float]]?
-
-    let log = logger(String(describing: MLClient.self))
 
     init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL) throws {
         self.layers = layers
