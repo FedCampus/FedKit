@@ -15,6 +15,8 @@ logger = getLogger(__name__)
 
 
 class FedAvgAndroidSave(FedAvgAndroid):
+    coreml = False
+
     def aggregate_fit(
         self,
         _: int,
@@ -48,11 +50,13 @@ class FedAvgAndroidSave(FedAvgAndroid):
         self.signal_save_params(aggregated)
         return self.ndarrays_to_parameters(aggregated), {}
 
+    # Always change together with `views.store_params`.
     def signal_save_params(self, params: list[NDArray]):
         # TODO: Port resolution.
         url = "http://localhost:8000/train/params"
+        data = {"coreml": self.coreml}
         files = {"file": pickle.dumps(params)}
-        return requests.post(url, files=files)
+        return requests.post(url, data=data, files=files)
 
 
 def fit_config(_: int):
@@ -68,7 +72,7 @@ def fit_config(_: int):
     return config
 
 
-def flwr_server(initial_parameters: Parameters | None, port: int):
+def flwr_server(initial_parameters: Parameters | None, port: int, coreml=False):
     # TODO: Make configurable.
     strategy = FedAvgAndroidSave(
         fraction_fit=1.0,
@@ -80,6 +84,7 @@ def flwr_server(initial_parameters: Parameters | None, port: int):
         on_fit_config_fn=fit_config,
         initial_parameters=initial_parameters,
     )
+    strategy.coreml = coreml
 
     logger.warning("Starting Flower server.")
     try:

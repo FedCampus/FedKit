@@ -151,11 +151,12 @@ def upload_model(request: Request):
     return Response("ok")
 
 
+# Always change together with `run.FedAvgAndroidSave`.
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
 def store_params(request: Request):
-    # TODO: CoreML server.
-    server = scheduler.tf_server
+    coreml = request.data.get("coreml", False)
+    server = scheduler.cm_server if coreml else scheduler.tf_server
     if server is None:
         logger.error("No server running but got params to store.")
         return Response("No server running.", HTTP_400_BAD_REQUEST)
