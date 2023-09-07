@@ -1,7 +1,7 @@
 on:
   push:
     paths:
-      - '.github/workflows/flutter-ios.yml'
+      - '.github/workflows/flutter-client-ios.yml'
       - '**.plist'
       - '**.swift'
       - '**.xcconfig'
@@ -12,6 +12,13 @@ jobs:
       - uses: actions/checkout@v3
         with:
           lfs: true
+      - name: Download MNIST data set
+        run: |
+          cd fed_kit_client/ios/Runner/Utils/
+          mkdir MNIST
+          cd MNIST
+          curl -LO https://github.com/FedCampus/FedKit/files/12543877/MNIST.zip
+          unzip MNIST.zip
       - uses: subosito/flutter-action@v2
         with:
           cache: true
