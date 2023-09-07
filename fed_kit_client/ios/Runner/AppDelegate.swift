@@ -9,7 +9,18 @@ enum AppErr: Error {
 let log = logger(String(describing: AppDelegate.self))
 
 @UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterStreamHandler {
+    var eventSink: FlutterEventSink?
+    func onListen(withArguments _: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+        eventSink = events
+        return nil
+    }
+
+    func onCancel(withArguments _: Any?) -> FlutterError? {
+        eventSink = nil
+        return nil
+    }
+
     var mlClient: MLClient?
     private var dataLoader: MLDataLoader?
     private var partitionId = -1
@@ -26,9 +37,14 @@ let log = logger(String(describing: AppDelegate.self))
     }
 
     func register() {
-        let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
-        let channel = FlutterMethodChannel(name: "fed_kit_client_cifar10_ml_client", binaryMessenger: controller.binaryMessenger)
-        channel.setMethodCallHandler(handle)
+        let controller = window?.rootViewController as! FlutterViewController
+        let messenger = controller.binaryMessenger
+        FlutterMethodChannel(
+            name: "fed_kit_client_cifar10_ml_client", binaryMessenger: messenger
+        ).setMethodCallHandler(handle)
+        FlutterEventChannel(
+            name: "fed_kit_client_cifar10_ml_client_log", binaryMessenger: messenger
+        ).setStreamHandler(self)
     }
 
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -58,7 +74,11 @@ let log = logger(String(describing: AppDelegate.self))
         runAsync(result) {
             let args = call.arguments as! [String: Any]
             let epochs = args["epochs"] as? Int
-            try await self.mlClient?.fit(epochs: epochs)
+            try await self.mlClient?.fit(epochs: epochs) { loss in
+                DispatchQueue.main.async {
+                    self.eventSink.map { $0([loss]) }
+                }
+            }
             return nil
         }
     }

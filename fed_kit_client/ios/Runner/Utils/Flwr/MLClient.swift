@@ -62,13 +62,21 @@ public class MLClient {
         paramUpdate = parameters
     }
 
-    func fit(epochs: Int? = nil) async throws {
+    func fit(epochs: Int? = nil, callback: ((Double) -> Void)? = nil) async throws {
         let config = try await config()
         if epochs != nil {
             config.parameters![MLParameterKey.epochs] = epochs
         }
         let updateContext = try await updateModelAsync(
-            forModelAt: compiledModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: config
+            forModelAt: compiledModelUrl,
+            trainingData: dataLoader.trainBatchProvider,
+            configuration: config,
+            progressHandler: callback.map { callback in
+                { contextProgress in
+                    let loss = contextProgress.metrics[.lossValue] as! Double
+                    callback(loss)
+                }
+            }
         )
         parameters = try layers.map { layer in
             let paramKey = layer.type.scoped(to: layer.name)
