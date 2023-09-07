@@ -2,10 +2,6 @@ import CoreML
 import Flutter
 import UIKit
 
-enum AppErr: Error {
-    case ModelNotFound
-}
-
 let log = logger(String(describing: AppDelegate.self))
 
 @UIApplicationMain
