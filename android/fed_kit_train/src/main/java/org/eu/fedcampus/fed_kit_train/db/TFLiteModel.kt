@@ -3,12 +3,12 @@ package org.eu.fedcampus.fed_kit_train.db
 import android.content.Context
 import java.io.File
 
-// Always change together with Python `train.models.TFLiteModel`.
+// Always change together with Python `train.models.MLModel`.
 data class TFLiteModel(
     val id: Long,
     val name: String,
-    val file_path: String,
-    val layers_sizes: IntArray,
+    val tflite_path: String,
+    val tflite_layers: IntArray,
 ) {
     @Throws
     fun getModelDir(context: Context): File {

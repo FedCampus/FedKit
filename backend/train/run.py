@@ -11,15 +11,15 @@ from flwr.server.strategy.aggregate import aggregate
 from numpy import isnan
 from numpy.typing import NDArray
 
-PORT = 8080
-
 logger = getLogger(__name__)
 
 
 class FedAvgAndroidSave(FedAvgAndroid):
+    coreml = False
+
     def aggregate_fit(
         self,
-        server_round: int,
+        _: int,
         results: list[tuple[ClientProxy, FitRes]],
         failures: list[tuple[ClientProxy, FitRes] | BaseException],
     ) -> tuple[Parameters | None, dict[str, Scalar]]:
@@ -37,7 +37,8 @@ class FedAvgAndroidSave(FedAvgAndroid):
             weights = self.parameters_to_ndarrays(fit_res.parameters)
             if any(isnan(weight).any() for weight in weights):
                 logger.error(
-                    f"aggregate_fit: disgarding weights with NaN from {client}: {weights}."
+                    f"aggregate_fit: disgarding weights with NaN from {client}: \
+{weights}."
                 )
             else:
                 weights_results.append((weights, fit_res.num_examples))
@@ -49,27 +50,29 @@ class FedAvgAndroidSave(FedAvgAndroid):
         self.signal_save_params(aggregated)
         return self.ndarrays_to_parameters(aggregated), {}
 
+    # Always change together with `views.store_params`.
     def signal_save_params(self, params: list[NDArray]):
         # TODO: Port resolution.
         url = "http://localhost:8000/train/params"
+        data = {"coreml": self.coreml}
         files = {"file": pickle.dumps(params)}
-        return requests.post(url, files=files)
+        return requests.post(url, data=data, files=files)
 
 
-def fit_config(server_round: int):
+def fit_config(_: int):
     """Return training configuration dict for each round.
 
     Keep batch size fixed at 32, perform two rounds of training with one
     local epoch, increase to two local epochs afterwards.
     """
-    config = {
+    config: dict[str, Scalar] = {
         "batch_size": 32,
         "local_epochs": 2,
     }
     return config
 
 
-def flwr_server(initial_parameters: Parameters | None):
+def flwr_server(initial_parameters: Parameters | None, port: int, coreml=False):
     # TODO: Make configurable.
     strategy = FedAvgAndroidSave(
         fraction_fit=1.0,
@@ -81,12 +84,13 @@ def flwr_server(initial_parameters: Parameters | None):
         on_fit_config_fn=fit_config,
         initial_parameters=initial_parameters,
     )
+    strategy.coreml = coreml
 
     logger.warning("Starting Flower server.")
     try:
         # Start Flower server for 3 rounds of federated learning
         start_server(
-            server_address=f"0.0.0.0:{PORT}",
+            server_address=f"0.0.0.0:{port}",
             config=ServerConfig(num_rounds=3),
             strategy=strategy,
         )

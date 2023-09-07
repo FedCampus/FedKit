@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 
 
-# Always change together with Android `HttpClient.ServerData`.
+# Always change together with Android `HttpClient.ServerData`
+# & Dart `backend_client.ServerData`.
 @dataclass
 class ServerData:
     status: str

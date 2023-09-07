@@ -1,9 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
+import 'dart:io';
+
 import 'package:dio/dio.dart';
-import 'package:fed_kit/tflite_model.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-part 'backend_client.freezed.dart';
-part 'backend_client.g.dart';
+import 'package:fed_kit/ml_model.dart';
+import 'package:dart_mappable/dart_mappable.dart';
+part 'backend_client.mapper.dart';
 
 final dio = Dio();
 
@@ -12,10 +13,14 @@ class BackendClient {
   final String url;
   const BackendClient(this.url);
 
-  Future<TFLiteModel> advertisedModel(PostAdvertisedData body) async {
+  Future<MLModel> whichModel(PostAdvertisedData body) async {
     Response response =
         await dio.post('$url/train/advertised', data: body.toJson());
-    return TFLiteModel.fromJson(response.data);
+    if (Platform.isIOS) {
+      return MLModelMapper.fromMap(response.data);
+    } else {
+      return MLModelMapper.fromMap(response.data);
+    }
   }
 
   Future<void> downloadFile(String urlPath, String destination) async {
@@ -27,11 +32,10 @@ class BackendClient {
     }
   }
 
-  Future<ServerData> postServer(TFLiteModel model, bool startFresh) async {
+  Future<ServerData> postServer(MLModel model, bool startFresh) async {
     PostServerData body = PostServerData(id: model.id, start_fresh: startFresh);
-    Response response =
-        await dio.post('$url/train/server', data: body.toJson());
-    return ServerData.fromJson(response.data);
+    Response response = await dio.post('$url/train/server', data: body.toMap());
+    return ServerDataMapper.fromMap(response.data);
   }
 
   Future<Response> fitInsTelemetry(FitInsTelemetryData body) async {
@@ -43,64 +47,78 @@ class BackendClient {
   }
 }
 
-@freezed
-class PostAdvertisedData with _$PostAdvertisedData {
-  const factory PostAdvertisedData({
-    required String data_type,
-  }) = _PostAdvertisedData;
+// Always change together with Django `train.serializers.PostAdvertisedDataSerializer`.
+@MappableClass()
+class PostAdvertisedData with PostAdvertisedDataMappable {
+  final String data_type;
+  final bool tflite;
+  final bool coreml;
 
-  factory PostAdvertisedData.fromJson(Map<String, dynamic> json) =>
-      _$PostAdvertisedDataFromJson(json);
+  PostAdvertisedData({
+    required this.data_type,
+    this.tflite = true,
+    this.coreml = false,
+  });
 }
 
-@freezed
-class ServerData with _$ServerData {
-  const factory ServerData({
-    required String status,
-    int? session_id,
-    int? port,
-  }) = _ServerData;
+// Always change together with Django `train.data.ServerData`.
+@MappableClass()
+class ServerData with ServerDataMappable {
+  final String status;
+  final int? session_id;
+  final int? port;
 
-  factory ServerData.fromJson(Map<String, dynamic> json) =>
-      _$ServerDataFromJson(json);
+  ServerData({
+    required this.status,
+    this.session_id,
+    this.port,
+  });
 }
 
-@freezed
-class PostServerData with _$PostServerData {
-  const factory PostServerData({
-    required int id,
-    required bool start_fresh,
-  }) = _PostServerData;
+// Always change together with Django `train.serializers.PostServerDataSerializer`.
+@MappableClass()
+class PostServerData with PostServerDataMappable {
+  final int id;
+  final bool start_fresh;
 
-  factory PostServerData.fromJson(Map<String, dynamic> json) =>
-      _$PostServerDataFromJson(json);
+  PostServerData({
+    required this.id,
+    required this.start_fresh,
+  });
 }
 
-@freezed
-class FitInsTelemetryData with _$FitInsTelemetryData {
-  const factory FitInsTelemetryData({
-    required int device_id,
-    required int session_id,
-    required int start,
-    required int end,
-  }) = _FitInsTelemetryData;
+@MappableClass()
+class FitInsTelemetryData with FitInsTelemetryDataMappable {
+  final int device_id;
+  final int session_id;
+  final int start;
+  final int end;
 
-  factory FitInsTelemetryData.fromJson(Map<String, dynamic> json) =>
-      _$FitInsTelemetryDataFromJson(json);
+  FitInsTelemetryData({
+    required this.device_id,
+    required this.session_id,
+    required this.start,
+    required this.end,
+  });
 }
 
-@freezed
-class EvaluateInsTelemetryData with _$EvaluateInsTelemetryData {
-  const factory EvaluateInsTelemetryData({
-    required int device_id,
-    required int session_id,
-    required int start,
-    required int end,
-    required double loss,
-    required double accuracy,
-    required int test_size,
-  }) = _EvaluateInsTelemetryData;
+@MappableClass()
+class EvaluateInsTelemetryData with EvaluateInsTelemetryDataMappable {
+  final int device_id;
+  final int session_id;
+  final int start;
+  final int end;
+  final double loss;
+  final double accuracy;
+  final int test_size;
 
-  factory EvaluateInsTelemetryData.fromJson(Map<String, dynamic> json) =>
-      _$EvaluateInsTelemetryDataFromJson(json);
+  EvaluateInsTelemetryData({
+    required this.device_id,
+    required this.session_id,
+    required this.start,
+    required this.end,
+    required this.loss,
+    required this.accuracy,
+    required this.test_size,
+  });
 }

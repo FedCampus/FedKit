@@ -9,7 +9,7 @@ import 'package:collection/collection.dart';
 import 'package:fed_kit/helpers.dart';
 import 'package:fed_kit/log.dart';
 import 'package:fed_kit/ml_client.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:fed_kit/train.dart';
 import 'package:fed_kit/transport.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -24,7 +24,7 @@ class FlowerService {
   final ClientChannel channel;
   final Train train;
   final MLClient mlClient;
-  final TFLiteModel model;
+  final MLModel model;
   late StreamSubscription<ServerMessage> _streamSub;
 
   FlowerService(this.channel, this.train, this.mlClient, this.model);
@@ -32,35 +32,43 @@ class FlowerService {
   /// Start running this service.
   /// Returns a stream of info.
   Stream<String> run() {
-    _streamSub = FlowerServiceClient(channel)
-        .join(_msgStreamCtl.stream)
-        .listen(_handleMessage, onError: (e, s) {
-      _logErr(e, s);
-      _infoStreamCtl.addError(e, s);
-      close();
-    }, onDone: close, cancelOnError: true);
+    _streamSub = FlowerServiceClient(channel).join(_msgStreamCtl.stream).listen(
+        _handleMessage,
+        onError: _onErr,
+        onDone: close,
+        cancelOnError: true);
     return _infoStreamCtl.stream;
   }
 
   /// Stream of information produced.
   Stream<String> get infoStream => _infoStreamCtl.stream;
 
+  Future<void> _onErr(err, StackTrace trace) async {
+    _logErr(err, trace);
+    _infoStreamCtl.addError(err, trace);
+    await close();
+  }
+
   Future<void> _handleMessage(ServerMessage message) async {
     ClientMessage? response;
-    if (message.hasGetParametersIns()) {
-      response = await _handleGetParameters(message);
-    } else if (message.hasFitIns()) {
-      response = await _handleFitIns(message);
-    } else if (message.hasEvaluateIns()) {
-      response = await _handleEvaluateIns(message);
-    } else if (message.hasReconnectIns()) {
-      _logDebug('Handling reconnectIns');
-      await close();
-    } else {
-      throw Exception('Unknown message type: $message');
-    }
-    if (response != null) {
-      _sendMessage(response);
+    try {
+      if (message.hasGetParametersIns()) {
+        response = await _handleGetParameters(message);
+      } else if (message.hasFitIns()) {
+        response = await _handleFitIns(message);
+      } else if (message.hasEvaluateIns()) {
+        response = await _handleEvaluateIns(message);
+      } else if (message.hasReconnectIns()) {
+        _logDebug('Handling reconnectIns');
+        await close();
+      } else {
+        throw Exception('Unknown message type: $message');
+      }
+      if (response != null) {
+        _sendMessage(response);
+      }
+    } catch (err, trace) {
+      await _onErr(err, trace);
     }
   }
 
@@ -76,7 +84,7 @@ class FlowerService {
     final start = train.telemetry ? DateTime.now() : null;
     final layers =
         message.fitIns.parameters.tensors.map(Uint8List.fromList).toList();
-    assertEqual(layers.length, model.layers_sizes.length);
+    assertEqual(layers.length, model.nLayers);
     final epochConfig = message.fitIns.config['local_epochs'];
     final epochs = epochConfig?.sint64.toInt() ?? 1;
     await mlClient.updateParameters(layers);
@@ -99,7 +107,7 @@ class FlowerService {
     final start = train.telemetry ? DateTime.now() : null;
     final layers =
         message.evaluateIns.parameters.tensors.map(Uint8List.fromList).toList();
-    assertEqual(layers.length, model.layers_sizes.length);
+    assertEqual(layers.length, model.nLayers);
     await mlClient.updateParameters(layers);
     final (loss, accuracy) = await mlClient.evaluate();
     _infoStreamCtl.add('Test accuracy after this round: $accuracy.');

@@ -1,35 +1,61 @@
-from pickle import dumps, loads
+from pickle import loads
 
 from django.db import models
 from numpy.typing import NDArray
 
-cfg = {"null": False, "editable": False}
-
 
 class TrainingDataType(models.Model):
-    name = models.CharField(max_length=256, unique=True, **cfg)
+    name = models.CharField(max_length=256, unique=True, editable=False)
+
+    def __str__(self):
+        return self.name
 
 
-# Always change together with Android `db.TFLiteModel.TFLiteModel`.
-class TFLiteModel(models.Model):
-    name = models.CharField(max_length=64, unique=True, **cfg)
-    file_path = models.CharField(max_length=64, unique=True, **cfg)
-    layers_sizes = models.JSONField(**cfg)
+# Always change together with `serializers.MLModelSerializer`
+# & Android `db.MLModel`
+# & Flutter `ml_model.MLModel`.
+class MLModel(models.Model):
+    name = models.CharField(max_length=64, unique=True, editable=False)
+    tflite_path = models.CharField(max_length=64, unique=True, null=True, default=None)
+    """Path to `.tflite` file."""
+    coreml_path = models.CharField(max_length=64, unique=True, null=True, default=None)
+    """Path to `.mlmodel` file."""
+    tflite_layers = models.JSONField(null=True, default=None)
     """Size of each layer of parameters in bytes."""
+    coreml_layers = models.JSONField(null=True, default=None)
+    """`[{name, type}]` of each layer of parameters.
+    `type` can either be `"weights"` or `"bias"`."""
     data_type = models.ForeignKey(
-        TrainingDataType, on_delete=models.CASCADE, related_name="tflite_models", **cfg
+        TrainingDataType,
+        on_delete=models.CASCADE,
+        related_name="ml_models",
+        editable=False,
     )
+    tflite = models.BooleanField(default=True)
+    coreml = models.BooleanField(default=False)
 
     def __str__(self) -> str:
-        return f"TFLiteModel {self.name} for {self.data_type.name} at {self.file_path}, {len(self.layers_sizes)} layers"
+        desc = [f"MLModel {self.name} for {self.data_type.name}"]
+        if self.tflite:
+            desc.append(
+                f"TFLite model at {self.tflite_path} of \
+{len(self.tflite_layers)} layers"
+            )
+        if self.coreml:
+            desc.append(
+                f"CoreML model at {self.coreml_path} of \
+{len(self.coreml_layers)} layers"
+            )
+        return ", ".join(desc)
 
 
 class ModelParams(models.Model):
-    """Do not initialize this class directly, use `make_model_params` instead."""
-
-    params = models.BinaryField(**cfg)
+    params = models.BinaryField(editable=False)
     tflite_model = models.ForeignKey(
-        TFLiteModel, on_delete=models.CASCADE, related_name="params", **cfg
+        MLModel,
+        on_delete=models.CASCADE,
+        related_name="params",
+        editable=False,
     )
 
     def decode_params(self) -> list[NDArray]:
@@ -37,7 +63,3 @@ class ModelParams(models.Model):
 
     def __str__(self) -> str:
         return f"ModelParams for {self.tflite_model.name}: {self.decode_params()}"
-
-
-def make_model_params(params: list[NDArray], tflite_model: TFLiteModel) -> ModelParams:
-    return ModelParams(params=dumps(params), tflite_model=tflite_model)

@@ -16,6 +16,8 @@ python3 manage.py migrate
 
 ### Download TFLite models
 
+This is needed to run the Android example.
+
 Download the model file from <https://github.com/FedCampus/dyn_flower_android_drf/files/11858642/cifar10.zip> to `static/cifar10.tflite`.
 
 - Alternatively, generate it using the script in `../gen_tflite/cifar10_eg/`.
@@ -29,6 +31,20 @@ cat seed.py | python3 manage.py shell
 ```
 
 The above script adds the CIFAR10 training data type and model to database.
+
+## Download Core ML models
+
+This is needed to run the iOS example.
+
+Download the model file from <https://github.com/FedCampus/FedKit/files/12543996/MNIST--mnist.mlmodel.zip> to `static/MNIST--mnist.mlmodel`
+
+### Create Core ML model in database
+
+Pipe the Core ML seed script into a Django shell:
+
+```sh
+cat seed_coreml.py | python3 manage.py shell
+```
 
 ## Development
 
@@ -45,19 +61,8 @@ Find you local IP in your system settings for the physical device to connect to.
 To add a new TFLite model to the backend database, follow the following steps:
 
 1. Following `../gen_tflite/README.md`, generate the `.tflite` file.
-1. Move the generated `.tflite` file to `static/`.
-1. Use a script referencing `seed.py`.
-    Replace `sizes` with the `Model parameter sizes in bytes` printout from the model generation script. Replace `d` with the proper `TrainingDataType`.
-
-    ```python
-    m = TFLiteModel(
-        name="my_models_name",
-        file_path="/static/my_model.tflite",
-        layers_sizes=sizes,
-        data_type=d,
-    )
-    m.save()
-    ```
+1. Launch a backend instance if you haven't.
+1. Use `fed_kit.py` to upload the file to the backend.
 
 ## Docker Deployment
 

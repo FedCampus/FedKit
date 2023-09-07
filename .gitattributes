@@ -1,3 +1,6 @@
-**.freezed.dart filter=lfs diff=lfs merge=lfs -text
-**.g.dart filter=lfs diff=lfs merge=lfs -text
+**.mapper.dart filter=lfs diff=lfs merge=lfs -text
 flutter/lib/transport.*.dart filter=lfs diff=lfs merge=lfs -text
+fed_kit_client/ios/Runner/Utils/CoreMLProto/ filter=lfs diff=lfs merge=lfs -text
+# GitHub Linguist ignore
+**.mapper.dart linguist-generated
+fed_kit_client/ios/Runner/Utils/CoreMLProto/* linguist-generated

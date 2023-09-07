@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:fed_kit/ml_client.dart';
 import 'package:flutter/services.dart';
 
+/// We run MNIST on iOS, but I'm too lazy to come up with a name to fit both.
 class Cifar10MLClient extends MLClient {
   final callChannel = const MethodChannel('fed_kit_client_cifar10_ml_client');
   final logChannel = const EventChannel('fed_kit_client_cifar10_ml_client_log');
@@ -63,7 +64,7 @@ class Cifar10MLClient extends MLClient {
   }
 
   Future<void> initML(
-      String modelDir, List<int> layersSizes, int partitionId) async {
+      String modelDir, List<dynamic> layersSizes, int partitionId) async {
     await callChannel.invokeMethod('initML', {
       'modelDir': modelDir,
       'layersSizes': layersSizes,

@@ -26,18 +26,23 @@ To try out the Android client, please see `client/README.md`.
 
 To use the library in this repository to implement custom Android Flower clients, please see `client/fedcampus/README.md`.
 
-### iOS client
+### Flutter Android & iOS client
 
-- [ ] Training using Flower.
-- [ ] Communication with the Backend.
+The Flutter client package to communicate with the backend and Flower servers is at `flutter/`.
+
+The example Flutter client for both Android and iOS is at `fed_kit_client/`. To try it out, please see `fed_kit_client/README.md`.
 
 ## ML model generation
 
-We support TensorFlow (Keras) models.
+We support TensorFlow (Keras) models for Android and Core ML models for iOS.
 
 ### ML model for Android
 
 The ML model generation script for Android is located at `gen_tflite/`. Please see `gen_tflite/README.md` for information on how to create models and convert them to `.tflite` files.
+
+### ML model for iOS
+
+`gen_mlmodel` is still a work in progress. Meanwhile, you can construct Core ML models manually using `coremltools`.
 
 ## Training procedure
 

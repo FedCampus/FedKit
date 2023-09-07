@@ -71,7 +71,7 @@ class Train<X : Any, Y : Any> constructor(
     }
 
     private suspend fun doDownloadModelFile(modelDir: File, model: TFLiteModel): File {
-        val fileUrl = model.file_path
+        val fileUrl = model.tflite_path
         val fileName = fileUrl.split("/").last()
         if (modelDownloaded(model)) {
             // The model is already in the DB
@@ -132,7 +132,7 @@ class Train<X : Any, Y : Any> constructor(
         useTLS: Boolean,
         model: TFLiteModel
     ): FlowerClient<X, Y> {
-        val flowerClient = FlowerClient(buffer, model.layers_sizes, sampleSpec)
+        val flowerClient = FlowerClient(buffer, model.tflite_layers, sampleSpec)
         val channel = withContext(Dispatchers.IO) {
             createChannel(address, useTLS)
         }

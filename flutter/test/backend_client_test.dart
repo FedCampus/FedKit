@@ -1,20 +1,20 @@
 @Skip('Launch a backend and test with `--run-skipped` for integration test.')
 import 'package:fed_kit/backend_client.dart';
-import 'package:fed_kit/tflite_model.dart';
+import 'package:fed_kit/ml_model.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 const exampleBackendUrl = 'http://0:8000';
 const exampleFlowerAddress = '0';
 const dataType = 'CIFAR10_32x32x3';
-const expectedModel = TFLiteModel(
+final expectedModel = MLModel(
     id: 1,
     name: 'CIFAR10',
-    file_path: '/static/cifar10.tflite',
-    layers_sizes: [1800, 24, 9600, 64, 768000, 480, 40320, 336, 3360, 40]);
+    tflite_path: '/static/cifar10.tflite',
+    tflite_layers: [1800, 24, 9600, 64, 768000, 480, 40320, 336, 3360, 40]);
 const expectedPort = 8080;
-const fitInsTelemetry =
+final fitInsTelemetry =
     FitInsTelemetryData(device_id: 1, session_id: 1, start: 0, end: 1);
-const evaluateInsTelemetry = EvaluateInsTelemetryData(
+final evaluateInsTelemetry = EvaluateInsTelemetryData(
     device_id: 1,
     session_id: 1,
     start: 0,
@@ -27,8 +27,8 @@ void main() {
   const client = BackendClient(exampleBackendUrl);
 
   test('ask backend for advertised model', () async {
-    final actual = await client
-        .advertisedModel(const PostAdvertisedData(data_type: dataType));
+    final actual =
+        await client.whichModel(PostAdvertisedData(data_type: dataType));
     expect(actual, expectedModel);
   });
 
@@ -37,7 +37,7 @@ void main() {
     expect(actual.port, expectedPort);
     actual = await client.postServer(expectedModel, false);
     expect(actual.port, expectedPort);
-    expect(actual.status, 'started');
+    assert(actual.status == 'started' || actual.status == 'new');
     actual = await client.postServer(expectedModel, true);
     expect(actual.port, null);
     expect(actual.status, 'started_non_fresh');

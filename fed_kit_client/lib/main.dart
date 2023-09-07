@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_set_id/app_set_id.dart';
 import 'package:fed_kit_client/cifar10_ml_client.dart';
 import 'package:fed_kit/train.dart';
@@ -114,7 +116,8 @@ class _MyAppState extends State<MyApp> {
     final id = await deviceId();
     logger.d('Device ID: $id');
     train.enableTelemetry(id);
-    final (model, modelDir) = await train.prepareModel(dataType);
+    final (model, modelDir) =
+        await train.prepareModel(Platform.isIOS ? iosDataType : dataType);
     appendLog('Prepared model ${model.name}.');
     final serverData = await train.getServerInfo(startFresh: startFresh);
     if (serverData.port == null) {
@@ -123,7 +126,9 @@ class _MyAppState extends State<MyApp> {
     }
     appendLog(
         'Ready to connected to Flower server on port ${serverData.port}.');
-    await _mlClient.initML(modelDir, model.layers_sizes, partitionId);
+    final layersSizes =
+        Platform.isIOS ? model.coreml_layers! : model.tflite_layers!;
+    await _mlClient.initML(modelDir, layersSizes, partitionId);
     appendLog('Prepared ML client and loaded dataset.');
     await train.prepare(_mlClient, host.host, serverData.port!);
     canTrain = true;
@@ -134,7 +139,10 @@ class _MyAppState extends State<MyApp> {
     try {
       train.start().listen(appendLog,
           onDone: () => appendLog('Training done.'),
-          onError: (e) => appendLog('Training failed: $e.'),
+          onError: (e) {
+            canPrepare = true;
+            appendLog('Training failed: $e.');
+          },
           cancelOnError: true);
       canTrain = false;
       appendLog('Started training.');
@@ -225,3 +233,4 @@ class _MyAppState extends State<MyApp> {
 Future<int> deviceId() async => (await AppSetId().getIdentifier()).hashCode;
 
 const dataType = 'CIFAR10_32x32x3';
+const iosDataType = 'MNIST_28x28x1';
