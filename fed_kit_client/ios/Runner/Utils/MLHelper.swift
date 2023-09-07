@@ -31,21 +31,26 @@ func updateModelAsync(forModelAt: URL, trainingData: MLBatchProvider, configurat
 
 enum LayerConversionErr: Error {
     case missingValue(key: String)
+    case unknownType(String)
 }
 
 struct Layer {
     let name: String
-    let shape: [Int]
+    let type: MLParameterKey
 
     init(dictionary: [String: Any?]) throws {
         guard let name = dictionary["name"] as? String else {
             throw LayerConversionErr.missingValue(key: "name")
         }
 
-        guard let shape = dictionary["shape"] as? [Int] else {
+        guard let type = dictionary["type"] as? String else {
             throw LayerConversionErr.missingValue(key: "shape")
         }
         self.name = name
-        self.shape = shape
+        switch type {
+        case "weights": self.type = MLParameterKey.weights
+        case "bias": self.type = MLParameterKey.biases
+        default: throw LayerConversionErr.unknownType(type)
+        }
     }
 }

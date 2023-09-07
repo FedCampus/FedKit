@@ -71,7 +71,7 @@ public class MLClient {
             forModelAt: compiledModelUrl, trainingData: dataLoader.trainBatchProvider, configuration: config
         )
         parameters = try layers.map { layer in
-            let paramKey = MLParameterKey.weights.scoped(to: layer.name)
+            let paramKey = layer.type.scoped(to: layer.name)
             guard let weightsMultiArray = try updateContext.model.parameterValue(for: paramKey) as? MLMultiArray else {
                 throw MLClientErr.ParamNotMultiArray
             }
@@ -102,9 +102,15 @@ public class MLClient {
                 let name = nnLayer.name
                 for (index, layer) in layers.enumerated() {
                     if layer.name != name { continue }
-                    switch nnLayer.layer! {
-                    case .convolution: nnLayer.convolution.weights.floatValue = paramUpdate[index]
-                    case .innerProduct: nnLayer.innerProduct.weights.floatValue = paramUpdate[index]
+                    switch (nnLayer.layer!, layer.type) {
+                    case (.convolution, MLParameterKey.weights):
+                        nnLayer.convolution.weights.floatValue = paramUpdate[index]
+                    case (.innerProduct, MLParameterKey.weights):
+                        nnLayer.innerProduct.weights.floatValue = paramUpdate[index]
+                    case (.convolution, MLParameterKey.biases):
+                        nnLayer.convolution.bias.floatValue = paramUpdate[index]
+                    case (.innerProduct, MLParameterKey.biases):
+                        nnLayer.innerProduct.bias.floatValue = paramUpdate[index]
                     default: throw MLClientErr.UnexpectedLayer(name)
                     }
                     log.error("Updated layer \(name) with weights of \(paramUpdate[index].count).")
