@@ -145,3 +145,8 @@ public class MLClient {
         compiledModelUrl = try MLModel.compileModel(at: rewriteModelUrl)
     }
 }
+
+struct MLDataLoader {
+    let trainBatchProvider: MLBatchProvider
+    let testBatchProvider: MLBatchProvider
+}

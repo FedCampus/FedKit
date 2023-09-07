@@ -110,18 +110,9 @@ let log = logger(String(describing: AppDelegate.self))
             let url = URL(fileURLWithPath: modelDir)
             log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             log.error("Model URL: \(url).")
-            try self.checkModel(url)
             self.mlClient = try MLClient(layers, await self.dataLoader(partitionId), url)
             self.ready = true
             return nil
-        }
-    }
-
-    private func checkModel(_ url: URL) throws {
-        let content = try Data(contentsOf: url)
-        let layers = try MLModelInspect(serializedData: content).getLayerWrappers()
-        for layer in layers {
-            log.error("\(layer.name), updatable: \(layer.isUpdatable), shape: \(layer.shape).")
         }
     }
 
