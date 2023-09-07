@@ -3,6 +3,7 @@
 **.idea/
 **.jar
 **.lock
+**.lzfse
 **.mlmodel
 **.settings/
 **.tflite
