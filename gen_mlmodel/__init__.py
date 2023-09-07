@@ -22,22 +22,16 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder):
         try:
             builder.make_updatable([name])
             print(f"made {name} updatable")
-            info = {"name": name}
+            updatable_layers.append({"name": name, "type": "weights"})
             kind = layer.WhichOneof("layer")
             if kind == "convolution":
-                conv = layer.convolution
-                info["shape"] = [
-                    conv.outputChannels,
-                    conv.kernelChannels,
-                    conv.kernelSize[0],
-                    conv.kernelSize[1],
-                ]
+                if layer.convolution.hasBias:
+                    updatable_layers.append({"name": name, "type": "bias"})
             elif kind == "innerProduct":
-                inpd = layer.innerProduct
-                info["shape"] = [inpd.outputChannels, inpd.inputChannels]
+                if layer.innerProduct.hasBias:
+                    updatable_layers.append({"name": name, "type": "bias"})
             else:
                 raise ValueError(f"Unexpected updatable layer {layer} of kind {kind}")
-            updatable_layers.append(info)
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except Exception:
