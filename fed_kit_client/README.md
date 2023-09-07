@@ -11,3 +11,5 @@ Follow the instructions in the [Android client README](../android/README.md). No
 ## iOS
 
 Download the training and test data set from <https://github.com/FedCampus/FedKit/files/12543877/MNIST.zip> and extract them to `./ios/Runner/Utils/MNIST/`.
+
+The iOS client trains Core ML models, so only weights and biases in `convolution` and `innerProduct` layers can be updated.
