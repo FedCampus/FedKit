@@ -1,7 +1,6 @@
 import coremltools as ct
 from coremltools.models import MLModel
 from coremltools.models.neural_network import NeuralNetworkBuilder
-from coremltools.models.utils import save_spec
 from tensorflow import keras
 
 
@@ -40,4 +39,5 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder):
 
 
 def save_builder(builder: NeuralNetworkBuilder, directory: str):
-    save_spec(builder.spec, directory)
+    mlmodel = MLModel(builder.spec)
+    mlmodel.save(directory)

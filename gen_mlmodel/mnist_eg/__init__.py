@@ -1,4 +1,5 @@
 import tensorflow as tf
+from coremltools.models.neural_network import AdamParams, NeuralNetworkBuilder
 
 from .. import convert, nn_builder, save_builder, try_make_layers_updatable
 
@@ -40,11 +41,18 @@ def mnist_model():
     return model
 
 
+def config_builder(builder: NeuralNetworkBuilder):
+    # builder.set_categorical_cross_entropy_loss("lossLayer", input="Identity")
+    builder.set_adam_optimizer(AdamParams())
+    builder.set_epochs(10)
+
+
 def main():
     model = mnist_model()
     model.summary()
     mlmodel = convert(model)
     builder = nn_builder(mlmodel)
+    config_builder(builder)
     updatables = try_make_layers_updatable(builder)
     builder.inspect_layers()
     save_builder(builder, file_name)
