@@ -42,7 +42,7 @@ def mnist_model():
 
 
 def config_builder(builder: NeuralNetworkBuilder):
-    # builder.set_categorical_cross_entropy_loss("lossLayer", input="Identity")
+    builder.set_categorical_cross_entropy_loss("lossLayer", input="Identity")
     builder.set_adam_optimizer(AdamParams())
     builder.set_epochs(10)
 
