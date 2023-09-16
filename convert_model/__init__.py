@@ -3,5 +3,5 @@ import tensorflow as tf
 keras = tf.keras
 
 
-def red(string: str) -> str:
-    return f"\033[91m{string}\033[0m"
+def red(displayed) -> str:
+    return f"\033[91m{displayed}\033[0m"

@@ -64,7 +64,6 @@ def main():
     mlmodel = convert(model)
     builder = nn_builder(mlmodel)
     config_builder(builder)
-    updatables = try_make_layers_updatable(builder, 2)
+    try_make_layers_updatable(builder, 2)
     builder.inspect_layers()
     save_builder(builder, file_name)
-    print(f"Updatable layers:\n{updatables}")

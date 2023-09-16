@@ -5,7 +5,7 @@ from coremltools.models import MLModel
 from coremltools.models.neural_network import NeuralNetworkBuilder
 from numpy.random import rand
 
-from . import keras
+from . import keras, red
 
 
 def random_fit(
@@ -50,6 +50,7 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0
             raise KeyboardInterrupt
         except Exception:
             print(f"could not make {name} updatable")
+    print(f"Updatable layers:\n\t{red(updatable_layers)}")
     return updatable_layers
 
 

@@ -15,5 +15,5 @@ python3 -m pip install -r requirements.txt
 At `../..`, run:
 
 ```sh
-python3 -m gen_tflite.toy_regression_eg.run
+python3 -m convert_model.toy_regression_eg.run
 ```
