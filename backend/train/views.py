@@ -1,4 +1,5 @@
 import logging
+from json import load
 from typing import IO, OrderedDict
 
 from django.core.files.uploadedfile import UploadedFile
@@ -117,7 +118,8 @@ def save_model_file(name: str, file_name: str, file: IO):
 @api_view(["POST"])
 @permission_classes((permissions.AllowAny,))
 def upload_model(request: Request):
-    (data, err) = deserialize(UploadModelSerializer, request.data)
+    data = load(request.FILES.get("data"))
+    (data, err) = deserialize(UploadModelSerializer, data)
     if err:
         return Response(err, HTTP_400_BAD_REQUEST)
     name, data_type_name = data["name"], data["data_type"]

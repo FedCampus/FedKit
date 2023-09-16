@@ -9,6 +9,8 @@ print(response)
 print(response.text)
 ```
 """
+from json import dumps
+
 import requests
 
 DEFAULT_URL = "http://localhost:8000/"
@@ -32,11 +34,11 @@ def upload(
         "coreml_layers": coreml_layers,
         "data_type": data_type,
     }
-    files = {}
+    files: dict = {"data": dumps(data, separators=(",", ":"))}
     if tflite_file is not None:
         assert tflite_layers is not None
         files["tflite"] = open(tflite_file, "rb")
     if coreml_file is not None:
         assert coreml_layers is not None
         files["coreml"] = open(coreml_file, "rb")
-    return requests.post(url, data=data, files=files)
+    return requests.post(url, files=files)
