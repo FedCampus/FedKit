@@ -4,7 +4,14 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from .. import *
+from .. import red
+from ..tflite import (
+    SAVED_MODEL_DIR,
+    convert_saved_model,
+    parameters_from_raw_dict,
+    save_model,
+    save_tflite_model,
+)
 from .model import ToyRegressionModel
 
 DIR = path.dirname(__file__)

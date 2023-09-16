@@ -1,6 +1,6 @@
 from os import path
 
-from .. import *
+from ..tflite import SAVED_MODEL_DIR, convert_saved_model, save_model, save_tflite_model
 from . import FedMCRNNModel
 
 DIR = path.dirname(__file__)
