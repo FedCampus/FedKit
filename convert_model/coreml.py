@@ -27,33 +27,28 @@ def nn_builder(mlmodel: MLModel) -> NeuralNetworkBuilder:
 
 def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0xFFFF):
     assert builder.nn_spec is not None
+    updatable_layer_names: list[str] = []
     updatable_layers: list[dict[str, str | list[int]]] = []
-    for layer in reversed(builder.nn_spec.layers):
+    for layer in builder.nn_spec.layers:
         name = layer.name
-        try:
-            builder.make_updatable([name])
-            print(f"made {name} updatable")
-            updatable_layers.append({"name": name, "type": "weights"})
-            kind = layer.WhichOneof("layer")
-            if kind == "convolution":
-                layer = layer.convolution
-            elif kind == "innerProduct":
-                layer = layer.innerProduct
-            else:
-                raise RuntimeError(f"Unexpected updatable layer {layer} of kind {kind}")
-            info = f"Weights: {len(layer.weights.floatValue) * 4} bytes"
-            if layer.hasBias:
-                updatable_layers.append({"name": name, "type": "bias"})
-                info += f", Bias: {len(layer.bias.floatValue) * 4} bytes"
-            print(info)
-            limit_last -= 1
-            if limit_last <= 0:
-                break
-        except KeyboardInterrupt:
-            raise KeyboardInterrupt
-        except ValueError:
-            print(f"could not make {name} updatable")
-    print(f"Updatable layers:\n\t{red(updatable_layers)}")
+        kind = layer.WhichOneof("layer")
+        if kind == "convolution":
+            layer = layer.convolution
+        elif kind == "innerProduct":
+            layer = layer.innerProduct
+        else:
+            continue
+        updatable_layer_names.append(name)
+        updatable_layers.append({"name": name, "type": "weights"})
+        info = f"{name}: Weights: {len(layer.weights.floatValue) * 4} bytes"
+        if layer.hasBias:
+            updatable_layers.append({"name": name, "type": "bias"})
+            info += f", Bias: {len(layer.bias.floatValue) * 4} bytes"
+        print(f"{info}.")
+    made_updatable = updatable_layer_names[-limit_last:]
+    builder.make_updatable(made_updatable)
+    print(f"Made {made_updatable} updatable.")
+    print(f"All updatable layers:\n\t{red(updatable_layers)}")
     return updatable_layers
 
 

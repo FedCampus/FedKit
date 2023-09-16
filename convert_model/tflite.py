@@ -65,7 +65,6 @@ def tflite_model_class(cls):
 def save_model(model, saved_model_dir):
     parameters = model.parameters.get_concrete_function()
     init_params = parameters()
-    print(f"Initial parameters is {init_params}.")
     restore = model.restore.get_concrete_function(**init_params)
     restore_test = restore(**init_params)
     print(f"Restore test result: {restore_test}.")

@@ -25,7 +25,6 @@ def config_builder(builder: NeuralNetworkBuilder):
 def main():
     model = mnist_model()
     random_fit(model, in_shape)
-    model.summary()
     mlmodel = convert(model)
     builder = nn_builder(mlmodel)
     config_builder(builder)
