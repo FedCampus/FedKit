@@ -24,10 +24,10 @@ def nn_builder(mlmodel: MLModel) -> NeuralNetworkBuilder:
     return NeuralNetworkBuilder(spec=spec)
 
 
-def try_make_layers_updatable(builder: NeuralNetworkBuilder):
+def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0xFFFF):
     assert builder.nn_spec is not None
     updatable_layers: list[dict[str, str | list[int]]] = []
-    for layer in builder.nn_spec.layers:
+    for layer in reversed(builder.nn_spec.layers):
         name = layer.name
         try:
             builder.make_updatable([name])
@@ -42,6 +42,9 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder):
                     updatable_layers.append({"name": name, "type": "bias"})
             else:
                 raise ValueError(f"Unexpected updatable layer {layer} of kind {kind}")
+            limit_last -= 1
+            if limit_last <= 0:
+                break
         except KeyboardInterrupt:
             raise KeyboardInterrupt
         except Exception:

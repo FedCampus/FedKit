@@ -44,7 +44,8 @@ def mnist_model():
 
 def config_builder(builder: NeuralNetworkBuilder):
     builder.set_mean_squared_error_loss(
-        "lossLayer", input_feature=("Identity", datatypes.Array(n_classes))
+        "lossLayer",
+        input_feature=("sequential/dense_1/BiasAdd", datatypes.Array(n_classes)),
     )
     builder.set_adam_optimizer(AdamParams())
     builder.set_epochs(10)
@@ -57,7 +58,7 @@ def main():
     mlmodel = convert(model)
     builder = nn_builder(mlmodel)
     config_builder(builder)
-    updatables = try_make_layers_updatable(builder)
+    updatables = try_make_layers_updatable(builder, 2)
     builder.inspect_layers()
     save_builder(builder, file_name)
     print(f"Updatable layers:\n{updatables}")
