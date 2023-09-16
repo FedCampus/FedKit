@@ -1,7 +1,18 @@
+from typing import Iterable
+
 import coremltools as ct
 from coremltools.models import MLModel
 from coremltools.models.neural_network import NeuralNetworkBuilder
+from numpy.random import rand
 from tensorflow import keras
+
+
+def random_fit(
+    model: keras.Model, in_shape: Iterable[int], out_shape: Iterable[int] = (1,)
+):
+    x = rand(1, *in_shape)
+    y = rand(1, *out_shape)
+    model.fit(x, y, epochs=1)
 
 
 def convert(model: keras.Model) -> MLModel:
