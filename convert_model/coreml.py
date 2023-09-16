@@ -36,19 +36,22 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0
             updatable_layers.append({"name": name, "type": "weights"})
             kind = layer.WhichOneof("layer")
             if kind == "convolution":
-                if layer.convolution.hasBias:
-                    updatable_layers.append({"name": name, "type": "bias"})
+                layer = layer.convolution
             elif kind == "innerProduct":
-                if layer.innerProduct.hasBias:
-                    updatable_layers.append({"name": name, "type": "bias"})
+                layer = layer.innerProduct
             else:
-                raise ValueError(f"Unexpected updatable layer {layer} of kind {kind}")
+                raise RuntimeError(f"Unexpected updatable layer {layer} of kind {kind}")
+            info = f"Weights: {len(layer.weights.floatValue) * 4} bytes"
+            if layer.hasBias:
+                updatable_layers.append({"name": name, "type": "bias"})
+                info += f", Bias: {len(layer.bias.floatValue) * 4} bytes"
+            print(info)
             limit_last -= 1
             if limit_last <= 0:
                 break
         except KeyboardInterrupt:
             raise KeyboardInterrupt
-        except Exception:
+        except ValueError:
             print(f"could not make {name} updatable")
     print(f"Updatable layers:\n\t{red(updatable_layers)}")
     return updatable_layers
