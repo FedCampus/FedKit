@@ -4,7 +4,8 @@ import coremltools as ct
 from coremltools.models import MLModel
 from coremltools.models.neural_network import NeuralNetworkBuilder
 from numpy.random import rand
-from tensorflow import keras
+
+from . import keras
 
 
 def random_fit(

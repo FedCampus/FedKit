@@ -1,5 +1,4 @@
-from tensorflow import keras
-
+from .. import keras
 from ..tflite import BaseTFLiteModel, tflite_model_class
 
 

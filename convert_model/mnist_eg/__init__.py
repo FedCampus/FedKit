@@ -1,7 +1,7 @@
-import tensorflow as tf
 from coremltools.models import datatypes
 from coremltools.models.neural_network import AdamParams, NeuralNetworkBuilder
 
+from .. import tf
 from ..coreml import (
     convert,
     nn_builder,

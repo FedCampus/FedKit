@@ -1,6 +1,4 @@
-import tensorflow as tf
-
-from . import red
+from . import red, tf
 
 SAVED_MODEL_DIR = "saved_model"
 

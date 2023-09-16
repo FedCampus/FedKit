@@ -2,9 +2,8 @@ from os import path
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
-from .. import red
+from .. import red, tf
 from ..tflite import (
     SAVED_MODEL_DIR,
     convert_saved_model,
@@ -12,7 +11,7 @@ from ..tflite import (
     save_model,
     save_tflite_model,
 )
-from .model import ToyRegressionModel
+from . import ToyRegressionModel
 
 DIR = path.dirname(__file__)
 
