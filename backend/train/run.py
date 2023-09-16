@@ -96,5 +96,5 @@ def flwr_server(initial_parameters: Parameters | None, port: int, coreml=False):
         )
     except KeyboardInterrupt:
         return
-    except RuntimeError as err:
+    except Exception as err:
         logger.error(err)

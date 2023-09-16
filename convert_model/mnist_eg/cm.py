@@ -19,7 +19,8 @@ def config_builder(builder: NeuralNetworkBuilder):
         input_feature=("sequential/dense_1/BiasAdd", datatypes.Array(n_classes)),
     )
     builder.set_adam_optimizer(AdamParams())
-    builder.set_epochs(10)
+    max_epochs = 10
+    builder.set_epochs(max_epochs, range(1, max_epochs + 1))
 
 
 def main():

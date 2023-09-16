@@ -86,7 +86,7 @@ public class MLClient {
         let updateContext = try await updateModelAsync(
             forModelAt: compiledModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
         )
-        let loss = updateContext.metrics[.lossValue] as! Double
+        let loss = updateContext.metrics[.lossValue] as? Double ?? -1.0
         return (loss, (1.0 - loss) * 100)
     }
 
@@ -117,6 +117,7 @@ public class MLClient {
                 }
             }
             try recompile()
+            log.error("Recompiled.")
             self.paramUpdate = nil
         }
         return config
