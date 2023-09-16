@@ -65,7 +65,7 @@ public class MLClient {
             configuration: config,
             progressHandler: callback.map { callback in
                 { contextProgress in
-                    let loss = contextProgress.metrics[.lossValue] as! Double
+                    let loss = contextProgress.metrics[.lossValue] as? Double ?? -1.0
                     callback(loss)
                 }
             }
