@@ -123,7 +123,8 @@ def upload_model(request: Request):
     name, data_type_name = data["name"], data["data_type"]
     if model_name_not_unique(name):
         return Response("Model name used", HTTP_400_BAD_REQUEST)
-    tflite, coreml = data["tflite"], data["coreml"]
+    tflite = data["tflite_layers"] is not None
+    coreml = data["coreml_layers"] is not None
     tflite_path, coreml_path = None, None
     if tflite:
         file = file_in_request(request, "tflite")
