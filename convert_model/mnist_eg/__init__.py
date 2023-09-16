@@ -2,7 +2,13 @@ import tensorflow as tf
 from coremltools.models import datatypes
 from coremltools.models.neural_network import AdamParams, NeuralNetworkBuilder
 
-from .. import convert, nn_builder, random_fit, save_builder, try_make_layers_updatable
+from ..coreml import (
+    convert,
+    nn_builder,
+    random_fit,
+    save_builder,
+    try_make_layers_updatable,
+)
 
 k = tf.keras
 in_shape = (28, 28, 1)
