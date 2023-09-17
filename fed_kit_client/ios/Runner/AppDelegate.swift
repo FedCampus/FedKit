@@ -165,6 +165,8 @@ let log = logger(String(describing: AppDelegate.self))
 
         dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
         self.partitionId = partitionId
+        self.inputName = inputName
+        self.outputName = outputName
         return dataLoader!
     }
 }
