@@ -25,15 +25,15 @@ public class MLClient {
     var compiledModelUrl: URL
     var rewriteModelUrl: URL
     var tempModelUrl: URL
-    var mlModel: CoreML_Specification_Model
-    let input: String
-    let output: String
-    let target: String
+    var modelProto: ModelProto
     private var paramUpdate: [[Float]]?
 
-    init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL) throws {
+    init(
+        _ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL, _ modelProto: ModelProto
+    ) throws {
         self.layers = layers
         self.dataLoader = dataLoader
+        self.modelProto = modelProto
         // Initial models.
         let url = try MLModel.compileModel(at: modelUrl)
         log.error("Compiled model URL: \(url).")
@@ -41,12 +41,6 @@ public class MLClient {
         let modelFileName = compiledModelUrl.deletingPathExtension().lastPathComponent
         tempModelUrl = appDirectory.appendingPathComponent("temp\(modelFileName).mlmodelc")
         rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
-        // ProtoBuf representation.
-        let content = try Data(contentsOf: modelUrl)
-        mlModel = try CoreML_Specification_Model(serializedData: content)
-        input = try modelInput(mlModel)
-        output = try modelOutput(mlModel)
-        target = try modelTarget(mlModel)
     }
 
     func getParameters() async throws -> [[Float]] {
@@ -104,7 +98,7 @@ public class MLClient {
             config.parameters = [:]
         }
         if let paramUpdate {
-            try mlModel.neuralNetwork.layers.forEachMut { nnLayer in
+            try modelProto.model.neuralNetwork.layers.forEachMut { nnLayer in
                 let name = nnLayer.name
                 for (index, layer) in layers.enumerated() {
                     if layer.name != name { continue }
@@ -148,7 +142,7 @@ public class MLClient {
     }
 
     private func recompile() throws {
-        try mlModel.serializedData().write(to: rewriteModelUrl)
+        try modelProto.model.serializedData().write(to: rewriteModelUrl)
         compiledModelUrl = try MLModel.compileModel(at: rewriteModelUrl)
     }
 }
@@ -156,6 +150,25 @@ public class MLClient {
 struct MLDataLoader {
     let trainBatchProvider: MLBatchProvider
     let testBatchProvider: MLBatchProvider
+}
+
+struct ModelProto {
+    var model: CoreML_Specification_Model
+    let input: String
+    let output: String
+    let target: String
+
+    init(mlModel: CoreML_Specification_Model) throws {
+        model = mlModel
+        input = try modelInput(model)
+        output = try modelOutput(model)
+        target = try modelTarget(model)
+    }
+
+    init(data: Data) throws {
+        let model = try CoreML_Specification_Model(serializedData: data)
+        try self.init(mlModel: model)
+    }
 }
 
 private func modelInput(_ mlModel: CoreML_Specification_Model) throws -> String {

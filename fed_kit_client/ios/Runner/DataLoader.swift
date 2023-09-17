@@ -22,20 +22,31 @@ private let normalization: Float = 255.0
 private let shapeTarget: [NSNumber] = [1]
 
 func trainBatchProvider(
-    _ partitionId: Int, progressHandler: @escaping (Int) -> Void
+    _ partitionId: Int,
+    inputName: String,
+    outputName: String,
+    progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
-        filePath: extract("_train"), progressHandler: progressHandler
+        filePath: extract("_train"),
+        inputName: inputName,
+        outputName: outputName,
+        progressHandler: progressHandler
     ) { index in
         index / 6000 + 1 == partitionId
     }
 }
 
 func testBatchProvider(
+    inputName: String,
+    outputName: String,
     progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
-        filePath: extract("_test"), progressHandler: progressHandler
+        filePath: extract("_test"),
+        inputName: inputName,
+        outputName: outputName,
+        progressHandler: progressHandler
     )
 }
 
@@ -92,7 +103,11 @@ private func extractFile(from sourceURL: URL, to destinationURL: URL) throws -> 
 }
 
 private func prepareMLBatchProvider(
-    filePath: URL, progressHandler: @escaping (Int) -> Void, indexFilter: ((Int) -> Bool)? = nil
+    filePath: URL,
+    inputName: String,
+    outputName: String,
+    progressHandler: @escaping (Int) -> Void,
+    indexFilter: ((Int) -> Bool)? = nil
 ) async throws -> MLBatchProvider {
     var count = 0
     let featureProviders = try await withThrowingTaskGroup(of: MLDictionaryFeatureProvider.self) { group in
@@ -112,7 +127,7 @@ private func prepareMLBatchProvider(
                 let imageValue = MLFeatureValue(multiArray: imageMultiArr)
                 let outputValue = MLFeatureValue(multiArray: outputMultiArr)
                 let dataPointFeatures: [String: MLFeatureValue] =
-                    ["conv2d_input": imageValue, "Identity_true": outputValue]
+                    [inputName: imageValue, outputName: outputValue]
                 progressHandler(countNow)
                 return try! MLDictionaryFeatureProvider(dictionary: dataPointFeatures)
             }
