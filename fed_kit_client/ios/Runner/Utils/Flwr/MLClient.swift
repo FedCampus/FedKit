@@ -16,7 +16,6 @@ enum MLClientErr: Error {
     case ParamsNil
     case ParamNotMultiArray
     case UnexpectedLayer(String)
-    case MultipleLossLayers
 }
 
 public class MLClient {
@@ -27,6 +26,8 @@ public class MLClient {
     var rewriteModelUrl: URL
     var tempModelUrl: URL
     var mlModel: CoreML_Specification_Model
+    let input: String
+    let output: String
     let target: String
     private var paramUpdate: [[Float]]?
 
@@ -43,6 +44,8 @@ public class MLClient {
         // ProtoBuf representation.
         let content = try Data(contentsOf: modelUrl)
         mlModel = try CoreML_Specification_Model(serializedData: content)
+        input = try modelInput(mlModel)
+        output = try modelOutput(mlModel)
         target = try modelTarget(mlModel)
     }
 
@@ -155,17 +158,37 @@ struct MLDataLoader {
     let testBatchProvider: MLBatchProvider
 }
 
+private func modelInput(_ mlModel: CoreML_Specification_Model) throws -> String {
+    let inputs = mlModel.description_p.input
+    if inputs.count != 1 {
+        throw MLClientErr.UnexpectedLayer("Number of inputs \(inputs.count) is not 1")
+    }
+    let inputName = inputs[0].name
+    log.error("Model input: \(inputName)")
+    return inputName
+}
+
+private func modelOutput(_ mlModel: CoreML_Specification_Model) throws -> String {
+    let outputs = mlModel.description_p.output
+    if outputs.count != 1 {
+        throw MLClientErr.UnexpectedLayer("Number of outputs \(outputs.count) is not 1")
+    }
+    let outputName = outputs[0].name
+    log.error("Model output: \(outputName)")
+    return outputName
+}
+
 private func modelTarget(_ mlModel: CoreML_Specification_Model) throws -> String {
     let lossLayers = mlModel.neuralNetwork.updateParams.lossLayers
     if lossLayers.count != 1 {
-        throw MLClientErr.MultipleLossLayers
+        throw MLClientErr.UnexpectedLayer("Number of lossLayers \(lossLayers.count) is not 1")
     }
     let lossLayer = lossLayers[0]
     let target: String
     switch lossLayer.lossLayerType {
     case let .categoricalCrossEntropyLossLayer(layer): target = layer.target
     case let .meanSquaredErrorLossLayer(layer): target = layer.target
-    case .none: throw MLClientErr.MultipleLossLayers
+    case .none: throw MLClientErr.UnexpectedLayer("No lossLayerType for \(lossLayer.name)")
     }
     log.error("Model target: \(target)")
     return target
