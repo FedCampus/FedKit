@@ -43,11 +43,14 @@ public class MLClient {
         rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
     }
 
-    func getParameters() async throws -> [[Float]] {
-        return try await parameters().map { layer in
-            let pointer = try UnsafeBufferPointer<Float>(layer)
-            return Array(pointer)
+    func getParameters() throws -> [[Float]] {
+        if let parameters {
+            return try parameters.map { layer in
+                let pointer = try UnsafeBufferPointer<Float>(layer)
+                return Array(pointer)
+            }
         }
+        return try modelProto.parameters(layers: layers)
     }
 
     func updateParameters(parameters: [[Float]]) {
@@ -131,16 +134,6 @@ public class MLClient {
         _ = try fileManager.replaceItemAt(compiledModelUrl, withItemAt: tempModelUrl)
     }
 
-    private func parameters() async throws -> [MLMultiArray] {
-        if parameters == nil {
-            try await fit(epochs: 1)
-        }
-        guard let parameters else {
-            throw MLClientErr.ParamsNil
-        }
-        return parameters
-    }
-
     private func recompile() throws {
         try modelProto.model.serializedData().write(to: rewriteModelUrl)
         compiledModelUrl = try MLModel.compileModel(at: rewriteModelUrl)
@@ -168,6 +161,28 @@ struct ModelProto {
     init(data: Data) throws {
         let model = try CoreML_Specification_Model(serializedData: data)
         try self.init(mlModel: model)
+    }
+
+    func parameters(layers: [Layer]) throws -> [[Float]] {
+        var parameters = [[Float]]()
+        for nnLayer in model.neuralNetwork.layers {
+            let name = nnLayer.name
+            for layer in layers {
+                if layer.name != name { continue }
+                switch (nnLayer.layer!, layer.type) {
+                case (.convolution, MLParameterKey.weights):
+                    parameters.append(nnLayer.convolution.weights.floatValue)
+                case (.innerProduct, MLParameterKey.weights):
+                    parameters.append(nnLayer.innerProduct.weights.floatValue)
+                case (.convolution, MLParameterKey.biases):
+                    parameters.append(nnLayer.convolution.bias.floatValue)
+                case (.innerProduct, MLParameterKey.biases):
+                    parameters.append(nnLayer.innerProduct.bias.floatValue)
+                default: throw MLClientErr.UnexpectedLayer(name)
+                }
+            }
+        }
+        return parameters
     }
 }
 

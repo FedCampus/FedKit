@@ -83,7 +83,7 @@ let log = logger(String(describing: AppDelegate.self))
 
     func getParameters(_ result: @escaping FlutterResult) {
         runAsync(result) {
-            try await self.mlClient!.getParameters().map { layer in
+            try self.mlClient!.getParameters().map { layer in
                 FlutterStandardTypedData(bytes: Data(fromArray: layer))
             }
         }
