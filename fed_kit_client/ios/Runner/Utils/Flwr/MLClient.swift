@@ -16,6 +16,7 @@ enum MLClientErr: Error {
     case ParamsNil
     case ParamNotMultiArray
     case UnexpectedLayer(String)
+    case MultipleLossLayers
 }
 
 public class MLClient {
@@ -26,6 +27,7 @@ public class MLClient {
     var rewriteModelUrl: URL
     var tempModelUrl: URL
     var mlModel: CoreML_Specification_Model
+    let target: String
     private var paramUpdate: [[Float]]?
 
     init(_ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL) throws {
@@ -41,6 +43,7 @@ public class MLClient {
         // ProtoBuf representation.
         let content = try Data(contentsOf: modelUrl)
         mlModel = try CoreML_Specification_Model(serializedData: content)
+        target = try modelTarget(mlModel)
     }
 
     func getParameters() async throws -> [[Float]] {
@@ -150,4 +153,20 @@ public class MLClient {
 struct MLDataLoader {
     let trainBatchProvider: MLBatchProvider
     let testBatchProvider: MLBatchProvider
+}
+
+private func modelTarget(_ mlModel: CoreML_Specification_Model) throws -> String {
+    let lossLayers = mlModel.neuralNetwork.updateParams.lossLayers
+    if lossLayers.count != 1 {
+        throw MLClientErr.MultipleLossLayers
+    }
+    let lossLayer = lossLayers[0]
+    let target: String
+    switch lossLayer.lossLayerType {
+    case let .categoricalCrossEntropyLossLayer(layer): target = layer.target
+    case let .meanSquaredErrorLossLayer(layer): target = layer.target
+    case .none: throw MLClientErr.MultipleLossLayers
+    }
+    log.error("Model target: \(target)")
+    return target
 }
