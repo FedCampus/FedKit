@@ -14,10 +14,7 @@ COREML_FILE = "mnist.mlmodel"
 
 
 def config_builder(builder: NeuralNetworkBuilder):
-    builder.set_mean_squared_error_loss(
-        "lossLayer",
-        input_feature=("sequential/dense_1/BiasAdd", datatypes.Array(n_classes)),
-    )
+    builder.set_categorical_cross_entropy_loss("lossLayer", input="Identity")
     builder.set_adam_optimizer(AdamParams())
     max_epochs = 10
     builder.set_epochs(max_epochs, range(1, max_epochs + 1))

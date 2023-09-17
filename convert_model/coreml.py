@@ -8,6 +8,27 @@ from numpy.random import rand
 from . import keras, red
 
 
+def monkey_patch_coremltools_softmax():
+    """This is needed because it generates `SoftmaxND` by default if `axis` is
+    not specified."""
+    from coremltools.converters.mil.frontend.tensorflow.tf_op_registry import (
+        register_tf_op,
+    )
+    from coremltools.converters.mil.mil import Builder as mb
+
+    @register_tf_op(override=True)
+    def Softmax(context, node):
+        logit = context[node.inputs[0]]
+        axis = node.attr.get("axis", -3)
+        x = mb.softmax(x=logit, axis=axis, name=node.name)  # type:ignore
+        context.add(node.name, x)
+
+    ct.converters.mil.frontend.tensorflow.ops.Softmax = Softmax  # type:ignore
+
+
+monkey_patch_coremltools_softmax()
+
+
 def random_fit(
     model: keras.Model, in_shape: Iterable[int], out_shape: Iterable[int] = (1,)
 ):

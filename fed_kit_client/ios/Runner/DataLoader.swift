@@ -111,8 +111,8 @@ private func prepareMLBatchProvider(
                 outputMultiArr[0] = NSNumber(value: Float(String(splits.last!))!)
                 let imageValue = MLFeatureValue(multiArray: imageMultiArr)
                 let outputValue = MLFeatureValue(multiArray: outputMultiArr)
-                let dataPointFeatures: [String: MLFeatureValue] = ["conv2d_input": imageValue,
-                                                                   "sequential/dense_1/BiasAdd_true": outputValue]
+                let dataPointFeatures: [String: MLFeatureValue] =
+                    ["conv2d_input": imageValue, "Identity_true": outputValue]
                 progressHandler(countNow)
                 return try! MLDictionaryFeatureProvider(dictionary: dataPointFeatures)
             }
