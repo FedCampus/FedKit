@@ -1,7 +1,7 @@
 from .. import tf
 
 k = tf.keras
-in_shape = (28, 28, 1)
+in_shape = (28, 28)
 n_classes = 10
 
 
@@ -11,7 +11,6 @@ def conv_layer():
         (3, 3),
         activation="relu",
         kernel_initializer="he_uniform",
-        input_shape=in_shape,
     )
 
 
@@ -22,6 +21,8 @@ def pool_layer():
 def mnist_model():
     model = k.Sequential(
         [
+            k.Input(shape=in_shape),
+            k.layers.Reshape((*in_shape, 1)),
             conv_layer(),
             pool_layer(),
             conv_layer(),
