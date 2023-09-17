@@ -1,4 +1,3 @@
-from coremltools.models import datatypes
 from coremltools.models.neural_network import AdamParams, NeuralNetworkBuilder
 
 from ..coreml import (
@@ -8,7 +7,7 @@ from ..coreml import (
     save_builder,
     try_make_layers_updatable,
 )
-from . import in_shape, mnist_model, n_classes
+from . import in_shape, mnist_model
 
 COREML_FILE = "mnist.mlmodel"
 

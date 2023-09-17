@@ -12,9 +12,7 @@ class ToyRegressionModel(BaseTFLiteModel):
             [
                 tf.keras.layers.Dense(
                     units=1,
-                    input_shape=[
-                        2,
-                    ],
+                    input_shape=[2],  # type:ignore
                     name="regression",
                 )
             ]
