@@ -1,6 +1,4 @@
 //
-//  MLClient.swift
-//
 //
 //  Created by Daniel Nugraha on 18.01.23.
 //  Simplified by Steven Hé to adapt to fed_kit.
@@ -15,6 +13,7 @@ import os
 enum MLClientErr: Error {
     case ParamsNil
     case ParamNotMultiArray
+    case UpdateContextNoModel
     case UnexpectedLayer(String)
 }
 
@@ -73,6 +72,9 @@ public class MLClient {
                 }
             }
         )
+        if updateContext.model == nil {
+            throw MLClientErr.UpdateContextNoModel
+        }
         parameters = try layers.map { layer in
             let paramKey = layer.type.scoped(to: layer.name)
             guard let weightsMultiArray = try updateContext.model.parameterValue(for: paramKey) as? MLMultiArray else {
