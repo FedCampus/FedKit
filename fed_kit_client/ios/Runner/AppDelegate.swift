@@ -83,7 +83,7 @@ let log = logger(String(describing: AppDelegate.self))
 
     func getParameters(_ result: @escaping FlutterResult) {
         runAsync(result) {
-            try self.mlClient!.getParameters().map { layer in
+            self.mlClient!.getParameters().map { layer in
                 FlutterStandardTypedData(bytes: Data(fromArray: layer))
             }
         }
@@ -108,6 +108,7 @@ let log = logger(String(describing: AppDelegate.self))
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
             let layers = try (args["layersSizes"] as! [[String: Any]]).map(Layer.init)
+            log.error("Model layers: \(layers)")
             let partitionId = (args["partitionId"] as! NSNumber).intValue
             let url = URL(fileURLWithPath: modelDir)
             log.error("Accessing: \(url.startAccessingSecurityScopedResource())")

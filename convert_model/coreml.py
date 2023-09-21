@@ -49,7 +49,7 @@ def nn_builder(mlmodel: MLModel) -> NeuralNetworkBuilder:
 def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0xFFFF):
     assert builder.nn_spec is not None
     updatable_layer_names: list[str] = []
-    updatable_layers: list[dict[str, str | list[int]]] = []
+    updatable_layers: list[dict[str, str | bool]] = []
     for layer in builder.nn_spec.layers:
         name = layer.name
         kind = layer.WhichOneof("layer")
@@ -60,15 +60,17 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0
         else:
             continue
         updatable_layer_names.append(name)
-        updatable_layers.append({"name": name, "type": "weights"})
+        updatable_layers.append({"name": name, "type": "weights", "updatable": False})
         info = f"{name}: Weights: {len(layer.weights.floatValue) * 4} bytes"
         if layer.hasBias:
-            updatable_layers.append({"name": name, "type": "bias"})
+            updatable_layers.append({"name": name, "type": "bias", "updatable": False})
             info += f", Bias: {len(layer.bias.floatValue) * 4} bytes"
         print(f"{info}.")
     made_updatable = updatable_layer_names[-limit_last:]
     builder.make_updatable(made_updatable)
     print(f"Made {made_updatable} updatable.")
+    for updatable_layer in updatable_layers[-limit_last:]:
+        updatable_layer["updatable"] = True
     print(f"All updatable layers:\n\t{red(updatable_layers)}")
     return updatable_layers
 

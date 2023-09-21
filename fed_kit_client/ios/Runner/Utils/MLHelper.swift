@@ -37,27 +37,39 @@ func defaultProgressHandler(contextProgress: MLUpdateContext) {
 }
 
 enum LayerConversionErr: Error {
-    case missingValue(key: String)
+    case missingValue(key: String, dict: [String: Any?])
     case unknownType(String)
 }
 
 struct Layer {
     let name: String
     let type: MLParameterKey
+    let updatable: Bool
 
     init(dictionary: [String: Any?]) throws {
         guard let name = dictionary["name"] as? String else {
-            throw LayerConversionErr.missingValue(key: "name")
+            throw LayerConversionErr.missingValue(key: "name", dict: dictionary)
         }
 
         guard let type = dictionary["type"] as? String else {
-            throw LayerConversionErr.missingValue(key: "shape")
+            throw LayerConversionErr.missingValue(key: "shape", dict: dictionary)
         }
         self.name = name
         switch type {
         case "weights": self.type = MLParameterKey.weights
         case "bias": self.type = MLParameterKey.biases
         default: throw LayerConversionErr.unknownType(type)
+        }
+
+        if let updatable = dictionary["updatable"] as? Bool {
+            self.updatable = updatable
+        } else if let updatable = dictionary["updatable"] as? String {
+            guard let updatable = Bool(updatable) else {
+                throw LayerConversionErr.unknownType(type)
+            }
+            self.updatable = updatable
+        } else {
+            throw LayerConversionErr.missingValue(key: "updatable", dict: dictionary)
         }
     }
 }

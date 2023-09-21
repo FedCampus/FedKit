@@ -19,13 +19,13 @@ enum MLClientErr: Error {
 
 public class MLClient {
     let layers: [Layer]
-    var parameters: [MLMultiArray]?
     var dataLoader: MLDataLoader
+    var paramUpdate = false
     var compiledModelUrl: URL
     var rewriteModelUrl: URL
     var tempModelUrl: URL
     var modelProto: ModelProto
-    private var paramUpdate: [[Float]]?
+    private var parameters: [[Float]]
 
     init(
         _ layers: [Layer], _ dataLoader: MLDataLoader, _ modelUrl: URL, _ modelProto: ModelProto
@@ -33,6 +33,7 @@ public class MLClient {
         self.layers = layers
         self.dataLoader = dataLoader
         self.modelProto = modelProto
+        parameters = try modelProto.parameters(layers: layers)
         // Initial models.
         let url = try MLModel.compileModel(at: modelUrl)
         log.error("Compiled model URL: \(url).")
@@ -42,18 +43,13 @@ public class MLClient {
         rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
     }
 
-    func getParameters() throws -> [[Float]] {
-        if let parameters {
-            return try parameters.map { layer in
-                let pointer = try UnsafeBufferPointer<Float>(layer)
-                return Array(pointer)
-            }
-        }
-        return try modelProto.parameters(layers: layers)
+    func getParameters() -> [[Float]] {
+        return parameters
     }
 
     func updateParameters(parameters: [[Float]]) {
-        paramUpdate = parameters
+        self.parameters = parameters
+        paramUpdate = true
     }
 
     func fit(epochs: Int? = nil, callback: ((Double) -> Void)? = nil) async throws {
@@ -75,12 +71,16 @@ public class MLClient {
         if updateContext.model == nil {
             throw MLClientErr.UpdateContextNoModel
         }
-        parameters = try layers.map { layer in
+        for (index, layer) in layers.enumerated() {
+            if !layer.updatable { continue }
+
             let paramKey = layer.type.scoped(to: layer.name)
             guard let weightsMultiArray = try updateContext.model.parameterValue(for: paramKey) as? MLMultiArray else {
                 throw MLClientErr.ParamNotMultiArray
             }
-            return weightsMultiArray
+
+            let pointer = try UnsafeBufferPointer<Float>(weightsMultiArray)
+            parameters[index] = Array(pointer)
         }
         try saveModel(updateContext)
     }
@@ -102,28 +102,30 @@ public class MLClient {
         if config.parameters == nil {
             config.parameters = [:]
         }
-        if let paramUpdate {
+        if paramUpdate {
             try modelProto.model.neuralNetwork.layers.forEachMut { nnLayer in
                 let name = nnLayer.name
                 for (index, layer) in layers.enumerated() {
                     if layer.name != name { continue }
+
+                    let parameter = parameters[index]
                     switch (nnLayer.layer!, layer.type) {
                     case (.convolution, MLParameterKey.weights):
-                        nnLayer.convolution.weights.floatValue = paramUpdate[index]
+                        nnLayer.convolution.weights.floatValue = parameter
                     case (.innerProduct, MLParameterKey.weights):
-                        nnLayer.innerProduct.weights.floatValue = paramUpdate[index]
+                        nnLayer.innerProduct.weights.floatValue = parameter
                     case (.convolution, MLParameterKey.biases):
-                        nnLayer.convolution.bias.floatValue = paramUpdate[index]
+                        nnLayer.convolution.bias.floatValue = parameter
                     case (.innerProduct, MLParameterKey.biases):
-                        nnLayer.innerProduct.bias.floatValue = paramUpdate[index]
+                        nnLayer.innerProduct.bias.floatValue = parameter
                     default: throw MLClientErr.UnexpectedLayer(name)
                     }
-                    log.error("Updated layer \(name) with weights of \(paramUpdate[index].count).")
+                    log.error("Updated layer \(name) with weights of \(parameter.count).")
                 }
             }
             try recompile()
             log.error("Recompiled.")
-            self.paramUpdate = nil
+            paramUpdate = false
         }
         return config
     }
@@ -184,6 +186,7 @@ struct ModelProto {
                 }
             }
         }
+        log.error("Model ProtoBuf: \(parameters.count) layers.")
         return parameters
     }
 }
