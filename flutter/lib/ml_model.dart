@@ -15,7 +15,7 @@ class MLModel with MLModelMappable {
   final String? tflite_path;
   final String? coreml_path;
   final List<int>? tflite_layers;
-  final List<Map<String, String>>? coreml_layers;
+  final List<Map<String, dynamic>>? coreml_layers;
   final bool tflite;
   final bool coreml;
 

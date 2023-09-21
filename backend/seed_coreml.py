@@ -3,6 +3,7 @@ from train.serializers import MLModelSerializer
 
 d = TrainingDataType(name="MNIST_28x28x1")
 d.save()
+# TODO: This does not work any more
 file = "/static/MNIST--mnist.mlmodel"
 name = "MNIST"
 layers = [

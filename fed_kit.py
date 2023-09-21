@@ -22,7 +22,7 @@ def upload(
     coreml_file: str | None,
     name: str,
     tflite_layers: list[int] | None,
-    coreml_layers: list[dict[str, str]] | None,
+    coreml_layers: list[dict[str, str | bool]] | None,
     data_type: str,
     base: str = DEFAULT_URL,
 ):

@@ -63,11 +63,6 @@ struct Layer {
 
         if let updatable = dictionary["updatable"] as? Bool {
             self.updatable = updatable
-        } else if let updatable = dictionary["updatable"] as? String {
-            guard let updatable = Bool(updatable) else {
-                throw LayerConversionErr.unknownType(type)
-            }
-            self.updatable = updatable
         } else {
             throw LayerConversionErr.missingValue(key: "updatable", dict: dictionary)
         }
