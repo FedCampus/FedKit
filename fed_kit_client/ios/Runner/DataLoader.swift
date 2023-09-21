@@ -19,7 +19,8 @@ private let lengthEntry = shapeData.reduce(1) { acc, value in
 }
 
 private let normalization: Float = 255.0
-private let shapeTarget: [NSNumber] = [1]
+private let nClasses = 10
+private let shapeTarget: [NSNumber] = [nClasses as NSNumber]
 
 func trainBatchProvider(
     _ partitionId: Int,
@@ -123,7 +124,7 @@ private func prepareMLBatchProvider(
                 for i in 0 ..< lengthEntry {
                     imageMultiArr[i] = (Float(String(splits[i]))! / normalization) as NSNumber
                 }
-                outputMultiArr[0] = NSNumber(value: Float(String(splits.last!))!)
+                outputMultiArr[Int(String(splits.last!))!] = 1
                 let imageValue = MLFeatureValue(multiArray: imageMultiArr)
                 let outputValue = MLFeatureValue(multiArray: outputMultiArr)
                 let dataPointFeatures: [String: MLFeatureValue] =

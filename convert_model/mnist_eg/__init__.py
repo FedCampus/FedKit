@@ -29,7 +29,7 @@ def mnist_model():
             pool_layer(),
             k.layers.Flatten(),
             k.layers.Dense(500, activation="relu", kernel_initializer="he_uniform"),
-            k.layers.Dense(n_classes, activation="softmax"),
+            k.layers.Dense(n_classes),
         ]
     )
     model.compile(
