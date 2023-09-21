@@ -13,7 +13,7 @@ import Foundation
 let appDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
 
 private let dataset = "MNIST"
-private let shapeData: [NSNumber] = [1, 28, 28]
+private let shapeData: [NSNumber] = [1, 28, 28, 1]
 private let lengthEntry = shapeData.reduce(1) { acc, value in
     Int(truncating: value) * acc
 }

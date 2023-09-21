@@ -1,7 +1,7 @@
 from .. import tf
 
 k = tf.keras
-in_shape = (28, 28)
+in_shape = (28, 28, 1)
 n_classes = 10
 
 
@@ -22,17 +22,14 @@ def mnist_model():
     model = k.Sequential(
         [
             k.Input(shape=in_shape),
-            k.layers.Reshape((*in_shape, 1)),
             conv_layer(),
             pool_layer(),
             conv_layer(),
             pool_layer(),
             k.layers.Flatten(),
             k.layers.Dense(500, activation="relu", kernel_initializer="he_uniform"),
-            k.layers.Dense(n_classes),
+            k.layers.Dense(n_classes, activation="relu"),
         ]
     )
-    model.compile(
-        optimizer="adam", loss="sparse_categorical_crossentropy", metrics=["accuracy"]
-    )
+    model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])
     return model
