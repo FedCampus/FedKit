@@ -137,13 +137,13 @@ class _MyAppState extends State<MyApp> {
 
   startTrain() async {
     try {
-      train.start().listen(appendLog,
-          onDone: () => appendLog('Training done.'),
-          onError: (e) {
-            canPrepare = true;
-            appendLog('Training failed: $e.');
-          },
-          cancelOnError: true);
+      train.start().listen(appendLog, onDone: () {
+        canPrepare = true;
+        appendLog('Training done.');
+      }, onError: (e) {
+        canPrepare = true;
+        appendLog('Training failed: $e.');
+      }, cancelOnError: true);
       canTrain = false;
       appendLog('Started training.');
     } on PlatformException catch (error, stacktrace) {

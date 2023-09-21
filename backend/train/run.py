@@ -54,7 +54,9 @@ class FedAvgAndroidSave(FedAvgAndroid):
     def signal_save_params(self, params: list[NDArray]):
         # TODO: Port resolution.
         url = "http://localhost:8000/train/params"
-        data = {"coreml": self.coreml}
+        data = {}
+        if self.coreml:
+            data["coreml"] = True
         files = {"file": pickle.dumps(params)}
         return requests.post(url, data=data, files=files)
 
@@ -86,7 +88,7 @@ def flwr_server(initial_parameters: Parameters | None, port: int, coreml=False):
     )
     strategy.coreml = coreml
 
-    logger.warning("Starting Flower server.")
+    logger.warning(f"Starting Flower server with coreml {coreml}.")
     try:
         # Start Flower server for 3 rounds of federated learning
         start_server(
@@ -98,3 +100,4 @@ def flwr_server(initial_parameters: Parameters | None, port: int, coreml=False):
         return
     except RuntimeError as err:
         logger.error(err)
+    logger.warning("Flower server existing.")

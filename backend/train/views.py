@@ -10,7 +10,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.views import Request  # type: ignore
 from train import scheduler
 from train.models import MLModel, ModelParams, TrainingDataType
-from train.scheduler import server
+from train.scheduler import cleanup_task, server
 from train.serializers import (
     MLModelSerializer,
     PostAdvertisedDataSerializer,
@@ -61,6 +61,7 @@ def advertise_model(request: Request):
     model = ml_model_for_data_type(data)
     if model is None:
         return Response("No model corresponding to data_type", HTTP_404_NOT_FOUND)
+    cleanup_task()
     serializer = MLModelSerializer(model)
     return Response(serializer.data)
 
