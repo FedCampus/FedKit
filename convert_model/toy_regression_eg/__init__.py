@@ -1,6 +1,5 @@
-import tensorflow as tf
-
-from .. import *
+from .. import tf
+from ..tflite import BaseTFLiteModel, tflite_model_class
 
 
 @tflite_model_class
@@ -13,9 +12,7 @@ class ToyRegressionModel(BaseTFLiteModel):
             [
                 tf.keras.layers.Dense(
                     units=1,
-                    input_shape=[
-                        2,
-                    ],
+                    input_shape=[2],  # type:ignore
                     name="regression",
                 )
             ]

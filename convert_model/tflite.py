@@ -1,10 +1,6 @@
-import tensorflow as tf
+from . import red, tf
 
 SAVED_MODEL_DIR = "saved_model"
-
-
-def red(string: str) -> str:
-    return f"\033[91m{string}\033[0m"
 
 
 class BaseTFLiteModel(tf.Module):
@@ -69,7 +65,6 @@ def tflite_model_class(cls):
 def save_model(model, saved_model_dir):
     parameters = model.parameters.get_concrete_function()
     init_params = parameters()
-    print(f"Initial parameters is {init_params}.")
     restore = model.restore.get_concrete_function(**init_params)
     restore_test = restore(**init_params)
     print(f"Restore test result: {restore_test}.")
@@ -87,10 +82,10 @@ def save_model(model, saved_model_dir):
     converted_params = [
         param.numpy() for param in parameters_from_raw_dict(init_params)
     ]
-    shape = f"{[list(param.shape) for param in converted_params]}"
-    print(f"Model parameter shape: {red(shape)}.")
-    byte_sizes = f"{[param.size * param.itemsize for param in converted_params]}"
-    print(f"Model parameter sizes in bytes: {red(byte_sizes)}.")
+    shape = [list(param.shape) for param in converted_params]
+    print(f"Model parameter shape: {shape}.")
+    byte_sizes = [param.size * param.itemsize for param in converted_params]
+    print(f"Model parameter sizes in bytes:\n\t{red(byte_sizes)}.")
     return converted_params
 
 

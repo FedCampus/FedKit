@@ -1,6 +1,4 @@
 // ignore_for_file: non_constant_identifier_names
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:fed_kit/ml_model.dart';
 import 'package:dart_mappable/dart_mappable.dart';
@@ -16,11 +14,7 @@ class BackendClient {
   Future<MLModel> whichModel(PostAdvertisedData body) async {
     Response response =
         await dio.post('$url/train/advertised', data: body.toJson());
-    if (Platform.isIOS) {
-      return MLModelMapper.fromMap(response.data);
-    } else {
-      return MLModelMapper.fromMap(response.data);
-    }
+    return MLModelMapper.fromMap(response.data);
   }
 
   Future<void> downloadFile(String urlPath, String destination) async {

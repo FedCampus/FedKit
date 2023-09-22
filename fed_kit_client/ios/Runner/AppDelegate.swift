@@ -20,6 +20,8 @@ let log = logger(String(describing: AppDelegate.self))
     var mlClient: MLClient?
     private var dataLoader: MLDataLoader?
     private var partitionId = -1
+    private var inputName = ""
+    private var outputName = ""
 
     var ready = false
 
@@ -81,7 +83,7 @@ let log = logger(String(describing: AppDelegate.self))
 
     func getParameters(_ result: @escaping FlutterResult) {
         runAsync(result) {
-            try await self.mlClient!.getParameters().map { layer in
+            self.mlClient!.getParameters().map { layer in
                 FlutterStandardTypedData(bytes: Data(fromArray: layer))
             }
         }
@@ -106,11 +108,17 @@ let log = logger(String(describing: AppDelegate.self))
             let args = call.arguments as! [String: Any]
             let modelDir = args["modelDir"] as! String
             let layers = try (args["layersSizes"] as! [[String: Any]]).map(Layer.init)
+            log.error("Model layers: \(layers)")
             let partitionId = (args["partitionId"] as! NSNumber).intValue
             let url = URL(fileURLWithPath: modelDir)
             log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             log.error("Model URL: \(url).")
-            self.mlClient = try MLClient(layers, await self.dataLoader(partitionId), url)
+            let content = try Data(contentsOf: url)
+            let modelProto = try ModelProto(data: content)
+            let loader = try await self.dataLoader(
+                partitionId, modelProto.input, modelProto.target
+            )
+            self.mlClient = try MLClient(layers, loader, url, modelProto)
             self.ready = true
             return nil
         }
@@ -130,18 +138,26 @@ let log = logger(String(describing: AppDelegate.self))
         }
     }
 
-    private func dataLoader(_ partitionId: Int) async throws -> MLDataLoader {
-        if dataLoader != nil && self.partitionId == partitionId {
+    private func dataLoader(
+        _ partitionId: Int, _ inputName: String, _ outputName: String
+    ) async throws -> MLDataLoader {
+        if dataLoader != nil && self.partitionId == partitionId &&
+            self.inputName == inputName && self.outputName == outputName
+        {
             return dataLoader!
         }
-        let trainBatchProvider = try await trainBatchProvider(partitionId) { count in
+        let trainBatchProvider = try await trainBatchProvider(
+            partitionId, inputName: inputName, outputName: outputName
+        ) { count in
             if count % 1000 == 999 {
                 log.error("Prepared \(count) training data points.")
             }
         }
         log.error("trainBatchProvider: \(trainBatchProvider.count)")
 
-        let testBatchProvider = try await testBatchProvider { count in
+        let testBatchProvider = try await testBatchProvider(
+            inputName: inputName, outputName: outputName
+        ) { count in
             if count % 1000 == 999 {
                 log.error("Prepared \(count) test data points.")
             }
@@ -150,6 +166,8 @@ let log = logger(String(describing: AppDelegate.self))
 
         dataLoader = MLDataLoader(trainBatchProvider: trainBatchProvider, testBatchProvider: testBatchProvider)
         self.partitionId = partitionId
+        self.inputName = inputName
+        self.outputName = outputName
         return dataLoader!
     }
 }

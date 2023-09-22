@@ -3,4 +3,3 @@ python manage.py migrate
 mkdir static
 touch static/cifar10.tflite
 cat seed.py | python manage.py shell
-cat seed_coreml.py | python manage.py shell

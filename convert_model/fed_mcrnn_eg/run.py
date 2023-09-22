@@ -1,16 +1,16 @@
 from os import path
 
-from .. import *
-from . import CIFAR10Model
+from ..tflite import SAVED_MODEL_DIR, convert_saved_model, save_model, save_tflite_model
+from . import FedMCRNNModel
 
 DIR = path.dirname(__file__)
 
 
-TFLITE_FILE = f"cifar10.tflite"
+TFLITE_FILE = f"fed_mcrnn1.tflite"
 
 
 def main():
-    model = CIFAR10Model()
+    model = FedMCRNNModel()
     save_model(model, SAVED_MODEL_DIR)
     tflite_model = convert_saved_model(SAVED_MODEL_DIR)
     save_tflite_model(tflite_model, TFLITE_FILE)

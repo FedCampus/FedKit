@@ -7,5 +7,5 @@ This model uses the exact same Keras model as the one from Flower Android exampl
 At `../..`, run:
 
 ```sh
-python3 -m gen_tflite.cifar10_eg.run
+python3 -m convert_model.cifar10_eg.run
 ```

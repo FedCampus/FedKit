@@ -48,8 +48,6 @@ class UploadModelSerializer(serializers.Serializer):
         allow_null=True, child=serializers.IntegerField(min_value=0)
     )
     coreml_layers = serializers.ListField(
-        allow_null=True, child=serializers.JSONField()
+        allow_null=True, child=serializers.DictField()
     )
     data_type = serializers.CharField(max_length=256)
-    tflite = serializers.BooleanField(required=False, default=True)
-    coreml = serializers.BooleanField(required=False, default=True)

@@ -1,6 +1,5 @@
-import tensorflow as tf
-
-from .. import *
+from .. import tf
+from ..tflite import BaseTFLiteModel, tflite_model_class
 
 
 @tflite_model_class

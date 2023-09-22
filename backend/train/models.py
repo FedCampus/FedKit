@@ -23,8 +23,9 @@ class MLModel(models.Model):
     tflite_layers = models.JSONField(null=True, default=None)
     """Size of each layer of parameters in bytes."""
     coreml_layers = models.JSONField(null=True, default=None)
-    """`[{name, type}]` of each layer of parameters.
-    `type` can either be `"weights"` or `"bias"`."""
+    """`[{name, type, updatable}]` of each layer of parameters.
+    `type` can either be `"weights"` or `"bias"`.
+    `updatable` is boolean."""
     data_type = models.ForeignKey(
         TrainingDataType,
         on_delete=models.CASCADE,

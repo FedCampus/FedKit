@@ -32,18 +32,14 @@ cat seed.py | python3 manage.py shell
 
 The above script adds the CIFAR10 training data type and model to database.
 
-## Download Core ML models
+## Prepare MNIST model for iOS example
 
-This is needed to run the iOS example.
-
-Download the model file from <https://github.com/FedCampus/FedKit/files/12543996/MNIST--mnist.mlmodel.zip> to `static/MNIST--mnist.mlmodel`
-
-### Create Core ML model in database
-
-Pipe the Core ML seed script into a Django shell:
+Run at `../`:
 
 ```sh
-cat seed_coreml.py | python3 manage.py shell
+python3 -m python3 -m convert_model.mnist_eg.cm
+python3 -m python3 -m convert_model.mnist_eg.tf
+python3 upload_mnist_models.py
 ```
 
 ## Development
