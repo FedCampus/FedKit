@@ -34,8 +34,8 @@ The example Flutter client for both Android and iOS is at `fed_kit_client/`. To 
 
 ## ML model generation
 
-<!-- TODO: Sync with present state. -->
 We support TensorFlow (Keras) models for Android and Core ML models for iOS.
+We also include an example that converts a TensorFlow model with mean square error to Core ML using `coremltools`.
 
 ### ML model for Android
 
