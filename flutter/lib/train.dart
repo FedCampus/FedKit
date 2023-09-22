@@ -128,8 +128,8 @@ class Train {
     final body = FitInsTelemetryData(
         device_id: deviceId,
         session_id: _sessionId!,
-        start: start.millisecond,
-        end: end.microsecond);
+        start: start.millisecondsSinceEpoch,
+        end: end.millisecondsSinceEpoch);
     await _client.fitInsTelemetry(body);
     logger.d('Train telemetry: sent FitIns.');
   }
@@ -140,8 +140,8 @@ class Train {
     final body = EvaluateInsTelemetryData(
         device_id: deviceId,
         session_id: _sessionId!,
-        start: start.millisecond,
-        end: end.microsecond,
+        start: start.millisecondsSinceEpoch,
+        end: end.millisecondsSinceEpoch,
         loss: loss,
         accuracy: accuracy,
         test_size: testSize);
