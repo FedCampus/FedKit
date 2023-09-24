@@ -65,7 +65,6 @@ private fun addSample(
         feature[i / IMAGE_SIZE][i % IMAGE_SIZE][0] = splits[i + 1].toFloat() / NORMALIZATION
     }
     label[splits.first().toInt()] = 1f
-    Log.d(TAG, "label: ${label.contentToString()}")
     flowerClient.addSample(feature, label, isTraining)
 }
 

@@ -131,8 +131,6 @@ private func prepareMLBatchProvider(
                     outputMultiArr[i] = 0
                 }
                 outputMultiArr[Int(String(splits[0]))!] = 1
-                let debugArray = try outputMultiArr.toArray(type: Int32.self)
-                log.error("debugArray: \(debugArray)")
                 let imageValue = MLFeatureValue(multiArray: imageMultiArr)
                 let outputValue = MLFeatureValue(multiArray: outputMultiArr)
                 let dataPointFeatures: [String: MLFeatureValue] =
