@@ -23,13 +23,14 @@ private let nClasses = 10
 private let shapeTarget: [NSNumber] = [nClasses as NSNumber]
 
 func trainBatchProvider(
+    _ dataDir: String,
     _ partitionId: Int,
     inputName: String,
     outputName: String,
     progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
-        filePath: extract("_train"),
+        filePath: "\(dataDir)/MNIST_train.csv",
         inputName: inputName,
         outputName: outputName,
         progressHandler: progressHandler
@@ -39,12 +40,13 @@ func trainBatchProvider(
 }
 
 func testBatchProvider(
+    _ dataDir: String,
     inputName: String,
     outputName: String,
     progressHandler: @escaping (Int) -> Void
 ) async throws -> MLBatchProvider {
     return try await prepareMLBatchProvider(
-        filePath: extract("_test"),
+        filePath: "\(dataDir)/MNIST_test.csv",
         inputName: inputName,
         outputName: outputName,
         progressHandler: progressHandler
@@ -104,7 +106,7 @@ private func extractFile(from sourceURL: URL, to destinationURL: URL) throws -> 
 }
 
 private func prepareMLBatchProvider(
-    filePath: URL,
+    filePath: String,
     inputName: String,
     outputName: String,
     progressHandler: @escaping (Int) -> Void,
@@ -112,7 +114,8 @@ private func prepareMLBatchProvider(
 ) async throws -> MLBatchProvider {
     var count = 0
     let featureProviders = try await withThrowingTaskGroup(of: MLDictionaryFeatureProvider.self) { group in
-        let (bytes, _) = try await URLSession.shared.bytes(from: filePath)
+        let (bytes, _) =
+            try await URLSession.shared.bytes(from: URL(fileURLWithPath: filePath))
         for try await line in bytes.lines {
             count += 1
             if indexFilter.map({ !$0(count) }) ?? false { continue }

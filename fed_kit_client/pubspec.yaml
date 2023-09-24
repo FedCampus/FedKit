@@ -41,6 +41,8 @@ dependencies:
   http: ^1.1.0
   logger: ^2.0.0
   app_set_id: ^1.0.0
+  path_provider: ^2.1.1
+  archive: ^3.4.2
 
 dev_dependencies:
   flutter_test:

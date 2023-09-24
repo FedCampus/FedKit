@@ -63,9 +63,10 @@ class Cifar10MLClient extends MLClient {
         .invokeMethod('updateParameters', {'parameters': parameters});
   }
 
-  Future<void> initML(
-      String modelDir, List<dynamic> layersSizes, int partitionId) async {
+  Future<void> initML(String dataDir, String modelDir,
+      List<dynamic> layersSizes, int partitionId) async {
     await callChannel.invokeMethod('initML', {
+      'dataDir': dataDir,
       'modelDir': modelDir,
       'layersSizes': layersSizes,
       'partitionId': partitionId
