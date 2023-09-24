@@ -32,7 +32,7 @@ func updateModelAsync(
 }
 
 func defaultProgressHandler(contextProgress: MLUpdateContext) {
-    let loss = contextProgress.metrics[.lossValue] as! Double
+    let loss = contextProgress.metrics[.lossValue] as! Float
     log.error("Epoch \(contextProgress.metrics[.epochIndex] as! Int + 1) finished with loss \(loss)")
 }
 

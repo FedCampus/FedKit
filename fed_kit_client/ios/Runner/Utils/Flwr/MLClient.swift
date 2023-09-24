@@ -52,7 +52,7 @@ public class MLClient {
         paramUpdate = true
     }
 
-    func fit(epochs: Int? = nil, callback: ((Double) -> Void)? = nil) async throws {
+    func fit(epochs: Int? = nil, callback: ((Float) -> Void)? = nil) async throws {
         let config = try await config()
         if epochs != nil {
             config.parameters![MLParameterKey.epochs] = epochs
@@ -63,7 +63,7 @@ public class MLClient {
             configuration: config,
             progressHandler: callback.map { callback in
                 { contextProgress in
-                    let loss = contextProgress.metrics[.lossValue] as? Double ?? -1.0
+                    let loss = contextProgress.metrics[.lossValue] as? Float ?? -1.0
                     callback(loss)
                 }
             }
@@ -85,13 +85,13 @@ public class MLClient {
         try saveModel(updateContext)
     }
 
-    func evaluate() async throws -> (Double, Double) {
+    func evaluate() async throws -> (Float, Float) {
         let config = try await config()
         config.parameters![MLParameterKey.epochs] = 1
         let updateContext = try await updateModelAsync(
             forModelAt: compiledModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
         )
-        let loss = updateContext.metrics[.lossValue] as? Double ?? -1.0
+        let loss = updateContext.metrics[.lossValue] as? Float ?? -1.0
         return (loss, (1.0 - loss) * 100)
     }
 

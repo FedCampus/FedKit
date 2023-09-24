@@ -63,7 +63,7 @@ let log = logger(String(describing: AppDelegate.self))
     func evaluate(_ result: @escaping FlutterResult) {
         runAsync(result) {
             let (loss, accuracy) = try await self.mlClient!.evaluate()
-            let lossAccuracy = [Float(loss), Float(accuracy)]
+            let lossAccuracy = [loss, accuracy]
             return FlutterStandardTypedData(float32: Data(fromArray: lossAccuracy))
         }
     }
