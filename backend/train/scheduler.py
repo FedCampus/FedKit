@@ -36,7 +36,7 @@ class Server:
         self.start_fresh = start_fresh
         params = None if start_fresh else model_params(model)
         self.session = TrainingSession(tflite_model=model)
-        self.process = Process(target=flwr_server, args=(params, port))
+        self.process = Process(target=flwr_server, args=(params, port, model.coreml))
         self.process.start()
         self.timeout = Thread(target=Process.join, args=(self.process, TEN_MINUTES))
         self.timeout.start()
