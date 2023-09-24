@@ -16,7 +16,15 @@ fun sampleSpec() = SampleSpec<Float3DArray, FloatArray>(
     { it.toTypedArray() },
     { Array(it) { FloatArray(N_CLASSES) } },
     ::maxSquaredErrorLoss,
-    ::classifierAccuracy,
+    { samples, logits ->
+        samples.zip(logits).forEach { (sample, logit) ->
+            Log.d(
+                TAG,
+                "actual: ${sample.label.contentToString()}, predicted: ${logit.contentToString()}"
+            )
+        }
+        classifierAccuracy(samples, logits)
+    },
 )
 
 private suspend fun processSet(dataSetDir: String, call: suspend (Int, String) -> Unit) {
@@ -54,9 +62,10 @@ private fun addSample(
     val feature = Array(IMAGE_SIZE) { Array(IMAGE_SIZE) { FloatArray(1) } }
     val label = FloatArray(N_CLASSES)
     for (i in 0 until LENGTH_ENTRY) {
-        feature[i / IMAGE_SIZE][i % IMAGE_SIZE][0] = splits[i].toFloat() / NORMALIZATION
+        feature[i / IMAGE_SIZE][i % IMAGE_SIZE][0] = splits[i + 1].toFloat() / NORMALIZATION
     }
-    label[splits.last().toInt()] = 1f
+    label[splits.first().toInt()] = 1f
+    Log.d(TAG, "label: ${label.contentToString()}")
     flowerClient.addSample(feature, label, isTraining)
 }
 
