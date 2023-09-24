@@ -1,3 +1,4 @@
+import CoreML
 import Foundation
 import os
 
@@ -20,6 +21,12 @@ extension Data {
     }
 }
 
+extension MLMultiArray {
+    func toArray<T>(type _: T.Type) throws -> [T] {
+        return try Array(UnsafeBufferPointer<T>(self))
+    }
+}
+
 extension MutableCollection {
     /// <https://forums.swift.org/t/inout-variables-in-for-in-loops/61380/6>
     mutating func forEachMut(_ body: (inout Element) throws -> Void) rethrows {
@@ -28,5 +35,39 @@ extension MutableCollection {
             try body(&self[i])
             formIndex(after: &i)
         }
+    }
+}
+
+extension Array where Element == Float {
+    /// Assuming at least one element.
+    func argmax() -> Int {
+        var maxIndex = 0
+        var maxValue = self[0]
+
+        for (index, value) in enumerated() {
+            if value > maxValue {
+                maxIndex = index
+                maxValue = value
+            }
+        }
+
+        return maxIndex
+    }
+}
+
+extension Array where Element == Int32 {
+    /// Assuming at least one element.
+    func argmax() -> Int {
+        var maxIndex = 0
+        var maxValue = self[0]
+
+        for (index, value) in enumerated() {
+            if value > maxValue {
+                maxIndex = index
+                maxValue = value
+            }
+        }
+
+        return maxIndex
     }
 }

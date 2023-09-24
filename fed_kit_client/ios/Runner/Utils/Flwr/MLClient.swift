@@ -14,6 +14,7 @@ enum MLClientErr: Error {
     case ParamsNil
     case ParamNotMultiArray
     case UpdateContextNoModel
+    case FeatureNoValue
     case UnexpectedLayer(String)
 }
 
@@ -85,14 +86,36 @@ public class MLClient {
         try saveModel(updateContext)
     }
 
+    /// Currently, calculates Mean Square Error and category correctness.
     func evaluate() async throws -> (Float, Float) {
         let config = try await config()
-        config.parameters![MLParameterKey.epochs] = 1
-        let updateContext = try await updateModelAsync(
-            forModelAt: compiledModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
-        )
-        let loss = updateContext.metrics[.lossValue] as? Float ?? -1.0
-        return (loss, (1.0 - loss) * 100)
+        let model = try MLModel(contentsOf: compiledModelUrl)
+        let batch = dataLoader.testBatchProvider
+        let predictions = try model.predictions(fromBatch: batch)
+
+        var totalLoss: Float = 0.0
+        var nCorrect = 0
+        for index in 0 ..< predictions.count {
+            guard let pred =
+                predictions.features(at: index).featureValue(for: modelProto.output)
+            else {
+                throw MLClientErr.FeatureNoValue
+            }
+            let actl = batch.features(at: index).featureValue(for: modelProto.target)!
+            let prediction = try pred.multiArrayValue!.toArray(type: Float.self)
+            let actual = try actl.multiArrayValue!.toArray(type: Int32.self)
+            log.error("predicted: \(prediction), actual: \(actual)")
+            totalLoss += meanSquareErrors(prediction, actual)
+            if actual.argmax() == prediction.argmax() {
+                nCorrect += 1
+            }
+        }
+
+        let total = Float(predictions.count)
+        let loss = totalLoss / total
+        let accuracy = Float(nCorrect) / total
+        log.error("Loss: \(loss), accuracy: \(accuracy).")
+        return (loss, accuracy)
     }
 
     /// Guarantee that the config returned has non-nil `parameters`.

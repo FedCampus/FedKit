@@ -125,9 +125,14 @@ private func prepareMLBatchProvider(
                 let imageMultiArr = try! MLMultiArray(shape: shapeData, dataType: .float32)
                 let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .int32)
                 for i in 0 ..< lengthEntry {
-                    imageMultiArr[i] = (Float(String(splits[i]))! / normalization) as NSNumber
+                    imageMultiArr[i] = (Float(String(splits[i + 1]))! / normalization) as NSNumber
                 }
-                outputMultiArr[Int(String(splits.last!))!] = 1
+                for i in 0 ..< outputMultiArr.count {
+                    outputMultiArr[i] = 0
+                }
+                outputMultiArr[Int(String(splits[0]))!] = 1
+                let debugArray = try outputMultiArr.toArray(type: Int32.self)
+                log.error("debugArray: \(debugArray)")
                 let imageValue = MLFeatureValue(multiArray: imageMultiArr)
                 let outputValue = MLFeatureValue(multiArray: outputMultiArr)
                 let dataPointFeatures: [String: MLFeatureValue] =

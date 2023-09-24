@@ -68,3 +68,13 @@ struct Layer {
         }
     }
 }
+
+/// Assuming the two have the same length.
+func meanSquareErrors(_ a: [Float], _ b: [Int32]) -> Float {
+    var sum: Float = 0.0
+    for (index, value) in a.enumerated() {
+        let diff = value - Float(b[index])
+        sum += diff * diff
+    }
+    return sum
+}
