@@ -120,8 +120,7 @@ class _MyAppState extends State<MyApp> {
     final id = await deviceId();
     logger.d('Device ID: $id');
     train.enableTelemetry(id);
-    final (model, modelDir) =
-        await train.prepareModel(Platform.isIOS ? iosDataType : dataType);
+    final (model, modelDir) = await train.prepareModel(dataType);
     appendLog('Prepared model ${model.name}.');
     final serverData = await train.getServerInfo(startFresh: startFresh);
     if (serverData.port == null) {
@@ -263,5 +262,4 @@ Future<String> downloadDataSet() async {
   return tempDir;
 }
 
-const dataType = 'CIFAR10_32x32x3';
-const iosDataType = 'MNIST_28x28x1';
+const dataType = 'MNIST_28x28x1';
