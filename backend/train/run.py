@@ -69,7 +69,7 @@ def fit_config(_: int):
     """
     config: dict[str, Scalar] = {
         "batch_size": 32,
-        "local_epochs": 2,
+        "local_epochs": 10,
     }
     return config
 

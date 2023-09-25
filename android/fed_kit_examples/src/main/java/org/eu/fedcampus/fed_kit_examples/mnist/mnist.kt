@@ -14,7 +14,7 @@ import java.io.File
 fun sampleSpec() = SampleSpec<Float3DArray, FloatArray>(
     { it.toTypedArray() },
     { it.toTypedArray() },
-    { Array(it) { FloatArray(N_CLASSES) } },
+    { Array(it) { FloatArray(1) } },
     ::maxSquaredErrorLoss,
     { samples, logits ->
         samples.zip(logits).forEach { (sample, logit) ->
@@ -60,16 +60,17 @@ private fun addSample(
 ) {
     val splits = line.split(",")
     val feature = Array(IMAGE_SIZE) { Array(IMAGE_SIZE) { FloatArray(1) } }
-    val label = FloatArray(N_CLASSES)
+    val label = FloatArray(1)
     for (i in 0 until LENGTH_ENTRY) {
         feature[i / IMAGE_SIZE][i % IMAGE_SIZE][0] = splits[i + 1].toFloat() / NORMALIZATION
     }
-    label[splits.first().toInt()] = 1f
+    if (splits.first().toInt() == 1) {
+        label[0] = 1f
+    }
     flowerClient.addSample(feature, label, isTraining)
 }
 
 private const val TAG = "MNIST Data Loader"
 private const val IMAGE_SIZE = 28
-private const val N_CLASSES = 10
 private const val LENGTH_ENTRY = IMAGE_SIZE * IMAGE_SIZE
 private const val NORMALIZATION = 255f

@@ -122,14 +122,14 @@ private func prepareMLBatchProvider(
             group.addTask {
                 let splits = line.split(separator: ",")
                 let imageMultiArr = try! MLMultiArray(shape: shapeData, dataType: .float32)
-                let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .int32)
+                let outputMultiArr = try! MLMultiArray(shape: shapeTarget, dataType: .double)
                 for i in 0 ..< lengthEntry {
                     imageMultiArr[i] = (Float(String(splits[i + 1]))! / normalization) as NSNumber
                 }
                 if Int(String(splits[0]))! == 1 {
-                    outputMultiArr[0] = 1
+                    outputMultiArr[0] = 1.0
                 } else {
-                    outputMultiArr[0] = 0
+                    outputMultiArr[0] = 0.0
                 }
                 let imageValue = MLFeatureValue(multiArray: imageMultiArr)
                 let outputValue = MLFeatureValue(multiArray: outputMultiArr)

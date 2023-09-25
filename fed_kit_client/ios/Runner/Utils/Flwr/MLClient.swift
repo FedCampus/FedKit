@@ -103,9 +103,9 @@ public class MLClient {
             }
             let actl = batch.features(at: index).featureValue(for: modelProto.target)!
             let prediction = try pred.multiArrayValue!.toArray(type: Float.self)
-            let actual = try actl.multiArrayValue!.toArray(type: Int32.self)
+            let actual = try actl.multiArrayValue!.toArray(type: Double.self)
             totalLoss += meanSquareErrors(prediction, actual)
-            if actual.argmax() == prediction.argmax() {
+            if (actual[0] == 0 && prediction[0] < 0.5) || (actual[0] != 0 && prediction[0] >= 0.5) {
                 nCorrect += 1
             }
         }
