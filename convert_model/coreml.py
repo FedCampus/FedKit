@@ -69,8 +69,9 @@ def try_make_layers_updatable(builder: NeuralNetworkBuilder, limit_last: int = 0
     made_updatable = updatable_layer_names[-limit_last:]
     builder.make_updatable(made_updatable)
     print(f"Made {made_updatable} updatable.")
-    for updatable_layer in updatable_layers[-limit_last:]:
-        updatable_layer["updatable"] = True
+    for updatable_layer in updatable_layers:
+        if updatable_layer["name"] in made_updatable:
+            updatable_layer["updatable"] = True
     print(f"All updatable layers:\n\t{red(updatable_layers)}")
     return updatable_layers
 
