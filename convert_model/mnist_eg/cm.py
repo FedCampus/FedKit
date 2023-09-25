@@ -8,7 +8,7 @@ from ..coreml import (
     save_builder,
     try_make_layers_updatable,
 )
-from . import in_shape, mnist_model, n_classes
+from . import in_shape, mnist_model
 
 COREML_FILE = "mnist.mlmodel"
 
@@ -16,7 +16,7 @@ COREML_FILE = "mnist.mlmodel"
 def config_builder(builder: NeuralNetworkBuilder):
     builder.set_mean_squared_error_loss(
         "lossLayer",
-        input_feature=("Identity", datatypes.Array(n_classes)),
+        input_feature=("Identity", datatypes.Array(1)),
     )
     builder.set_adam_optimizer(AdamParams())
     max_epochs = 10
@@ -25,7 +25,7 @@ def config_builder(builder: NeuralNetworkBuilder):
 
 def main():
     model = mnist_model()
-    random_fit(model, in_shape, (n_classes,))
+    random_fit(model, in_shape)
     mlmodel = convert(model)
     builder = nn_builder(mlmodel)
     config_builder(builder)

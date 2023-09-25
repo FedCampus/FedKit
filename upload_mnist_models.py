@@ -2,17 +2,17 @@ from fed_kit import *
 
 tflite_file = "mnist.tflite"
 coreml_file = "mnist.mlmodel"
-name = "mnist_unified"
-tflite_layers = [1152, 128, 36864, 128, 1600000, 2000, 20000, 40]
+name = "mnist_binary"
+tflite_layers = [1152, 128, 36864, 128, 204800, 256, 256, 4]
 coreml_layers = [
-    {"name": "sequential/conv2d/BiasAdd", "type": "weights"},
-    {"name": "sequential/conv2d/BiasAdd", "type": "bias"},
-    {"name": "sequential/conv2d_1/BiasAdd", "type": "weights"},
-    {"name": "sequential/conv2d_1/BiasAdd", "type": "bias"},
-    {"name": "sequential/dense/BiasAdd", "type": "weights"},
-    {"name": "sequential/dense/BiasAdd", "type": "bias"},
-    {"name": "sequential/dense_1/BiasAdd", "type": "weights"},
-    {"name": "sequential/dense_1/BiasAdd", "type": "bias"},
+    {"name": "sequential/conv2d/BiasAdd", "type": "weights", "updatable": False},
+    {"name": "sequential/conv2d/BiasAdd", "type": "bias", "updatable": False},
+    {"name": "sequential/conv2d_1/BiasAdd", "type": "weights", "updatable": False},
+    {"name": "sequential/conv2d_1/BiasAdd", "type": "bias", "updatable": False},
+    {"name": "sequential/dense/BiasAdd", "type": "weights", "updatable": False},
+    {"name": "sequential/dense/BiasAdd", "type": "bias", "updatable": True},
+    {"name": "sequential/dense_1/BiasAdd", "type": "weights", "updatable": True},
+    {"name": "sequential/dense_1/BiasAdd", "type": "bias", "updatable": True},
 ]
 data_type = "MNIST_28x28x1"
 response = upload(

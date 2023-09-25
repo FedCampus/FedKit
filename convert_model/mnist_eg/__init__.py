@@ -2,20 +2,14 @@ from .. import tf
 
 k = tf.keras
 in_shape = (28, 28, 1)
-n_classes = 10
 
 
 def conv_layer():
-    return k.layers.Conv2D(
-        32,
-        (3, 3),
-        activation="relu",
-        kernel_initializer="he_uniform",
-    )
+    return k.layers.Conv2D(32, (3, 3), activation="relu")
 
 
 def pool_layer():
-    return k.layers.MaxPool2D((2, 2), strides=(2, 2))
+    return k.layers.MaxPool2D((2, 2))
 
 
 def mnist_model():
@@ -27,8 +21,8 @@ def mnist_model():
             conv_layer(),
             pool_layer(),
             k.layers.Flatten(),
-            k.layers.Dense(500, activation="relu", kernel_initializer="he_uniform"),
-            k.layers.Dense(n_classes),
+            k.layers.Dense(64, activation="relu", kernel_initializer="he_uniform"),
+            k.layers.Dense(1, activation="sigmoid"),
         ]
     )
     model.compile(optimizer="adam", loss="mse", metrics=["accuracy"])

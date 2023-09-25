@@ -14,7 +14,7 @@ TFLITE_FILE = "mnist.tflite"
 @tflite_model_class
 class MnistTFModel(BaseTFLiteModel):
     X_SHAPE = list(in_shape)
-    Y_SHAPE = [10]
+    Y_SHAPE = [1]
 
     def __init__(self):
         self.model = mnist_model()
