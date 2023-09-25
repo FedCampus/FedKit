@@ -23,8 +23,8 @@ public class MLClient {
     var dataLoader: MLDataLoader
     var paramUpdate = false
     var compiledModelUrl: URL
-    var rewriteModelUrl: URL
-    var tempModelUrl: URL
+    var modelUrl: URL
+    let tempModelUrl: URL
     var modelProto: ModelProto
     private var parameters: [[Float]]
 
@@ -33,6 +33,7 @@ public class MLClient {
     ) throws {
         self.layers = layers
         self.dataLoader = dataLoader
+        self.modelUrl = modelUrl
         self.modelProto = modelProto
         parameters = try modelProto.parameters(layers: layers)
         // Initial models.
@@ -41,7 +42,6 @@ public class MLClient {
         compiledModelUrl = url
         let modelFileName = compiledModelUrl.deletingPathExtension().lastPathComponent
         tempModelUrl = appDirectory.appendingPathComponent("temp\(modelFileName).mlmodelc")
-        rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
     }
 
     func getParameters() -> [[Float]] {
@@ -104,7 +104,6 @@ public class MLClient {
             let actl = batch.features(at: index).featureValue(for: modelProto.target)!
             let prediction = try pred.multiArrayValue!.toArray(type: Float.self)
             let actual = try actl.multiArrayValue!.toArray(type: Int32.self)
-            log.error("predicted: \(prediction), actual: \(actual)")
             totalLoss += meanSquareErrors(prediction, actual)
             if actual.argmax() == prediction.argmax() {
                 nCorrect += 1
@@ -114,7 +113,6 @@ public class MLClient {
         let total = Float(predictions.count)
         let loss = totalLoss / total
         let accuracy = Float(nCorrect) / total
-        log.error("Loss: \(loss), accuracy: \(accuracy).")
         return (loss, accuracy)
     }
 
@@ -162,8 +160,8 @@ public class MLClient {
     }
 
     private func recompile() throws {
-        try modelProto.model.serializedData().write(to: rewriteModelUrl)
-        compiledModelUrl = try MLModel.compileModel(at: rewriteModelUrl)
+        try! modelProto.model.serializedData().write(to: modelUrl)
+        compiledModelUrl = try! MLModel.compileModel(at: modelUrl)
     }
 }
 

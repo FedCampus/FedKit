@@ -110,7 +110,8 @@ class FlowerService {
     assertEqual(layers.length, model.nLayers);
     await mlClient.updateParameters(layers);
     final (loss, accuracy) = await mlClient.evaluate();
-    _infoStreamCtl.add('Test accuracy after this round: $accuracy.');
+    _infoStreamCtl
+        .add('Test loss and accuracy after this round: $loss, $accuracy.');
     final testSize = await mlClient.testSize;
     if (start != null) {
       final end = DateTime.now();

@@ -112,7 +112,6 @@ let log = logger(String(describing: AppDelegate.self))
             log.error("Model layers: \(layers)")
             let partitionId = (args["partitionId"] as! NSNumber).intValue
             let url = URL(fileURLWithPath: modelDir)
-            log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             log.error("Model URL: \(url).")
             let content = try Data(contentsOf: url)
             let modelProto = try ModelProto(data: content)
