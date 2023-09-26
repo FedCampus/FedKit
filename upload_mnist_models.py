@@ -3,13 +3,9 @@ from fed_kit import *
 tflite_file = "mnist.tflite"
 coreml_file = "mnist.mlmodel"
 name = "mnist_binary"
-tflite_layers = [1152, 128, 36864, 128, 204800, 256, 256, 4]
+tflite_layers = [1605632, 2048, 2048, 4]
 coreml_layers = [
-    {"name": "sequential/conv2d/BiasAdd", "type": "weights", "updatable": False},
-    {"name": "sequential/conv2d/BiasAdd", "type": "bias", "updatable": False},
-    {"name": "sequential/conv2d_1/BiasAdd", "type": "weights", "updatable": False},
-    {"name": "sequential/conv2d_1/BiasAdd", "type": "bias", "updatable": False},
-    {"name": "sequential/dense/BiasAdd", "type": "weights", "updatable": False},
+    {"name": "sequential/dense/BiasAdd", "type": "weights", "updatable": True},
     {"name": "sequential/dense/BiasAdd", "type": "bias", "updatable": True},
     {"name": "sequential/dense_1/BiasAdd", "type": "weights", "updatable": True},
     {"name": "sequential/dense_1/BiasAdd", "type": "bias", "updatable": True},

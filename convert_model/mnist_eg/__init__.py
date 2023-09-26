@@ -16,12 +16,8 @@ def mnist_model():
     model = k.Sequential(
         [
             k.Input(shape=in_shape),
-            conv_layer(),
-            pool_layer(),
-            conv_layer(),
-            pool_layer(),
             k.layers.Flatten(),
-            k.layers.Dense(64, activation="relu", kernel_initializer="he_uniform"),
+            k.layers.Dense(512, activation="relu", kernel_initializer="he_uniform"),
             k.layers.Dense(1, activation="sigmoid"),
         ]
     )
