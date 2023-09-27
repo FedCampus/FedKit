@@ -11,7 +11,7 @@ import org.eu.fedcampus.fed_kit_train.helpers.classifierAccuracy
 import org.eu.fedcampus.fed_kit_train.helpers.maxSquaredErrorLoss
 import java.io.File
 
-fun sampleSpec() = SampleSpec<Float3DArray, FloatArray>(
+fun sampleSpec() = SampleSpec<FloatArray, FloatArray>(
     { it.toTypedArray() },
     { it.toTypedArray() },
     { Array(it) { FloatArray(1) } },
@@ -36,38 +36,31 @@ private suspend fun processSet(dataSetDir: String, call: suspend (Int, String) -
 }
 
 suspend fun loadData(
-    dataDir: String, flowerClient: FlowerClient<Float3DArray, FloatArray>, partitionId: Int
+    dataDir: String, flowerClient: FlowerClient<FloatArray, FloatArray>, partitionId: Int
 ) {
-    processSet("$dataDir/MNIST_train.csv") { index, line ->
-        if (index / 6000 + 1 != partitionId) {
-            return@processSet
-        }
-        if (index % 1000 == 999) {
-            Log.i(TAG, "Prepared $index training data points.")
-        }
+    // proecess training set
+    Log.i(TAG, "loading pmdata")
+    processSet("$dataDir/p${partitionId.toString().padStart(2,'0')}_train.csv") { index, line ->
         addSample(flowerClient, line, true)
     }
-    processSet("$dataDir/MNIST_test.csv") { index, line ->
-        if (index % 1000 == 999) {
-            Log.i(TAG, "Prepared $index test data points.")
-        }
+    // process test set
+    processSet("$dataDir/p${partitionId.toString().padStart(2,'0')}_test.csv") { index, line ->
         addSample(flowerClient, line, false)
     }
 }
 
 private fun addSample(
-    flowerClient: FlowerClient<Float3DArray, FloatArray>, line: String, isTraining: Boolean
+    flowerClient: FlowerClient<FloatArray, FloatArray>, line: String, isTraining: Boolean
 ) {
-    val splits = line.split(",")
-    val feature = Array(IMAGE_SIZE) { Array(IMAGE_SIZE) { FloatArray(1) } }
-    val label = FloatArray(1)
-    for (i in 0 until LENGTH_ENTRY) {
-        feature[i / IMAGE_SIZE][i % IMAGE_SIZE][0] = splits[i + 1].toFloat() / NORMALIZATION
-    }
-    if (splits.first().toInt() == 1) {
-        label[0] = 1f
-    }
-    flowerClient.addSample(feature, label, isTraining)
+    val splits = line.split(",").toMutableList()
+    splits.isEmpty() && return
+    val label = floatArrayOf(splits[splits.size-1].toFloat())
+    splits.removeAt(splits.size-1)
+    splits.removeAt(0)
+    splits.removeAt(1)
+    val floatArray = splits.map { it.toFloat() }.toFloatArray()
+
+    flowerClient.addSample(floatArray, label, isTraining)
 }
 
 private const val TAG = "MNIST Data Loader"
