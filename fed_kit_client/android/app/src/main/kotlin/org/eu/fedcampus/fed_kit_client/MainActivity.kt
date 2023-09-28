@@ -22,7 +22,7 @@ import java.nio.ByteBuffer
 
 class MainActivity : FlutterActivity() {
     val scope = MainScope()
-    lateinit var flowerClient: FlowerClient<Float3DArray, FloatArray>
+    lateinit var flowerClient: FlowerClient<FloatArray, FloatArray>
     var events: EventSink? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
