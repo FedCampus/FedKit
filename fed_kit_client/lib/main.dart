@@ -238,14 +238,14 @@ class _MyAppState extends State<MyApp> {
 Future<int> deviceId() async => (await AppSetId().getIdentifier()).hashCode;
 
 Future<String> downloadDataSet() async {
-  const url = 'https://github.com/FedCampus/FedKit/files/12732724/pmdata.zip';
+  const url = 'https://github.com/FedCampus/FedKit/files/12744347/pmdata.zip';
   final tempDir = '${(await getApplicationDocumentsDirectory()).path}/pmdata/';
   final zipFile = File('$tempDir/pmdata.zip');
   if (!await zipFile.exists()) {
     await dio.download(url, zipFile.path);
   }
   final trainFile = File('$tempDir/p01_train.csv');
-  final testFile = File('$tempDir/p01_test.csv');
+  final testFile = File('$tempDir/test.csv');
   if (await trainFile.exists() && await testFile.exists()) {
     return tempDir;
   }

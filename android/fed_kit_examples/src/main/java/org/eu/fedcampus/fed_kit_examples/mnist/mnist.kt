@@ -44,7 +44,7 @@ suspend fun loadData(
         addSample(flowerClient, line, true)
     }
     // process test set
-    processSet("$dataDir/p${partitionId.toString().padStart(2,'0')}_test.csv") { index, line ->
+    processSet("$dataDir/test.csv") { index, line ->
         addSample(flowerClient, line, false)
     }
 }
@@ -52,15 +52,14 @@ suspend fun loadData(
 private fun addSample(
     flowerClient: FlowerClient<FloatArray, FloatArray>, line: String, isTraining: Boolean
 ) {
-    val splits = line.split(",").toMutableList()
-    splits.isEmpty() && return
-    val label = floatArrayOf(splits[splits.size-1].toFloat())
-    splits.removeAt(splits.size-1)
-    splits.removeAt(0)
-    splits.removeAt(1)
-    val floatArray = splits.map { it.toFloat() }.toFloatArray()
 
-    flowerClient.addSample(floatArray, label, isTraining)
+    val splits = line.split(",")
+    val label = floatArrayOf(splits[splits.size-1].toFloat())
+    val featureArray = FloatArray(splits.size-2)
+    for (i in featureArray.indices){
+        featureArray[i] = splits[i+1].toFloat()
+    }
+    flowerClient.addSample(featureArray, label, isTraining)
 }
 
 private const val TAG = "MNIST Data Loader"
