@@ -25,6 +25,7 @@ def tflite():
     save_model(model, SAVED_MODEL_DIR)
     tflite_model = convert_saved_model(SAVED_MODEL_DIR)
     save_tflite_model(tflite_model, TFLITE_FILE)
+    print(f"Successfully converted to TFLite model at {TFLITE_FILE}.")
 
 
 if __name__ == "__main__":

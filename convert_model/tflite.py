@@ -67,7 +67,7 @@ def save_model(model, saved_model_dir):
     init_params = parameters()
     restore = model.restore.get_concrete_function(**init_params)
     restore_test = restore(**init_params)
-    print(f"Restore test result: {restore_test}.")
+    print(f"{len(restore_test)} restore test results.")
     tf.saved_model.save(
         model,
         saved_model_dir,
