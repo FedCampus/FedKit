@@ -28,8 +28,8 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
-        MethodChannel(messenger, "fed_kit_client_cifar10_ml_client").setMethodCallHandler(::handle)
-        EventChannel(messenger, "fed_kit_client_cifar10_ml_client_log").setStreamHandler(object :
+        MethodChannel(messenger, "fed_kit_client_mnist_ml_client").setMethodCallHandler(::handle)
+        EventChannel(messenger, "fed_kit_client_mnist_ml_client_log").setStreamHandler(object :
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventSink?) {
                 if (eventSink === null) {

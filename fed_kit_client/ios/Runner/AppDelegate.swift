@@ -38,10 +38,10 @@ let log = logger(String(describing: AppDelegate.self))
         let controller = window?.rootViewController as! FlutterViewController
         let messenger = controller.binaryMessenger
         FlutterMethodChannel(
-            name: "fed_kit_client_cifar10_ml_client", binaryMessenger: messenger
+            name: "fed_kit_client_mnist_ml_client", binaryMessenger: messenger
         ).setMethodCallHandler(handle)
         FlutterEventChannel(
-            name: "fed_kit_client_cifar10_ml_client_log", binaryMessenger: messenger
+            name: "fed_kit_client_mnist_ml_client_log", binaryMessenger: messenger
         ).setStreamHandler(self)
     }
 

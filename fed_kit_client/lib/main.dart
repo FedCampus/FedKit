@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:app_set_id/app_set_id.dart';
 import 'package:archive/archive.dart';
 import 'package:fed_kit/backend_client.dart';
-import 'package:fed_kit_client/cifar10_ml_client.dart';
 import 'package:fed_kit/train.dart';
+import 'package:fed_kit_client/mnist_ml_client.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -27,7 +27,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  final _mlClient = Cifar10MLClient();
+  final _mlClient = MnistMLClient();
   var canPrepare = true;
   var canTrain = false;
   var startFresh = false;

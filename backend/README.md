@@ -32,7 +32,7 @@ cat seed.py | python3 manage.py shell
 
 The above script adds the CIFAR10 training data type and model to database.
 
-## Prepare MNIST model for iOS example
+## Prepare MNIST model for cross platform Flutter example
 
 Run at `../`:
 

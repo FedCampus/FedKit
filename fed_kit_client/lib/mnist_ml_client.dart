@@ -3,10 +3,9 @@ import 'dart:typed_data';
 import 'package:fed_kit/ml_client.dart';
 import 'package:flutter/services.dart';
 
-/// We run MNIST on iOS, but I'm too lazy to come up with a name to fit both.
-class Cifar10MLClient extends MLClient {
-  final callChannel = const MethodChannel('fed_kit_client_cifar10_ml_client');
-  final logChannel = const EventChannel('fed_kit_client_cifar10_ml_client_log');
+class MnistMLClient extends MLClient {
+  final callChannel = const MethodChannel('fed_kit_client_mnist_ml_client');
+  final logChannel = const EventChannel('fed_kit_client_mnist_ml_client_log');
   bool _listening = false;
   Function(List<double> p1)? _onLoss;
 
