@@ -38,10 +38,10 @@ let log = logger(String(describing: AppDelegate.self))
         let controller = window?.rootViewController as! FlutterViewController
         let messenger = controller.binaryMessenger
         FlutterMethodChannel(
-            name: "fed_kit_client_cifar10_ml_client", binaryMessenger: messenger
+            name: "fed_kit_client_mnist_ml_client", binaryMessenger: messenger
         ).setMethodCallHandler(handle)
         FlutterEventChannel(
-            name: "fed_kit_client_cifar10_ml_client_log", binaryMessenger: messenger
+            name: "fed_kit_client_mnist_ml_client_log", binaryMessenger: messenger
         ).setStreamHandler(self)
     }
 
@@ -63,7 +63,7 @@ let log = logger(String(describing: AppDelegate.self))
     func evaluate(_ result: @escaping FlutterResult) {
         runAsync(result) {
             let (loss, accuracy) = try await self.mlClient!.evaluate()
-            let lossAccuracy = [Float(loss), Float(accuracy)]
+            let lossAccuracy = [loss, accuracy]
             return FlutterStandardTypedData(float32: Data(fromArray: lossAccuracy))
         }
     }
@@ -106,17 +106,17 @@ let log = logger(String(describing: AppDelegate.self))
     func initML(_ call: FlutterMethodCall, _ result: @escaping FlutterResult) {
         runAsync(result) {
             let args = call.arguments as! [String: Any]
+            let dataDir = args["dataDir"] as! String
             let modelDir = args["modelDir"] as! String
             let layers = try (args["layersSizes"] as! [[String: Any]]).map(Layer.init)
             log.error("Model layers: \(layers)")
             let partitionId = (args["partitionId"] as! NSNumber).intValue
             let url = URL(fileURLWithPath: modelDir)
-            log.error("Accessing: \(url.startAccessingSecurityScopedResource())")
             log.error("Model URL: \(url).")
             let content = try Data(contentsOf: url)
             let modelProto = try ModelProto(data: content)
             let loader = try await self.dataLoader(
-                partitionId, modelProto.input, modelProto.target
+                dataDir, partitionId, modelProto.input, modelProto.target
             )
             self.mlClient = try MLClient(layers, loader, url, modelProto)
             self.ready = true
@@ -139,15 +139,15 @@ let log = logger(String(describing: AppDelegate.self))
     }
 
     private func dataLoader(
-        _ partitionId: Int, _ inputName: String, _ outputName: String
+        _ dataDir: String, _ partitionId: Int, _ inputName: String, _ outputName: String
     ) async throws -> MLDataLoader {
-        if dataLoader != nil && self.partitionId == partitionId &&
+        if dataLoader != nil && partitionId == partitionId &&
             self.inputName == inputName && self.outputName == outputName
         {
             return dataLoader!
         }
         let trainBatchProvider = try await trainBatchProvider(
-            partitionId, inputName: inputName, outputName: outputName
+            dataDir, partitionId, inputName: inputName, outputName: outputName
         ) { count in
             if count % 1000 == 999 {
                 log.error("Prepared \(count) training data points.")
@@ -156,7 +156,7 @@ let log = logger(String(describing: AppDelegate.self))
         log.error("trainBatchProvider: \(trainBatchProvider.count)")
 
         let testBatchProvider = try await testBatchProvider(
-            inputName: inputName, outputName: outputName
+            dataDir, inputName: inputName, outputName: outputName
         ) { count in
             if count % 1000 == 999 {
                 log.error("Prepared \(count) test data points.")

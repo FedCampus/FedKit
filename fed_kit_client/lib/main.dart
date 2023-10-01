@@ -1,13 +1,16 @@
 import 'dart:io';
 
 import 'package:app_set_id/app_set_id.dart';
-import 'package:fed_kit_client/cifar10_ml_client.dart';
+import 'package:archive/archive.dart';
+import 'package:fed_kit/backend_client.dart';
 import 'package:fed_kit/train.dart';
+import 'package:fed_kit_client/mnist_ml_client.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 
 final logger = Logger();
 
@@ -24,7 +27,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  final _mlClient = Cifar10MLClient();
+  final _mlClient = MnistMLClient();
   var canPrepare = true;
   var canTrain = false;
   var startFresh = false;
@@ -112,12 +115,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   _prepare(int partitionId, Uri host, Uri backendUrl) async {
+    final downloadTask = downloadDataSet();
     train = Train(backendUrl.toString());
     final id = await deviceId();
     logger.d('Device ID: $id');
     train.enableTelemetry(id);
-    final (model, modelDir) =
-        await train.prepareModel(Platform.isIOS ? iosDataType : dataType);
+    final (model, modelDir) = await train.prepareModel(dataType);
     appendLog('Prepared model ${model.name}.');
     final serverData = await train.getServerInfo(startFresh: startFresh);
     if (serverData.port == null) {
@@ -128,7 +131,9 @@ class _MyAppState extends State<MyApp> {
         'Ready to connected to Flower server on port ${serverData.port}.');
     final layersSizes =
         Platform.isIOS ? model.coreml_layers! : model.tflite_layers!;
-    await _mlClient.initML(modelDir, layersSizes, partitionId);
+    final dataDir = await downloadTask;
+    logger.d('Data directory: $dataDir');
+    await _mlClient.initML(dataDir, modelDir, layersSizes, partitionId);
     appendLog('Prepared ML client and loaded dataset.');
     await train.prepare(_mlClient, host.host, serverData.port!);
     canTrain = true;
@@ -232,5 +237,29 @@ class _MyAppState extends State<MyApp> {
 
 Future<int> deviceId() async => (await AppSetId().getIdentifier()).hashCode;
 
-const dataType = 'CIFAR10_32x32x3';
-const iosDataType = 'MNIST_28x28x1';
+Future<String> downloadDataSet() async {
+  const url =
+      'https://github.com/FedCampus/FedKit/files/12707552/MNIST_data.zip';
+  final tempDir = '${(await getApplicationDocumentsDirectory()).path}/MNIST/';
+  final zipFile = File('$tempDir/MNIST_data.zip');
+  if (!await zipFile.exists()) {
+    await dio.download(url, zipFile.path);
+  }
+  final trainFile = File('$tempDir/MNIST_train.csv');
+  final testFile = File('$tempDir/MNIST_test.csv');
+  if (await trainFile.exists() && await testFile.exists()) {
+    return tempDir;
+  }
+  final archive = ZipDecoder().decodeBytes(await zipFile.readAsBytes());
+  for (final file in archive) {
+    final fileName = '$tempDir/${file.name}';
+    if (file.isFile) {
+      final outFile = File(fileName);
+      await outFile.create(recursive: true);
+      await outFile.writeAsBytes(file.content);
+    }
+  }
+  return tempDir;
+}
+
+const dataType = 'MNIST_28x28x1';

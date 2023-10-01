@@ -12,8 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.eu.fedcampus.fed_kit_examples.cifar10.Float3DArray
-import org.eu.fedcampus.fed_kit_examples.cifar10.loadData
-import org.eu.fedcampus.fed_kit_examples.cifar10.sampleSpec
+import org.eu.fedcampus.fed_kit_examples.mnist.loadData
+import org.eu.fedcampus.fed_kit_examples.mnist.sampleSpec
 import org.eu.fedcampus.fed_kit_train.FlowerClient
 import org.eu.fedcampus.fed_kit_train.helpers.loadMappedFile
 import java.io.File
@@ -28,8 +28,8 @@ class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         val messenger = flutterEngine.dartExecutor.binaryMessenger
-        MethodChannel(messenger, "fed_kit_client_cifar10_ml_client").setMethodCallHandler(::handle)
-        EventChannel(messenger, "fed_kit_client_cifar10_ml_client_log").setStreamHandler(object :
+        MethodChannel(messenger, "fed_kit_client_mnist_ml_client").setMethodCallHandler(::handle)
+        EventChannel(messenger, "fed_kit_client_mnist_ml_client_log").setStreamHandler(object :
             EventChannel.StreamHandler {
             override fun onListen(arguments: Any?, eventSink: EventSink?) {
                 if (eventSink === null) {
@@ -91,12 +91,13 @@ class MainActivity : FlutterActivity() {
     }
 
     fun initML(call: MethodCall, result: Result) = scope.launch(Dispatchers.Default) {
+        val dataDir = call.argument<String>("dataDir")!!
         val modelDir = call.argument<String>("modelDir")!!
         val layersSizes = call.argument<List<Int>>("layersSizes")!!.toIntArray()
         val partitionId = call.argument<Int>("partitionId")!!
         val buffer = loadMappedFile(File(modelDir))
         flowerClient = FlowerClient(buffer, layersSizes, sampleSpec())
-        loadData(this@MainActivity, flowerClient, partitionId)
+        loadData(dataDir, flowerClient, partitionId)
         runOnUiThread { result.success(null) }
     }
 

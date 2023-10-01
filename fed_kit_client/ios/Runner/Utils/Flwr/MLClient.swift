@@ -14,6 +14,7 @@ enum MLClientErr: Error {
     case ParamsNil
     case ParamNotMultiArray
     case UpdateContextNoModel
+    case FeatureNoValue
     case UnexpectedLayer(String)
 }
 
@@ -22,8 +23,8 @@ public class MLClient {
     var dataLoader: MLDataLoader
     var paramUpdate = false
     var compiledModelUrl: URL
-    var rewriteModelUrl: URL
-    var tempModelUrl: URL
+    var modelUrl: URL
+    let tempModelUrl: URL
     var modelProto: ModelProto
     private var parameters: [[Float]]
 
@@ -32,6 +33,7 @@ public class MLClient {
     ) throws {
         self.layers = layers
         self.dataLoader = dataLoader
+        self.modelUrl = modelUrl
         self.modelProto = modelProto
         parameters = try modelProto.parameters(layers: layers)
         // Initial models.
@@ -40,7 +42,6 @@ public class MLClient {
         compiledModelUrl = url
         let modelFileName = compiledModelUrl.deletingPathExtension().lastPathComponent
         tempModelUrl = appDirectory.appendingPathComponent("temp\(modelFileName).mlmodelc")
-        rewriteModelUrl = appDirectory.appendingPathComponent("rewrite\(modelFileName).mlmodel")
     }
 
     func getParameters() -> [[Float]] {
@@ -52,7 +53,7 @@ public class MLClient {
         paramUpdate = true
     }
 
-    func fit(epochs: Int? = nil, callback: ((Double) -> Void)? = nil) async throws {
+    func fit(epochs: Int? = nil, callback: ((Float) -> Void)? = nil) async throws {
         let config = try await config()
         if epochs != nil {
             config.parameters![MLParameterKey.epochs] = epochs
@@ -63,7 +64,7 @@ public class MLClient {
             configuration: config,
             progressHandler: callback.map { callback in
                 { contextProgress in
-                    let loss = contextProgress.metrics[.lossValue] as? Double ?? -1.0
+                    let loss = contextProgress.metrics[.lossValue] as? Float ?? -1.0
                     callback(loss)
                 }
             }
@@ -85,14 +86,34 @@ public class MLClient {
         try saveModel(updateContext)
     }
 
-    func evaluate() async throws -> (Double, Double) {
+    /// Currently, calculates Mean Square Error and category correctness.
+    func evaluate() async throws -> (Float, Float) {
         let config = try await config()
-        config.parameters![MLParameterKey.epochs] = 1
-        let updateContext = try await updateModelAsync(
-            forModelAt: compiledModelUrl, trainingData: dataLoader.testBatchProvider, configuration: config
-        )
-        let loss = updateContext.metrics[.lossValue] as? Double ?? -1.0
-        return (loss, (1.0 - loss) * 100)
+        let model = try MLModel(contentsOf: compiledModelUrl)
+        let batch = dataLoader.testBatchProvider
+        let predictions = try model.predictions(fromBatch: batch)
+
+        var totalLoss: Float = 0.0
+        var nCorrect = 0
+        for index in 0 ..< predictions.count {
+            guard let pred =
+                predictions.features(at: index).featureValue(for: modelProto.output)
+            else {
+                throw MLClientErr.FeatureNoValue
+            }
+            let actl = batch.features(at: index).featureValue(for: modelProto.target)!
+            let prediction = try pred.multiArrayValue!.toArray(type: Float.self)
+            let actual = try actl.multiArrayValue!.toArray(type: Int32.self)
+            totalLoss += meanSquareErrors(prediction, actual)
+            if actual.argmax() == prediction.argmax() {
+                nCorrect += 1
+            }
+        }
+
+        let total = Float(predictions.count)
+        let loss = totalLoss / total
+        let accuracy = Float(nCorrect) / total
+        return (loss, accuracy)
     }
 
     /// Guarantee that the config returned has non-nil `parameters`.
@@ -139,8 +160,8 @@ public class MLClient {
     }
 
     private func recompile() throws {
-        try modelProto.model.serializedData().write(to: rewriteModelUrl)
-        compiledModelUrl = try MLModel.compileModel(at: rewriteModelUrl)
+        try! modelProto.model.serializedData().write(to: modelUrl)
+        compiledModelUrl = try! MLModel.compileModel(at: modelUrl)
     }
 }
 

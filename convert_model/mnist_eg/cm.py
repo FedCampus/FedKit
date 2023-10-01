@@ -32,6 +32,7 @@ def main():
     try_make_layers_updatable(builder, 2)
     builder.inspect_layers()
     save_builder(builder, COREML_FILE)
+    print(f"Successfully converted to Core ML model at {COREML_FILE}.")
 
 
 if __name__ == "__main__":

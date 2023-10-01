@@ -32,7 +32,7 @@ func updateModelAsync(
 }
 
 func defaultProgressHandler(contextProgress: MLUpdateContext) {
-    let loss = contextProgress.metrics[.lossValue] as! Double
+    let loss = contextProgress.metrics[.lossValue] as! Float
     log.error("Epoch \(contextProgress.metrics[.epochIndex] as! Int + 1) finished with loss \(loss)")
 }
 
@@ -67,4 +67,14 @@ struct Layer {
             throw LayerConversionErr.missingValue(key: "updatable", dict: dictionary)
         }
     }
+}
+
+/// Assuming the two have the same length.
+func meanSquareErrors(_ a: [Float], _ b: [Int32]) -> Float {
+    var sum: Float = 0.0
+    for (index, value) in a.enumerated() {
+        let diff = value - Float(b[index])
+        sum += diff * diff
+    }
+    return sum
 }
