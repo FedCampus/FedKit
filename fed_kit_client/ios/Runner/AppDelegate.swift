@@ -62,7 +62,19 @@ let log = logger(String(describing: AppDelegate.self))
 
     func evaluate(_ result: @escaping FlutterResult) {
         runAsync(result) {
-            let (loss, accuracy) = try self.mlClient!.evaluate()
+            let (loss, accuracy) = try self.mlClient!.evaluate { a, p in
+                guard let pred =
+                    p.featureValue(for: self.mlClient!.modelProto.output)
+                else {
+                    throw MLClientErr.FeatureNoValue
+                }
+                let actl = a.featureValue(for: self.mlClient!.modelProto.target)!
+                let prediction = try pred.multiArrayValue!.toArray(type: Float.self)
+                let actual = try actl.multiArrayValue!.toArray(type: Int32.self)
+                let loss = meanSquareErrors(prediction, actual)
+                let accuracy: Float = actual.argmax() == prediction.argmax() ? 1 : 0
+                return (loss, accuracy)
+            }
             let lossAccuracy = [loss, accuracy]
             return FlutterStandardTypedData(float32: Data(fromArray: lossAccuracy))
         }

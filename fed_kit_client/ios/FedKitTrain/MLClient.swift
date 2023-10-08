@@ -86,33 +86,27 @@ public class MLClient {
         try saveModel(updateContext)
     }
 
-    /// Currently, calculates Mean Square Error and category correctness.
-    func evaluate() throws -> (Float, Float) {
+    func evaluate(
+        _ singleLossAccuracy: (MLFeatureProvider, MLFeatureProvider) throws -> (Float, Float)
+    ) throws -> (Float, Float) {
         let config = try config()
         let model = try MLModel(contentsOf: compiledModelUrl)
         let batch = dataLoader.testBatchProvider
         let predictions = try model.predictions(fromBatch: batch)
 
-        var totalLoss: Float = 0.0
-        var nCorrect = 0
+        var totalLoss: Float = 0
+        var totalAccuracy: Float = 0
         for index in 0 ..< predictions.count {
-            guard let pred =
-                predictions.features(at: index).featureValue(for: modelProto.output)
-            else {
-                throw MLClientErr.FeatureNoValue
-            }
-            let actl = batch.features(at: index).featureValue(for: modelProto.target)!
-            let prediction = try pred.multiArrayValue!.toArray(type: Float.self)
-            let actual = try actl.multiArrayValue!.toArray(type: Int32.self)
-            totalLoss += meanSquareErrors(prediction, actual)
-            if actual.argmax() == prediction.argmax() {
-                nCorrect += 1
-            }
+            let prediction = predictions.features(at: index)
+            let actual = batch.features(at: index)
+            let (loss, accuracy) = try singleLossAccuracy(actual, prediction)
+            totalLoss += loss
+            totalAccuracy += accuracy
         }
 
         let total = Float(predictions.count)
         let loss = totalLoss / total
-        let accuracy = Float(nCorrect) / total
+        let accuracy = totalAccuracy / total
         return (loss, accuracy)
     }
 
