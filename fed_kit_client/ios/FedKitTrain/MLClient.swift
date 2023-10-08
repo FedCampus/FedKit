@@ -54,7 +54,7 @@ public class MLClient {
     }
 
     func fit(epochs: Int? = nil, callback: ((Float) -> Void)? = nil) async throws {
-        let config = try await config()
+        let config = try config()
         if epochs != nil {
             config.parameters![MLParameterKey.epochs] = epochs
         }
@@ -87,8 +87,8 @@ public class MLClient {
     }
 
     /// Currently, calculates Mean Square Error and category correctness.
-    func evaluate() async throws -> (Float, Float) {
-        let config = try await config()
+    func evaluate() throws -> (Float, Float) {
+        let config = try config()
         let model = try MLModel(contentsOf: compiledModelUrl)
         let batch = dataLoader.testBatchProvider
         let predictions = try model.predictions(fromBatch: batch)
@@ -118,7 +118,7 @@ public class MLClient {
 
     /// Guarantee that the config returned has non-nil `parameters`.
     /// Update `compiledModelUrl` to match new parameters.
-    private func config() async throws -> MLModelConfiguration {
+    private func config() throws -> MLModelConfiguration {
         let config = MLModelConfiguration()
         if config.parameters == nil {
             config.parameters = [:]
