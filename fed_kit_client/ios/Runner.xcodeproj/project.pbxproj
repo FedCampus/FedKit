@@ -190,15 +190,15 @@
 			path = RunnerTests;
 			sourceTree = "<group>";
 		};
-		3F4AFE4C2A9096D2004B55C8 /* Utils */ = {
+		3F4AFE4C2A9096D2004B55C8 /* FedKitTrain */ = {
 			isa = PBXGroup;
 			children = (
-				3F3379482A91E9C80084B7C8 /* Helpers.swift */,
-				3F8854222A90A52700B37487 /* Flwr */,
-				3F4AFE542A909769004B55C8 /* CoreMLProto */,
+				3F8854232A90A53400B37487 /* MLClient.swift */,
 				3F3379462A91D7490084B7C8 /* MLHelper.swift */,
+				3F3379482A91E9C80084B7C8 /* Helpers.swift */,
+				3F4AFE542A909769004B55C8 /* CoreMLProto */,
 			);
-			path = Utils;
+			path = FedKitTrain;
 			sourceTree = "<group>";
 		};
 		3F4AFE542A909769004B55C8 /* CoreMLProto */ = {
@@ -242,14 +242,6 @@
 			path = CoreMLProto;
 			sourceTree = "<group>";
 		};
-		3F8854222A90A52700B37487 /* Flwr */ = {
-			isa = PBXGroup;
-			children = (
-				3F8854232A90A53400B37487 /* MLClient.swift */,
-			);
-			path = Flwr;
-			sourceTree = "<group>";
-		};
 		5603D2B3AEE34821ABBC862F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -273,6 +265,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				3F4AFE4C2A9096D2004B55C8 /* FedKitTrain */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
@@ -294,7 +287,6 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				3F4AFE4C2A9096D2004B55C8 /* Utils */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
