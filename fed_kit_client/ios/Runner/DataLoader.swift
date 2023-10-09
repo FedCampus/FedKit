@@ -53,58 +53,6 @@ func testBatchProvider(
     )
 }
 
-private func extract(_ set: String) throws -> URL {
-    let sourceURL = Bundle.main.url(forResource: dataset + set, withExtension: "csv.lzfse")!
-    let destinationURL = appDirectory.appendingPathComponent(dataset + set + ".csv")
-    return try extractFile(from: sourceURL, to: destinationURL)
-}
-
-/// Extract file
-///
-/// - parameter sourceURL:URL of source file
-/// - parameter destinationFilename: Choosen destination filename
-///
-/// - returns: Temporary path of extracted file
-private func extractFile(from sourceURL: URL, to destinationURL: URL) throws -> URL {
-    let fileManager = FileManager.default
-    if fileManager.fileExists(atPath: destinationURL.path) {
-        return destinationURL
-    }
-    var isDir: ObjCBool = true
-    if !fileManager.fileExists(atPath: appDirectory.path, isDirectory: &isDir) {
-        try fileManager.createDirectory(at: appDirectory, withIntermediateDirectories: true)
-    }
-    fileManager.createFile(atPath: destinationURL.path, contents: nil, attributes: nil)
-
-    let destinationFileHandle = try FileHandle(forWritingTo: destinationURL)
-    defer {
-        destinationFileHandle.closeFile()
-    }
-
-    let filter = try OutputFilter(.decompress, using: .lzfse) { data in
-        if let data = data {
-            destinationFileHandle.write(data)
-        }
-    }
-
-    let sourceFileHandle = try FileHandle(forReadingFrom: sourceURL)
-    defer {
-        sourceFileHandle.closeFile()
-    }
-    let bufferSize = 65536
-    while true {
-        let data = sourceFileHandle.readData(ofLength: bufferSize)
-
-        try filter.write(data)
-        if data.count < bufferSize {
-            break
-        }
-    }
-    try filter.finalize()
-
-    return destinationURL
-}
-
 private func prepareMLBatchProvider(
     filePath: String,
     inputName: String,

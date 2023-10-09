@@ -53,6 +53,7 @@
 		3F4AFE982A90977B004B55C8 /* SVM.pb.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4AFE762A90977B004B55C8 /* SVM.pb.swift */; };
 		3F4AFE9E2A909E77004B55C8 /* SwiftProtobuf in Frameworks */ = {isa = PBXBuildFile; productRef = 3F4AFE9D2A909E77004B55C8 /* SwiftProtobuf */; };
 		3F8854242A90A53400B37487 /* MLClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8854232A90A53400B37487 /* MLClient.swift */; };
+		3FCC6BCB2AD2424100A73E1F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 3FCC6BCA2AD2424100A73E1F /* README.md */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
@@ -130,6 +131,7 @@
 		3F4AFE752A90977B004B55C8 /* LinkedModel.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkedModel.pb.swift; sourceTree = "<group>"; };
 		3F4AFE762A90977B004B55C8 /* SVM.pb.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SVM.pb.swift; sourceTree = "<group>"; };
 		3F8854232A90A53400B37487 /* MLClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MLClient.swift; sourceTree = "<group>"; };
+		3FCC6BCA2AD2424100A73E1F /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -190,15 +192,16 @@
 			path = RunnerTests;
 			sourceTree = "<group>";
 		};
-		3F4AFE4C2A9096D2004B55C8 /* Utils */ = {
+		3F4AFE4C2A9096D2004B55C8 /* FedKitTrain */ = {
 			isa = PBXGroup;
 			children = (
-				3F3379482A91E9C80084B7C8 /* Helpers.swift */,
-				3F8854222A90A52700B37487 /* Flwr */,
-				3F4AFE542A909769004B55C8 /* CoreMLProto */,
+				3FCC6BCA2AD2424100A73E1F /* README.md */,
+				3F8854232A90A53400B37487 /* MLClient.swift */,
 				3F3379462A91D7490084B7C8 /* MLHelper.swift */,
+				3F3379482A91E9C80084B7C8 /* Helpers.swift */,
+				3F4AFE542A909769004B55C8 /* CoreMLProto */,
 			);
-			path = Utils;
+			path = FedKitTrain;
 			sourceTree = "<group>";
 		};
 		3F4AFE542A909769004B55C8 /* CoreMLProto */ = {
@@ -242,14 +245,6 @@
 			path = CoreMLProto;
 			sourceTree = "<group>";
 		};
-		3F8854222A90A52700B37487 /* Flwr */ = {
-			isa = PBXGroup;
-			children = (
-				3F8854232A90A53400B37487 /* MLClient.swift */,
-			);
-			path = Flwr;
-			sourceTree = "<group>";
-		};
 		5603D2B3AEE34821ABBC862F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -273,6 +268,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				3F4AFE4C2A9096D2004B55C8 /* FedKitTrain */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
@@ -294,7 +290,6 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				3F4AFE4C2A9096D2004B55C8 /* Utils */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -363,7 +358,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1300;
+				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					331C8080294A63A400263BE5 = {
@@ -414,6 +409,7 @@
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3F4AFE912A90977B004B55C8 /* README.rst in Resources */,
 				3F4AFE832A90977B004B55C8 /* LICENSE.txt in Resources */,
+				3FCC6BCB2AD2424100A73E1F /* README.md in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
@@ -624,6 +620,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -746,6 +743,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -801,6 +799,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
