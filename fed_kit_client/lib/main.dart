@@ -239,7 +239,7 @@ Future<int> deviceId() async => (await AppSetId().getIdentifier()).hashCode;
 
 Future<String> downloadDataSet() async {
   const url =
-      'https://github.com/FedCampus/FedKit/files/12707552/MNIST_data.zip';
+      'https://gitlab.com/SichangHe/notes/uploads/293000f0e66d63ca2ce4d6082f8eb632/MNIST_data.zip';
   final tempDir = '${(await getApplicationDocumentsDirectory()).path}/MNIST/';
   final zipFile = File('$tempDir/MNIST_data.zip');
   if (!await zipFile.exists()) {
