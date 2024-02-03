@@ -1,6 +1,5 @@
 **.mapper.dart filter=lfs diff=lfs merge=lfs -text
 flutter/lib/transport.*.dart filter=lfs diff=lfs merge=lfs -text
-**.pb.swift filter=lfs diff=lfs merge=lfs -text
 # GitHub Linguist ignore
 **.mapper.dart linguist-generated
 **.pb.swift linguist-generated
